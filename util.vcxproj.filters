@@ -126,11 +126,17 @@
     <ClInclude Include="include\sharedutils\property\util_property_vector.h">
       <Filter>Header Files\property</Filter>
     </ClInclude>
-    <ClInclude Include="src\impl_util_number_property.hpp">
+    <ClInclude Include="include\sharedutils\util_command_manager.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\sharedutils\impl\impl_util_number_property.hpp">
       <Filter>Header Files\property</Filter>
     </ClInclude>
-    <ClInclude Include="src\impl_util_string_property.hpp">
+    <ClInclude Include="include\sharedutils\impl\impl_util_string_property.hpp">
       <Filter>Header Files\property</Filter>
+    </ClInclude>
+    <ClInclude Include="include\sharedutils\util_cpu_profiler.hpp">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -216,6 +222,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\util_virtual_shared_from_this.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\util_command_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\util_cpu_profiler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

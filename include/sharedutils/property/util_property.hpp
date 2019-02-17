@@ -92,8 +92,8 @@ namespace util
 REGISTER_BASIC_BITWISE_OPERATORS(util::SimplePropertyFlags);
 #pragma warning(pop)
 
-#include "impl_util_number_property.hpp"
-#include "impl_util_string_property.hpp"
+#include "sharedutils/impl/impl_util_number_property.hpp"
+#include "sharedutils/impl/impl_util_string_property.hpp"
 
 #define DEFINE_SIMPLE_NUMBER_PROPERTY(name,type) \
 	class DLLSHUTIL name##Property \

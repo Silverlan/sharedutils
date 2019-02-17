@@ -330,6 +330,8 @@
     <ClInclude Include="include\sharedutils\def_handle.h" />
     <ClInclude Include="include\sharedutils\eventmessage.h" />
     <ClInclude Include="include\sharedutils\functioncallback.h" />
+    <ClInclude Include="include\sharedutils\impl\impl_util_number_property.hpp" />
+    <ClInclude Include="include\sharedutils\impl\impl_util_string_property.hpp" />
     <ClInclude Include="include\sharedutils\property\util_property.hpp" />
     <ClInclude Include="include\sharedutils\property\util_property_color.hpp" />
     <ClInclude Include="include\sharedutils\property\util_property_euler_angles.hpp" />
@@ -341,6 +343,8 @@
     <ClInclude Include="include\sharedutils\util.h" />
     <ClInclude Include="include\sharedutils\utildefinitions.h" />
     <ClInclude Include="include\sharedutils\util_case_insensitive_hash.hpp" />
+    <ClInclude Include="include\sharedutils\util_command_manager.hpp" />
+    <ClInclude Include="include\sharedutils\util_cpu_profiler.hpp" />
     <ClInclude Include="include\sharedutils\util_date.hpp" />
     <ClInclude Include="include\sharedutils\util_debug.h" />
     <ClInclude Include="include\sharedutils\util_disarmable_deleter.hpp" />
@@ -358,8 +362,6 @@
     <ClInclude Include="include\sharedutils\util_version.h" />
     <ClInclude Include="include\sharedutils\util_virtual_shared_from_this.hpp" />
     <ClInclude Include="include\sharedutils\util_weak_handle.hpp" />
-    <ClInclude Include="src\impl_util_number_property.hpp" />
-    <ClInclude Include="src\impl_util_string_property.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\callback_handler.cpp" />
@@ -371,6 +373,8 @@
     <ClCompile Include="src\unifiedptr.cpp" />
     <ClCompile Include="src\util.cpp" />
     <ClCompile Include="src\util_case_insensitive_hash.cpp" />
+    <ClCompile Include="src\util_command_manager.cpp" />
+    <ClCompile Include="src\util_cpu_profiler.cpp" />
     <ClCompile Include="src\util_date.cpp" />
     <ClCompile Include="src\util_debug.cpp" />
     <ClCompile Include="src\util_enum_register.cpp" />
