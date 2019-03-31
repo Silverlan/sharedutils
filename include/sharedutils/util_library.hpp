@@ -44,7 +44,7 @@ namespace util
 template<typename TFunc>
 	TFunc util::Library::FindSymbolAddress(const std::string &name) const
 {
-	return static_cast<TFunc>(FindSymbolAddress(name));
+	return reinterpret_cast<TFunc>(FindSymbolAddress(name));
 }
 
 #endif

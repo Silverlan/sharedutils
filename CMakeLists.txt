@@ -10,7 +10,7 @@ set(DEPENDENCY_MATHUTIL_INCLUDE "" CACHE PATH "Path to sharedutils include direc
 set(DEPENDENCY_MATHUTIL_LIBRARY "" CACHE FILEPATH "Path to mathutil library. Required if this is compiled as a shared library.")
 set(SHAREDUTILS_STATIC 0 CACHE BOOL "Build as static library?")
 
-if(${SHAREDUTILS_STATIC} MATCHES ON)
+if(${SHAREDUTILS_STATIC})
 	set(LIB_TYPE STATIC)
 else()
 	set(LIB_TYPE SHARED)
