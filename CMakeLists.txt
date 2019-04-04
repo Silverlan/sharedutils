@@ -37,6 +37,10 @@ file(GLOB_RECURSE SRC_FILES
 )
 def_vs_filters("${SRC_FILES}")
 add_library(${PROJ_NAME} ${LIB_TYPE} ${SRC_FILES})
+if(WIN32)
+	target_compile_options(${PROJ_NAME} PRIVATE /wd4251)
+	target_compile_options(${PROJ_NAME} PRIVATE /wd4996)
+endif()
 
 target_link_libraries(${PROJ_NAME} ${DEPENDENCY_MATHUTIL_LIBRARY})
 
@@ -44,3 +48,7 @@ set_target_properties(${PROJ_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 target_include_directories(${PROJ_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_include_directories(${PROJ_NAME} PRIVATE ${DEPENDENCY_GLM_INCLUDE})
 target_include_directories(${PROJ_NAME} PRIVATE ${DEPENDENCY_MATHUTIL_INCLUDE})
+
+if(UNIX)
+	target_link_libraries(${PROJ_NAME} "pthread")
+endif()

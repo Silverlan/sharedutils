@@ -25,11 +25,10 @@ namespace util
 	};
 	template<class TBaseClass,class TInternalClass=TBaseClass>
 		class BaseHandle
-			: private std::shared_ptr<_impl::PtrTarget<TBaseClass,BaseHandle<TBaseClass,TInternalClass>>>
 	{
 	protected:
+		std::shared_ptr<_impl::PtrTarget<TBaseClass,BaseHandle<TBaseClass,TInternalClass>>> m_basePointer;
 		bool m_bEmpty;
-		using std::shared_ptr<_impl::PtrTarget<TBaseClass,BaseHandle<TBaseClass,TInternalClass>>>::reset;
 	public:
 		BaseHandle();
 		BaseHandle(_impl::PtrTarget<TBaseClass,BaseHandle<TBaseClass,TInternalClass>> *t);
@@ -61,7 +60,7 @@ template<class T,class TFriend>
 
 template<class TBaseClass,class TInternalClass>
 	util::BaseHandle<TBaseClass,TInternalClass>::BaseHandle(_impl::PtrTarget<TBaseClass,BaseHandle<TBaseClass,TInternalClass>> *t)
-		: std::shared_ptr<_impl::PtrTarget<TBaseClass,BaseHandle<TBaseClass,TInternalClass>>>(t),m_bEmpty(false)
+		: m_basePointer(t),m_bEmpty(false)
 {}
 template<class TBaseClass,class TInternalClass>
 	util::BaseHandle<TBaseClass,TInternalClass>::BaseHandle(const TBaseClass &t)
@@ -69,31 +68,31 @@ template<class TBaseClass,class TInternalClass>
 {}
 template<class TBaseClass,class TInternalClass>
 	util::BaseHandle<TBaseClass,TInternalClass>::BaseHandle::BaseHandle()
-		: std::shared_ptr<_impl::PtrTarget<TBaseClass,BaseHandle<TBaseClass,TInternalClass>>>(nullptr),m_bEmpty(true)
+		: m_basePointer(nullptr),m_bEmpty(true)
 {}
 
 template<class TBaseClass,class TInternalClass>
 	bool util::BaseHandle<TBaseClass,TInternalClass>::IsValid() const
-{return (!m_bEmpty && get() != nullptr && std::shared_ptr<_impl::PtrTarget<TBaseClass,BaseHandle<TBaseClass,TInternalClass>>>::get()->target != nullptr) ? true : false;}
+{return (!m_bEmpty && get() != nullptr && m_basePointer.get()->target != nullptr) ? true : false;}
 
 template<class TBaseClass,class TInternalClass>
-	TInternalClass *util::BaseHandle<TBaseClass,TInternalClass>::get() const {if(m_bEmpty || std::shared_ptr<_impl::PtrTarget<TBaseClass,BaseHandle<TBaseClass,TInternalClass>>>::get() == nullptr) return nullptr; return &*std::shared_ptr<_impl::PtrTarget<TBaseClass,BaseHandle<TBaseClass,TInternalClass>>>::get()->target;}
+	TInternalClass *util::BaseHandle<TBaseClass,TInternalClass>::get() const {if(m_bEmpty || m_basePointer.get() == nullptr) return nullptr; return &*m_basePointer.get()->target;}
 
 template<class TBaseClass,class TInternalClass>
-	void util::BaseHandle<TBaseClass,TInternalClass>::Invalidate() {std::shared_ptr<_impl::PtrTarget<TBaseClass,BaseHandle<TBaseClass,TInternalClass>>>::get()->Invalidate();}
+	void util::BaseHandle<TBaseClass,TInternalClass>::Invalidate() {m_basePointer.get()->Invalidate();}
 
 template<class TBaseClass,class TInternalClass>
-	int32_t util::BaseHandle<TBaseClass,TInternalClass>::use_count() const {return std::shared_ptr<_impl::PtrTarget<TBaseClass,BaseHandle<TBaseClass,TInternalClass>>>::use_count();}
+	int32_t util::BaseHandle<TBaseClass,TInternalClass>::use_count() const {return m_basePointer.use_count();}
 
 template<class TBaseClass,class TInternalClass>
-	bool util::BaseHandle<TBaseClass,TInternalClass>::unique() const {return std::shared_ptr<_impl::PtrTarget<TBaseClass,BaseHandle<TBaseClass,TInternalClass>>>::unique();}
+	bool util::BaseHandle<TBaseClass,TInternalClass>::unique() const {return m_basePointer.unique();}
 
 template<class TBaseClass,class TInternalClass>
 	bool util::BaseHandle<TBaseClass,TInternalClass>::operator==(const TBaseClass &other) const
 {
 	if(other == nullptr)
 		return !IsValid();
-	return (std::shared_ptr<_impl::PtrTarget<TBaseClass,BaseHandle<TBaseClass,TInternalClass>>>::get()->target == other) ? true : false;
+	return (m_basePointer.get()->target == other) ? true : false;
 }
 
 template<class TBaseClass,class TInternalClass>
@@ -101,7 +100,7 @@ template<class TBaseClass,class TInternalClass>
 {
 	if(other == nullptr)
 		return IsValid();
-	return (std::shared_ptr<_impl::PtrTarget<TBaseClass,BaseHandle<TBaseClass,TInternalClass>>>::get()->target != other) ? true : false;
+	return (m_basePointer.get()->target != other) ? true : false;
 }
 
 template<class TBaseClass,class TInternalClass>
@@ -150,11 +149,10 @@ template<class TBaseClass,class TInternalClass>
 #define DECLARE_BASE_HANDLE_EXT(classdef,classname,localname,extended) \
 	struct Ptr##localname; \
 	class classdef localname##Handle \
-		: std::shared_ptr<Ptr##localname> \
 	{ \
 	protected: \
+		std::shared_ptr<Ptr##localname> m_basePointer; \
 		bool m_bEmpty; \
-		using std::shared_ptr<Ptr##localname>::reset; \
 	public: \
 		friend classname; \
 	public: \
@@ -239,33 +237,33 @@ template<class TBaseClass,class TInternalClass>
 	{} \
 	void Ptr##localname::Invalidate() {target = NULL;} \
 	localname##Handle::localname##Handle(Ptr##localname *t) \
-		: std::shared_ptr<Ptr##localname>(t),m_bEmpty(false) \
+		: m_basePointer(t),m_bEmpty(false) \
 	{} \
 	localname##Handle::localname##Handle(classname *t) \
 		: localname##Handle(new Ptr##localname(t)) \
 	{} \
 	localname##Handle::localname##Handle() \
-		: std::shared_ptr<Ptr##localname>(nullptr),m_bEmpty(true) \
+		: m_basePointer(nullptr),m_bEmpty(true) \
 	{} \
 	localname##Handle::~localname##Handle() {} \
 	bool localname##Handle::IsValid() const \
-	{return (!m_bEmpty && get() != NULL && std::shared_ptr<Ptr##localname>::get()->target != NULL) ? true : false;} \
-	classname *localname##Handle::get() const {if(m_bEmpty || std::shared_ptr<Ptr##localname>::get() == NULL) return NULL; return std::shared_ptr<Ptr##localname>::get()->target;} \
-	void localname##Handle::Invalidate() {std::shared_ptr<Ptr##localname>::get()->Invalidate();} \
+	{return (!m_bEmpty && get() != NULL && m_basePointer.get()->target != NULL) ? true : false;} \
+	classname *localname##Handle::get() const {if(m_bEmpty || m_basePointer.get() == NULL) return NULL; return m_basePointer.get()->target;} \
+	void localname##Handle::Invalidate() {m_basePointer.get()->Invalidate();} \
 	localname##Handle *localname##Handle::Copy() {return new localname##Handle(*this);} \
-	int localname##Handle::use_count() {return std::shared_ptr<Ptr##localname>::use_count();} \
-	bool localname##Handle::unique() {return std::shared_ptr<Ptr##localname>::unique();} \
+	int localname##Handle::use_count() {return m_basePointer.use_count();} \
+	bool localname##Handle::unique() {return m_basePointer.unique();} \
 	bool localname##Handle::operator==(const classname *other) const \
 	{ \
 		if(other == NULL) \
 			return !IsValid(); \
-		return (std::shared_ptr<Ptr##localname>::get()->target == other) ? true : false; \
+		return (m_basePointer.get()->target == other) ? true : false; \
 	} \
 	bool localname##Handle::operator!=(const classname *other) const \
 	{ \
 		if(other == NULL) \
 			return IsValid(); \
-		return (std::shared_ptr<Ptr##localname>::get()->target != other) ? true : false; \
+		return (m_basePointer.get()->target != other) ? true : false; \
 	} \
 	bool localname##Handle::operator==(const localname##Handle *other) const \
 	{ \
