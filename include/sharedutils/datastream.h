@@ -15,7 +15,6 @@
 class DataStreamBase;
 template<class TDataStreamBase>
 	class TDataStream
-		: public std::shared_ptr<TDataStreamBase>
 {
 public:
 	TDataStream();
@@ -23,12 +22,17 @@ public:
 	TDataStream(void *data,uint32_t size);
 	TDataStream(const TDataStream &o);
 	TDataStream(std::nullptr_t t);
+	const TDataStreamBase *operator->() const;
 	TDataStreamBase *operator->();
+	const TDataStreamBase &operator*() const;
+	TDataStreamBase &operator*();
 	bool operator==(const TDataStream &p) const;
 	bool operator!=(const TDataStream &p) const;
-        bool operator==(const std::nullptr_t t) const;
-        bool operator!=(const std::nullptr_t t) const;
+    bool operator==(const std::nullptr_t t) const;
+    bool operator!=(const std::nullptr_t t) const;
 	bool IsValid() const;
+	const TDataStreamBase *get() const;
+	TDataStreamBase *get();
 
 	template<class T>
 		DataStreamBase &operator<<(T *v);
@@ -39,6 +43,8 @@ public:
 	template<class T>
 		DataStreamBase &operator>>(T &v);
 	DataStreamBase &operator>>(std::string &str);
+private:
+	std::shared_ptr<TDataStreamBase> m_baseStreamObject = nullptr;
 };
 
 template<class TDataStreamBase>
@@ -53,32 +59,58 @@ template<class TDataStreamBase>
 
 template<class TDataStreamBase>
 	TDataStream<TDataStreamBase>::TDataStream(const TDataStream &o)
-		: std::shared_ptr<TDataStreamBase>(o)
+		: m_baseStreamObject{o.m_baseStreamObject}
 {}
 template<class TDataStreamBase>
 	TDataStream<TDataStreamBase>::TDataStream()
-		: std::shared_ptr<TDataStreamBase>(new TDataStreamBase)
+		: m_baseStreamObject{new TDataStreamBase}
 {
 	(*this)->Resize(1);
 }
 template<class TDataStreamBase>
 	TDataStream<TDataStreamBase>::TDataStream(uint32_t size)
-		: std::shared_ptr<TDataStreamBase>(new TDataStreamBase(size))
+		: m_baseStreamObject{new TDataStreamBase(size)}
 {
 	(*this)->Resize(size);
 }
 template<class TDataStreamBase>
 	TDataStream<TDataStreamBase>::TDataStream(void *data,uint32_t size)
-		: std::shared_ptr<TDataStreamBase>(new TDataStreamBase(data,size))
+		: m_baseStreamObject{new TDataStreamBase(data,size)}
 {}
 template<class TDataStreamBase>
         TDataStream<TDataStreamBase>::TDataStream(std::nullptr_t)
-		: std::shared_ptr<TDataStreamBase>(nullptr)
+		: m_baseStreamObject{nullptr}
 {}
 template<class TDataStreamBase>
 	bool TDataStream<TDataStreamBase>::IsValid() const {return (this->get() == nullptr) ? false : true;}
+	
+template<class TDataStreamBase>
+	const TDataStreamBase *TDataStream<TDataStreamBase>::get() const
+{
+	return const_cast<TDataStream<TDataStreamBase>*>(this)->get();
+}
+template<class TDataStreamBase>
+	TDataStreamBase *TDataStream<TDataStreamBase>::get()
+{
+	return m_baseStreamObject.get();
+}
+template<class TDataStreamBase>
+	const TDataStreamBase *TDataStream<TDataStreamBase>::operator->() const
+{
+	return const_cast<TDataStream<TDataStreamBase>*>(this)->operator->();
+}
 template<class TDataStreamBase>
 	TDataStreamBase *TDataStream<TDataStreamBase>::operator->() {return this->get();}
+template<class TDataStreamBase>
+	const TDataStreamBase &TDataStream<TDataStreamBase>::operator*() const
+{
+	return const_cast<TDataStream<TDataStreamBase>*>(this)->operator*();
+}
+template<class TDataStreamBase>
+	TDataStreamBase &TDataStream<TDataStreamBase>::operator*()
+{
+	return *m_baseStreamObject;
+}
 template<class TDataStreamBase>
 	bool TDataStream<TDataStreamBase>::operator==(const TDataStream &p) const {return (this->get() == p.get()) ? true : false;}
 template<class TDataStreamBase>
