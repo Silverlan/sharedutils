@@ -43,6 +43,7 @@ if(WIN32)
 endif()
 
 target_link_libraries(${PROJ_NAME} ${DEPENDENCY_MATHUTIL_LIBRARY})
+target_link_libraries(${PROJ_NAME} stdc++fs)
 
 set_target_properties(${PROJ_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 target_include_directories(${PROJ_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
@@ -51,4 +52,5 @@ target_include_directories(${PROJ_NAME} PRIVATE ${DEPENDENCY_MATHUTIL_INCLUDE})
 
 if(UNIX)
 	target_link_libraries(${PROJ_NAME} "pthread")
+	target_link_libraries(${PROJ_NAME} dl)
 endif()
