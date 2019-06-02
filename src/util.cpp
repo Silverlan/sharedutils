@@ -622,3 +622,12 @@ std::string util::get_date_time(const std::string &format)
 	strftime(buf,sizeof(buf),format.c_str(),&tstruct);
 	return buf;
 }
+
+void util::open_url_in_browser(const std::string &url)
+{
+#ifdef _WIN32
+	ShellExecute(nullptr,"open",url.c_str(),nullptr,nullptr,SW_SHOW);
+#else
+	system(("open "s + url).c_str());
+#endif
+}

@@ -73,7 +73,6 @@ namespace ustring
 	DLLSHUTIL std::string wstring_to_string(const std::wstring &str);
 #endif
 	DLLSHUTIL void replace(std::string &str,const std::string &from,const std::string &to);
-	DLLSHUTIL std::string sub(const std::string &str,size_t off,size_t len=std::numeric_limits<size_t>::max());
 	DLLSHUTIL std::string get_lower(const std::string &str);
 	DLLSHUTIL std::string get_upper(const std::string &str);
 	DLLSHUTIL int32_t to_int(const std::string &str);
@@ -87,6 +86,7 @@ namespace ustring
 	DLLSHUTIL std::size_t longest_common_substring(const std::string &str1,const std::string &str2,std::string &subStr);
 	DLLSHUTIL std::size_t longest_common_substring(const std::string &str1,const std::string &str2);
 	DLLSHUTIL std::string substr(const std::string &str,std::size_t start,size_t len=std::string::npos);
+	DLLSHUTIL std::string_view substr(const std::string_view &str,std::size_t start,size_t len=std::string::npos);
 	DLLSHUTIL bool compare(const std::string &a,const std::string &b,bool caseSensitive=true);
 	DLLSHUTIL bool compare(const char *a,const char *b,bool caseSensitive=true,size_t len=std::string::npos);
 	DLLSHUTIL std::string name_to_identifier(const std::string &name);

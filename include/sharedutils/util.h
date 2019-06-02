@@ -94,6 +94,7 @@ namespace util
 #ifdef _WIN32
 	DLLSHUTIL bool start_and_wait_for_command(const char *cmd,const char *cwd=nullptr,unsigned int *exitCode=nullptr);
 #endif
+	DLLSHUTIL void open_url_in_browser(const std::string &url);
 }
 
 uint32_t util::to_uint(const std::string &str)

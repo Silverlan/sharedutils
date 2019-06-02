@@ -259,6 +259,10 @@ std::size_t ustring::longest_common_substring(const std::string &str1,const std:
 	return longest_common_substring(str1,str2,startIdx);
 }
 std::string ustring::substr(const std::string &str,std::size_t start,size_t len) {return (start < str.length()) ? str.substr(start,len) : "";}
+std::string_view ustring::substr(const std::string_view &str,std::size_t start,size_t len)
+{
+	return (start < str.length()) ? str.substr(start,len) : std::string_view{};
+}
 bool ustring::compare(const std::string &a,const std::string &b,bool caseSensitive)
 {
 	if(caseSensitive == true)
@@ -487,14 +491,6 @@ DLLSHUTIL void ustring::replace(std::string &str,const std::string &from,const s
 		str.replace(start_pos, from.length(), to);
 		start_pos += to.length(); // Handles case where 'to' is a substring of 'from'
 	}
-}
-
-std::string ustring::sub(const std::string &str,size_t off,size_t len)
-{
-	auto strLen = str.length();
-	if(off >= strLen)
-		return "";
-	return str.substr(off,len);
 }
 
 std::string ustring::get_lower(const std::string &str)
