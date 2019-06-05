@@ -10,7 +10,7 @@ const auto SIM_INF = std::numeric_limits<double>::lowest();
 const auto SIM_CONSECUTIVE_FACTOR = 10u;
 
 // Source: https://stackoverflow.com/a/41465315/2482983
-static double levenshtein(std::vector<std::vector<std::vector<double>>> &memo,const std::string &inputWord,const std::string &checkWord,const size_t i,const size_t j,const size_t count){
+static double levenshtein(std::vector<std::vector<std::vector<double>>> &memo,const std::string_view &inputWord,const std::string_view &checkWord,const size_t i,const size_t j,const size_t count){
     if(i == inputWord.length() && j == checkWord.length())
 		return 0;    
     if(i == inputWord.length())
@@ -58,7 +58,7 @@ static double levenshtein(std::vector<std::vector<std::vector<double>>> &memo,co
 	return memo.at(i).at(j).at(count) = ans;
 }
 
-double ustring::calc_similarity(const std::string &inputWord,const std::string &checkWord)
+double ustring::calc_similarity(const std::string_view &inputWord,const std::string_view &checkWord)
 {
 	static std::vector<std::vector<std::vector<double>>> memo;
 	static auto initMemory = true;
@@ -89,4 +89,43 @@ double ustring::calc_similarity(const std::string &inputWord,const std::string &
 		}
 	}
 	return r;
+}
+
+void ustring::gather_similar_elements(const std::string_view &baseElement,const std::function<std::optional<std::string_view>(void)> &f,std::vector<std::string_view> &outElements,uint32_t limit,std::vector<float> *inOutSimilarities)
+{
+	std::vector<float> locSimilarities;
+	if(inOutSimilarities == nullptr)
+		inOutSimilarities = &locSimilarities;
+	if(inOutSimilarities->size() != outElements.size())
+		throw std::logic_error{"Size of similarities array has to match size of result array!"};
+	outElements.reserve(limit +1);
+	inOutSimilarities->reserve(limit +1);
+	auto curEl = f();
+	while(curEl.has_value())
+	{
+		auto bInserted = false;
+		auto percentage = ustring::calc_similarity(baseElement,*curEl);
+		for(auto it=outElements.begin();it!=outElements.end();++it)
+		{
+			auto idx = it -outElements.begin();
+			auto &sc = *it;
+			if(percentage >= inOutSimilarities->at(idx))
+				continue;
+			outElements.insert(it,*curEl);
+			inOutSimilarities->insert(inOutSimilarities->begin() +idx,percentage);
+			if(outElements.size() > limit)
+			{
+				outElements.pop_back();
+				inOutSimilarities->pop_back();
+			}
+			bInserted = true;
+			break;
+		}
+		if(bInserted == false && outElements.size() < limit)
+		{
+			outElements.push_back(*curEl);
+			inOutSimilarities->push_back(percentage);
+		}
+		curEl = f();
+	}
 }

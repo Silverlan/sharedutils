@@ -158,7 +158,7 @@ void ustring::explode_whitespace(const std::string &str,std::vector<std::string>
 }
 
 // See https://en.wikibooks.org/wiki/Algorithm_Implementation/Strings/Levenshtein_distance
-uint32_t ustring::calc_levenshtein_distance(const std::string &s1,const std::string &s2)
+uint32_t ustring::calc_levenshtein_distance(const std::string_view &s1,const std::string_view &s2)
 {
 	const auto len1 = s1.size();
 	const auto len2 = s2.size();
@@ -179,7 +179,7 @@ uint32_t ustring::calc_levenshtein_distance(const std::string &s1,const std::str
 }
 
 // See http://stackoverflow.com/a/16018452/2482983
-double ustring::calc_levenshtein_similarity(const std::string &s1,const std::string &s2)
+double ustring::calc_levenshtein_similarity(const std::string_view &s1,const std::string_view &s2)
 {
 	auto *longer = &s1;
 	auto *shorter = &s2;

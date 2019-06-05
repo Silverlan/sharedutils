@@ -7,6 +7,8 @@
 
 #include "utildefinitions.h"
 #include <string>
+#include <string_view>
+#include <optional>
 #include <algorithm>
 #include <vector>
 #include <functional>
@@ -79,8 +81,8 @@ namespace ustring
 	DLLSHUTIL float to_float(const std::string &str);
 	DLLSHUTIL double to_double(const std::string &str);
 	DLLSHUTIL void explode_whitespace(const std::string &str,std::vector<std::string> &substrings);
-	DLLSHUTIL uint32_t calc_levenshtein_distance(const std::string &s1,const std::string &s2);
-	DLLSHUTIL double calc_levenshtein_similarity(const std::string &s1,const std::string &s2);
+	DLLSHUTIL uint32_t calc_levenshtein_distance(const std::string_view &s1,const std::string_view &s2);
+	DLLSHUTIL double calc_levenshtein_similarity(const std::string_view &s1,const std::string_view &s2);
 	DLLSHUTIL std::size_t longest_common_substring(const std::string &str1,const std::string &str2,std::size_t &startIdx1,std::size_t &startIdx2);
 	DLLSHUTIL std::size_t longest_common_substring(const std::string &str1,const std::string &str2,std::size_t &startIdx1);
 	DLLSHUTIL std::size_t longest_common_substring(const std::string &str1,const std::string &str2,std::string &subStr);
@@ -94,7 +96,9 @@ namespace ustring
 	// Calculates the similarity between the two specified strings. The result only makes sense in context,
 	// lower values (<0) represent a higher similarity than higher values.
 	// This function is VERY expensive (O(n^3)) and should be used sparingly.
-	DLLSHUTIL double calc_similarity(const std::string &inputWord,const std::string &checkWord);
+	DLLSHUTIL double calc_similarity(const std::string_view &inputWord,const std::string_view &checkWord);
+
+	DLLSHUTIL void gather_similar_elements(const std::string_view &baseElement,const std::function<std::optional<std::string_view>(void)> &f,std::vector<std::string_view> &outElements,uint32_t limit,std::vector<float> *inOutSimilarities=nullptr);
 }
 
 template<class type,class rtype>
