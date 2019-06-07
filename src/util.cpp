@@ -628,6 +628,7 @@ void util::open_url_in_browser(const std::string &url)
 #ifdef _WIN32
 	ShellExecute(nullptr,"open",url.c_str(),nullptr,nullptr,SW_SHOW);
 #else
-	system(("open "s + url).c_str());
+	auto cmd = "open " +url;
+	system(cmd.c_str());
 #endif
 }
