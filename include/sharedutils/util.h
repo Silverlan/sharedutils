@@ -20,6 +20,7 @@
 #include <sstream>
 #endif
 
+namespace std {class thread;};
 namespace util
 {
 	DLLSHUTIL std::string get_pretty_bytes(unsigned long long bytes);
@@ -95,6 +96,18 @@ namespace util
 	DLLSHUTIL bool start_and_wait_for_command(const char *cmd,const char *cwd=nullptr,unsigned int *exitCode=nullptr);
 #endif
 	DLLSHUTIL void open_url_in_browser(const std::string &url);
+
+	enum class ThreadPriority : uint32_t
+	{
+		Lowest = 0,
+		Low,
+		BelowNormal,
+		Normal,
+		AboveNormal,
+		High,
+		Highest
+	};
+	DLLSHUTIL void set_thread_priority(std::thread &thread,ThreadPriority priority);
 }
 
 uint32_t util::to_uint(const std::string &str)

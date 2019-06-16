@@ -17,14 +17,14 @@ protected:
 	long double m_time;
 public:
 	ChronoTime();
-	long double operator()();
+	long double operator()() const;
 	long double GetTime() const;
-	void Update();
 	void Reset(ChronoTimePoint &t);
 	void Reset(double t);
 	void Reset(long long t);
 	void Reset();
-	void Update(double timeScale);
+	void Update(double timeScale=1.0);
+	void UpdateByDelta(long double dt);
 };
 #pragma warning(pop)
 

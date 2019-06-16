@@ -18,6 +18,7 @@
 	#include <glob.h>
 	#include <stdlib.h>
 	#include <string.h>
+	#include <pthread>
 #else
 	#include "Shlwapi.h"
 	#include <vector>
@@ -25,6 +26,7 @@
 	#include <TlHelp32.h>
 	#include <comutil.h>
 	#include <direct.h>
+	#include <thread>
 #endif
 
 #pragma comment(lib,"mathutil.lib")
@@ -438,12 +440,20 @@ std::string util::get_last_system_error_string()
 bool util::is_x64_system()
 {
 #ifdef __linux__
-    return (access("/lib64/ld-linux-x86-64.so.2",F_OK) != -1) ? true : false;
+	#if __x86_64__ || __ppc64__
+		return true; // 64-bit application can't run on 32-bit system, so it HAS to be 64-bit. Macro is only set for gcc?
+	#else
+		return (access("/lib64/ld-linux-x86-64.so.2",F_OK) != -1) ? true : false;
+	#endif
 #else
-    SYSTEM_INFO info;
-    ZeroMemory(&info,sizeof(info));
-    GetNativeSystemInfo(&info);
-    return (info.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64) ? true : false;
+	#if _WIN64
+		return true; // 64-bit application can't run on 32-bit system, so it HAS to be 64-bit. Macro is only set for visual studio?
+	#else
+		SYSTEM_INFO info;
+		ZeroMemory(&info,sizeof(info));
+		GetNativeSystemInfo(&info);
+		return (info.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64) ? true : false;
+	#endif
 #endif
 }
 bool util::is_x86_system() {return (is_x64_system() == true) ? false : true;}
@@ -492,10 +502,13 @@ int util::to_int(const char *str) {return to_int<int>(str);}
 int util::to_int(const std::string &str) {return to_int<int>(str);}
 bool util::to_boolean(const std::string &str)
 {
-	if(ustring::match(str,"*true*"))
-		return true;
-	if(ustring::match(str,"*false*"))
-		return false;
+	if(str.length() >= 4)
+	{
+		if(ustring::match(str,"*true*"))
+			return true;
+		if(ustring::match(str,"*false*"))
+			return false;
+	}
 	return to_int(str) != 0;
 }
 
@@ -630,5 +643,59 @@ void util::open_url_in_browser(const std::string &url)
 #else
 	auto cmd = "open " +url;
 	system(cmd.c_str());
+#endif
+}
+
+void util::set_thread_priority(std::thread &thread,ThreadPriority priority)
+{
+	auto *threadHandle = thread.native_handle();
+#ifdef _WIN32
+	switch(priority)
+	{
+		case ThreadPriority::Lowest:
+			SetThreadPriority(threadHandle,THREAD_PRIORITY_LOWEST);
+			break;
+		case ThreadPriority::Low:
+		case ThreadPriority::BelowNormal:
+			SetThreadPriority(threadHandle,THREAD_PRIORITY_BELOW_NORMAL);
+			break;
+		case ThreadPriority::Normal:
+			SetThreadPriority(threadHandle,THREAD_PRIORITY_NORMAL);
+			break;
+		case ThreadPriority::AboveNormal:
+			SetThreadPriority(threadHandle,THREAD_PRIORITY_ABOVE_NORMAL);
+			break;
+		case ThreadPriority::High:
+		case ThreadPriority::Highest:
+			SetThreadPriority(threadHandle,THREAD_PRIORITY_HIGHEST);
+			break;
+	}
+#else
+	auto minPriority = sched_get_priority_min(SCHED_OTHER);
+	auto maxPriority = sched_get_priority_max(SCHED_OTHER);
+	switch(priority)
+	{
+		case ThreadPriority::Lowest:
+			pthread_setschedprio(threadHandle,minPriority);
+			break;
+		case ThreadPriority::Low:
+			pthread_setschedprio(threadHandle,-10);
+			break;
+		case ThreadPriority::BelowNormal:
+			pthread_setschedprio(threadHandle,-5);
+			break;
+		case ThreadPriority::Normal:
+			pthread_setschedprio(threadHandle,0);
+			break;
+		case ThreadPriority::AboveNormal:
+			pthread_setschedprio(threadHandle,5);
+			break;
+		case ThreadPriority::High:
+			pthread_setschedprio(threadHandle,10);
+			break;
+		case ThreadPriority::Highest:
+			pthread_setschedprio(threadHandle,maxPriority);
+			break;
+	}
 #endif
 }
