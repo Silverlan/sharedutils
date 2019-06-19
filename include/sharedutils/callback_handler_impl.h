@@ -5,6 +5,8 @@
 #ifndef __CALLBACK_HANDLER_IMPL_H__
 #define __CALLBACK_HANDLER_IMPL_H__
 
+#include <stdexcept>
+
 template<typename T>
 	TCallbackHandler<T>::CallbackInfo::CallbackInfo()
 		: callDepth(0)

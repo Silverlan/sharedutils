@@ -9,6 +9,7 @@
 #include "def_handle.h"
 #include <memory>
 #include <functional>
+#include <stdexcept>
 
 #define CALLBACK_SANITY_CHECK_ENABLED
 

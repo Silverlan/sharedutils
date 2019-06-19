@@ -5,6 +5,7 @@
 #include "sharedutils/datastream.h"
 #include <mathutil/umath.h>
 #include <cstring>
+#include <stdexcept>
 
 DataStreamBase::DataStreamBase(uint32_t size,uint32_t headerSize)
 	: m_data(new std::vector<uint8_t>()),m_offset(0),m_size(new uint32_t(size)),m_dataSize(size),

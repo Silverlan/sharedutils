@@ -5,6 +5,7 @@
 #include "sharedutils/util_string.h"
 #include <cctype>
 #include <algorithm>
+#include <stdexcept>
 
 const auto SIM_INF = std::numeric_limits<double>::lowest();
 const auto SIM_CONSECUTIVE_FACTOR = 10u;
