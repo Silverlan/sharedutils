@@ -11,6 +11,7 @@
 #include <unordered_map>
 #include <memory>
 #include <functional>
+#include <optional>
 #include "util_version.h"
 #include <mathutil/umath.h>
 #ifdef _WIN32
@@ -27,6 +28,8 @@ namespace util
 	DLLSHUTIL std::string get_pretty_duration(unsigned long long ms,int addSegments=0,bool bNoMs=true);
 	DLLSHUTIL std::string get_program_path();
 	DLLSHUTIL std::string get_program_name();
+	DLLSHUTIL std::optional<std::string> get_library_file_path(const void *ptrToAnyStaticLibFunc);
+	DLLSHUTIL std::optional<std::string> get_path_to_library(const void *ptrToAnyStaticLibFunc);
 	DLLSHUTIL unsigned long long get_process_id();
 	DLLSHUTIL bool is_process_running(unsigned long long id);
 	DLLSHUTIL bool is_process_running(const char *name);

@@ -19,6 +19,8 @@
 	#include <stdlib.h>
 	#include <string.h>
 	#include <pthread>
+	#include <stdio.h>
+	#include <dlfcn.h>
 #else
 	#include "Shlwapi.h"
 	#include <vector>
@@ -156,6 +158,35 @@ std::string util::get_program_name()
 	if(programName.empty())
 		programName = program_name(true);
 	return programName;
+}
+
+std::optional<std::string> util::get_library_file_path(const void *ptrToAnyStaticLibFunc)
+{
+	// https://stackoverflow.com/a/6924332/2482983
+#ifdef _WIN32
+	char path[MAX_PATH];
+	HMODULE hm = NULL;
+
+	if(GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,(LPCSTR) ptrToAnyStaticLibFunc,&hm) == 0)
+		return {};
+	if (GetModuleFileName(hm,path,sizeof(path)) == 0)
+		return {};
+	return path;
+#else
+	Dl_info dlInfo;
+	dladdr(const_cast<void*>(ptrToAnyStaticLibFunc),&dlInfo);
+	if(dlInfo.dli_sname == NULL || dlInfo.dli_saddr == NULL)
+		return {};
+	return dlInfo.dli_fname;
+#endif
+}
+
+std::optional<std::string> util::get_path_to_library(const void *ptrToAnyStaticLibFunc)
+{
+	auto path = get_library_file_path(ptrToAnyStaticLibFunc);
+	if(path.has_value() == false)
+		return {};
+	return ufile::get_path_from_filename(*path);
 }
 
 unsigned long long util::get_process_id()
