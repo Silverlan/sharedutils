@@ -61,6 +61,7 @@ namespace util
 	DLLSHUTIL int to_int(const char *str);
 	DLLSHUTIL int to_int(const std::string &str);
 	inline uint32_t to_uint(const std::string &str);
+	DLLSHUTIL uint64_t to_uint64(const std::string_view &str);
 	DLLSHUTIL std::string round_string(double v,int places=0);
 	DLLSHUTIL Version string_to_version(const std::string &str);
 	DLLSHUTIL Float get_faded_time_factor(Float cur,Float dur,Float fadeIn=0.f,Float fadeOut=0.f);

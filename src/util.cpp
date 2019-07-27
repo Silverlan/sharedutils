@@ -730,3 +730,8 @@ void util::set_thread_priority(std::thread &thread,ThreadPriority priority)
 	}
 #endif
 }
+
+uint64_t util::to_uint64(const std::string_view &str)
+{
+	return strtoll(str.data(),nullptr,10);
+}

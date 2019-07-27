@@ -99,6 +99,9 @@ namespace ustring
 	DLLSHUTIL double calc_similarity(const std::string_view &inputWord,const std::string_view &checkWord);
 
 	DLLSHUTIL void gather_similar_elements(const std::string_view &baseElement,const std::function<std::optional<std::string_view>(void)> &f,std::vector<std::string_view> &outElements,uint32_t limit,std::vector<float> *inOutSimilarities=nullptr);
+	
+	DLLSHUTIL uint32_t ip_to_int(const std::string_view &ip);
+	DLLSHUTIL std::string int_to_ip(uint32_t ip);
 }
 
 template<class type,class rtype>

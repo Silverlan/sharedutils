@@ -7,6 +7,14 @@
 #include <sstream>
 #include <cstring>
 #include <cctype>
+#ifdef _WIN32
+	#include <winsock.h>
+	#pragma comment(lib,"Ws2_32.lib") // Required for inet_addr / inet_ntoa
+#else
+	#include <sys/socket.h>
+	#include <netinet/in.h>
+	#include <arpa/inet.h>
+#endif
 
 const std::string ustring::WHITESPACE = " \t\f\v\n\r";
 const UInt ustring::NOT_FOUND = std::string::npos;
@@ -527,4 +535,15 @@ std::string ustring::name_to_identifier(const std::string &name)
 			c = '_';
 	}
 	return r;
+}
+
+uint32_t ustring::ip_to_int(const std::string_view &ip)
+{
+	return inet_addr(ip.data());
+}
+std::string ustring::int_to_ip(uint32_t ip)
+{
+	in_addr paddr;
+	paddr.S_un.S_addr = ip;
+	return inet_ntoa(paddr);
 }
