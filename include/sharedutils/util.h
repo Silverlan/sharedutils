@@ -112,6 +112,16 @@ namespace util
 		Highest
 	};
 	DLLSHUTIL void set_thread_priority(std::thread &thread,ThreadPriority priority);
+
+	template<typename T>
+		using unique_ptr_c = std::unique_ptr<T,std::function<void(T*)>>;
+	template<typename T>
+		constexpr unique_ptr_c<T> unique_ptr_c_null() {return unique_ptr_c<T>{nullptr,[](T*) {}};}
+	template<typename T,typename... TARGS>
+		unique_ptr_c<T> make_unique_ptr_c(const std::function<void(T&)> &fOnDelete,TARGS&& ...args)
+	{
+		return util::unique_ptr_c<T>{new T{std::forward<TARGS>(args)...},[fOnDelete](T *v) {fOnDelete(*v); delete v;}};
+	}
 }
 
 uint32_t util::to_uint(const std::string &str)
