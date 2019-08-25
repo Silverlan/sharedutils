@@ -122,6 +122,9 @@ namespace util
 	{
 		return util::unique_ptr_c<T>{new T{std::forward<TARGS>(args)...},[fOnDelete](T *v) {fOnDelete(*v); delete v;}};
 	}
+
+	template<typename T>
+		uint64_t get_size_in_bytes(const T &container);
 }
 
 uint32_t util::to_uint(const std::string &str)
@@ -161,6 +164,12 @@ template<typename T>
 	auto hex = 0ull;
 	stream>>std::hex>>hex;
 	return hex;
+}
+
+template<typename T>
+	uint64_t util::get_size_in_bytes(const T &container)
+{
+	return container.size() *sizeof(container.front());
 }
 
 #endif
