@@ -6,9 +6,11 @@
 #define __UTIL_IMAGE_BUFFER_HPP__
 
 #include "utildefinitions.h"
+#include <mathutil/uvec.h>
 #include <cinttypes>
 #include <memory>
 
+struct Color;
 namespace util
 {
 	class DLLSHUTIL ImageBuffer
@@ -135,6 +137,9 @@ namespace util
 		void ToHDR();
 		void ToFloat();
 		Size GetSize() const;
+
+		void Clear(const Color &color);
+		void Clear(const Vector4 &color);
 
 		PixelIndex GetPixelIndex(uint32_t x,uint32_t y) const;
 		Offset GetPixelOffset(uint32_t x,uint32_t y) const;

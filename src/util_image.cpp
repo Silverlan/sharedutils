@@ -3,6 +3,7 @@
 * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "sharedutils/util_image_buffer.hpp"
+#include <mathutil/color.h>
 #include <mathutil/umath.h>
 #include <stdexcept>
 
@@ -295,6 +296,15 @@ void util::ImageBuffer::ToFloat()
 		return;
 	}
 	static_assert(umath::to_integral(Format::Count) == 7u);
+}
+void util::ImageBuffer::Clear(const Color &color) {Clear(color.ToVector4());}
+void util::ImageBuffer::Clear(const Vector4 &color)
+{
+	for(auto &px : *this)
+	{
+		for(uint8_t i=0;i<4;++i)
+			px.SetValue(static_cast<Channel>(i),color[i]);
+	}
 }
 util::ImageBuffer::Size util::ImageBuffer::GetSize() const
 {
