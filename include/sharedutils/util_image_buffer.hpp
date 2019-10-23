@@ -8,6 +8,8 @@
 #include "utildefinitions.h"
 #include <mathutil/uvec.h>
 #include <cinttypes>
+#include <functional>
+#include <array>
 #include <memory>
 
 struct Color;
@@ -48,6 +50,15 @@ namespace util
 			G = Green,
 			B = Blue,
 			A = Alpha
+		};
+		enum class ToneMapping : uint8_t
+		{
+			GammaCorrection = 0,
+			Reinhard,
+			HejilRichard,
+			Uncharted,
+			Aces,
+			GranTurismo
 		};
 		using Offset = size_t;
 		using Size = size_t;
@@ -114,6 +125,11 @@ namespace util
 		static HDRValue ToHDRValue(FloatValue value);
 		static FloatValue ToFloatValue(LDRValue value);
 		static FloatValue ToFloatValue(HDRValue value);
+		static Format ToLDRFormat(Format format);
+		static Format ToHDRFormat(Format format);
+		static Format ToFloatFormat(Format format);
+		static Format ToRGBFormat(Format format);
+		static Format ToRGBAFormat(Format format);
 
 		ImageBuffer(const ImageBuffer&)=default;
 		ImageBuffer &operator=(const ImageBuffer&)=default;
@@ -136,10 +152,14 @@ namespace util
 		void ToLDR();
 		void ToHDR();
 		void ToFloat();
+		std::shared_ptr<ImageBuffer> ApplyToneMapping(ToneMapping toneMappingMethod);
+		std::shared_ptr<ImageBuffer> ApplyToneMapping(const std::function<std::array<uint8_t,3>(const Vector3&)> &fToneMapper);
+
 		Size GetSize() const;
 
 		void Clear(const Color &color);
 		void Clear(const Vector4 &color);
+		void ClearAlpha(LDRValue alpha=std::numeric_limits<LDRValue>::max());
 
 		PixelIndex GetPixelIndex(uint32_t x,uint32_t y) const;
 		Offset GetPixelOffset(uint32_t x,uint32_t y) const;

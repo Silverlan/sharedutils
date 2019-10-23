@@ -60,6 +60,90 @@ util::ImageBuffer::FloatValue util::ImageBuffer::ToFloatValue(HDRValue value)
 {
 	return umath::float16_to_float32_glm(value);
 }
+util::ImageBuffer::Format util::ImageBuffer::ToLDRFormat(Format format)
+{
+	switch(format)
+	{
+	case Format::RGB8:
+	case Format::RGB16:
+	case Format::RGB32:
+		return Format::RGB8;
+	case Format::RGBA8:
+	case Format::RGBA16:
+	case Format::RGBA32:
+		return Format::RGBA8;
+	}
+	static_assert(umath::to_integral(Format::Count) == 7u);
+	return Format::None;
+}
+util::ImageBuffer::Format util::ImageBuffer::ToHDRFormat(Format format)
+{
+	switch(format)
+	{
+	case Format::RGB8:
+	case Format::RGB16:
+	case Format::RGB32:
+		return Format::RGB16;
+	case Format::RGBA8:
+	case Format::RGBA16:
+	case Format::RGBA32:
+		return Format::RGBA16;
+	}
+	static_assert(umath::to_integral(Format::Count) == 7u);
+	return Format::None;
+}
+util::ImageBuffer::Format util::ImageBuffer::ToFloatFormat(Format format)
+{
+	switch(format)
+	{
+	case Format::RGB8:
+	case Format::RGB16:
+	case Format::RGB32:
+		return Format::RGB32;
+	case Format::RGBA8:
+	case Format::RGBA16:
+	case Format::RGBA32:
+		return Format::RGBA32;
+	}
+	static_assert(umath::to_integral(Format::Count) == 7u);
+	return Format::None;
+}
+util::ImageBuffer::Format util::ImageBuffer::ToRGBFormat(Format format)
+{
+	switch(format)
+	{
+	case Format::RGB8:
+	case Format::RGB16:
+	case Format::RGB32:
+		return format;
+	case Format::RGBA8:
+		return Format::RGB8;
+	case Format::RGBA16:
+		return Format::RGB16;
+	case Format::RGBA32:
+		return Format::RGB32;
+	}
+	static_assert(umath::to_integral(Format::Count) == 7u);
+	return Format::None;
+}
+util::ImageBuffer::Format util::ImageBuffer::ToRGBAFormat(Format format)
+{
+	switch(format)
+	{
+	case Format::RGB8:
+		return Format::RGBA8;
+	case Format::RGB16:
+		return Format::RGBA16;
+	case Format::RGB32:
+		return Format::RGBA32;
+	case Format::RGBA8:
+	case Format::RGBA16:
+	case Format::RGBA32:
+		return format;
+	}
+	static_assert(umath::to_integral(Format::Count) == 7u);
+	return Format::None;
+}
 void util::ImageBuffer::FlipHorizontally()
 {
 	auto imgFlipped = Copy();
@@ -304,6 +388,31 @@ void util::ImageBuffer::Clear(const Vector4 &color)
 	{
 		for(uint8_t i=0;i<4;++i)
 			px.SetValue(static_cast<Channel>(i),color[i]);
+	}
+}
+void util::ImageBuffer::ClearAlpha(LDRValue alpha)
+{
+	if(HasAlphaChannel() == false)
+		return;
+	if(IsLDRFormat())
+	{
+		for(auto &px : *this)
+			px.SetValue(Channel::Alpha,alpha);
+		return;
+	}
+	if(IsHDRFormat())
+	{
+		auto value = ToHDRValue((alpha /static_cast<float>(std::numeric_limits<LDRValue>::max())) *std::numeric_limits<float>::max());
+		for(auto &px : *this)
+			px.SetValue(Channel::Alpha,value);
+		return;
+	}
+	if(IsFloatFormat())
+	{
+		auto value = (alpha /static_cast<float>(std::numeric_limits<LDRValue>::max())) *std::numeric_limits<float>::max();
+		for(auto &px : *this)
+			px.SetValue(Channel::Alpha,value);
+		return;
 	}
 }
 util::ImageBuffer::Size util::ImageBuffer::GetSize() const
