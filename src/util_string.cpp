@@ -453,6 +453,8 @@ std::string ustring::read_until_etx(const std::string &t) {return read_until(t,3
 
 std::string ustring::fill_zeroes(const std::string &i,int numDigits)
 {
+	if(i.length() >= numDigits)
+		return i;
 	auto l = CUInt(numDigits) -i.length();
 	std::stringstream si;
 	for(int j=0;j<l;j++)

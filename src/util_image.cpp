@@ -242,7 +242,7 @@ uint32_t util::ImageBuffer::GetWidth() const {return m_width;}
 uint32_t util::ImageBuffer::GetHeight() const {return m_height;}
 util::ImageBuffer::Size util::ImageBuffer::GetPixelSize() const {return GetPixelSize(GetFormat());}
 uint32_t util::ImageBuffer::GetPixelCount() const {return m_width *m_height;}
-bool util::ImageBuffer::HasAlphaChannel() const {return GetChannelCount() >= umath::to_integral(Channel::Alpha);}
+bool util::ImageBuffer::HasAlphaChannel() const {return GetChannelCount() >= umath::to_integral(Channel::Alpha) +1;}
 bool util::ImageBuffer::IsLDRFormat() const
 {
 	switch(GetFormat())
