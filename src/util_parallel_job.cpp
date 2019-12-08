@@ -5,7 +5,6 @@
 #include "sharedutils/util_parallel_job.hpp"
 #include <algorithm>
 
-#pragma optimize("",off)
 util::BaseParallelWorker::~BaseParallelWorker()
 {
 	Cancel();
@@ -175,4 +174,3 @@ util::BaseParallelJob &util::ParallelJobWrapper::operator*() {return *m_job;}
 const util::BaseParallelJob &util::ParallelJobWrapper::operator*() const {return const_cast<ParallelJobWrapper*>(this)->operator*();}
 util::BaseParallelJob *util::ParallelJobWrapper::operator->() {return m_job.get();}
 const util::BaseParallelJob *util::ParallelJobWrapper::operator->() const {return const_cast<ParallelJobWrapper*>(this)->operator->();}
-#pragma optimize("",on)

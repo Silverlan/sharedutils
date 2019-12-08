@@ -7,7 +7,6 @@
 #include <mathutil/umath.h>
 #include <stdexcept>
 
-#pragma optimize("",off)
 std::shared_ptr<util::ImageBuffer> util::ImageBuffer::Create(const void *data,uint32_t width,uint32_t height,Format format)
 {
 	return Create(const_cast<void*>(data),width,height,format,false);
@@ -434,4 +433,3 @@ void util::ImageBuffer::Resize(Size width,Size height)
 	// TODO
 	throw std::runtime_error{"Resizing images not yet implemented!"};
 }
-#pragma optimize("",on)

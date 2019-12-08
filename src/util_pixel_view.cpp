@@ -5,7 +5,6 @@
 #include "sharedutils/util_image_buffer.hpp"
 #include <mathutil/umath.h>
 
-#pragma optimize("",off)
 util::ImageBuffer::PixelView::PixelView(ImageBuffer &imgBuffer,Offset offset)
 	: m_imageBuffer{imgBuffer},m_offset{offset}
 {}
@@ -192,4 +191,3 @@ bool util::ImageBuffer::PixelIterator::operator==(const PixelIterator &other) co
 	return &other.m_pixelView.m_imageBuffer == &m_pixelView.m_imageBuffer && other.m_pixelView.m_offset == m_pixelView.m_offset;
 }
 bool util::ImageBuffer::PixelIterator::operator!=(const PixelIterator &other) const {return !operator==(other);}
-#pragma optimize("",on)

@@ -7,7 +7,6 @@
 constexpr float GAMMA = 2.2;
 constexpr float INV_GAMMA = 1.0 / GAMMA;
 
-#pragma optimize("",off)
 // linear to sRGB approximation
 // see http://chilliant.blogspot.com/2012/08/srgb-approximations-for-hlsl.html
 static Vector3 linear_to_srgb(const Vector3 &color)
@@ -187,4 +186,3 @@ std::shared_ptr<util::ImageBuffer> util::ImageBuffer::ApplyToneMapping(const std
 	}
 	return dstImg;
 }
-#pragma optimize("",on)
