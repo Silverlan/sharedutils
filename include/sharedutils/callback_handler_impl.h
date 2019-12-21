@@ -233,7 +233,11 @@ template<typename T>
 #endif
 			++itCb;
 			if(hCallback.template Call<TRet>(ret,std::forward<TARGS>(args)...) == CallbackReturnType::HasReturnValue)
+			{
+				if(bAlive.expired() == false && --callbackInfo.callDepth == 0)
+					ProcessCallbackStack(identifier);
 				return CallbackReturnType::HasReturnValue;
+			}
 		}
 		else
 			itCb = callbacks.erase(itCb);

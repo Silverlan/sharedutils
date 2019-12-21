@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(DEPENDENCY_GLM_INCLUDE "" CACHE PATH "Path to GLM include directory.")
 set(DEPENDENCY_MATHUTIL_INCLUDE "" CACHE PATH "Path to sharedutils include directory.")
 set(DEPENDENCY_MATHUTIL_LIBRARY "" CACHE FILEPATH "Path to mathutil library. Required if this is compiled as a shared library.")
-set(SHAREDUTILS_STATIC 0 CACHE BOOL "Build as static library?")
+option(SHAREDUTILS_STATIC "Build as static library?" OFF)
 
 if(${SHAREDUTILS_STATIC})
 	set(LIB_TYPE STATIC)
