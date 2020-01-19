@@ -289,6 +289,14 @@ bool ustring::compare(const char *a,const char *b,bool caseSensitive,size_t len)
 			return strcmp(a,b) == 0;
 		return strncmp(a,b,len) == 0;
 	}
+	if(len == std::string::npos)
+	{
+		auto len0 = strlen(a);
+		auto len1 = strlen(b);
+		if(len0 != len1)
+			return false;
+		len = len0;
+	}
 	for(;len > 0;++a,++b,--len)
 	{
 		auto d = tolower(*a) -tolower(*b);

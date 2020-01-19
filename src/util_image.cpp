@@ -7,6 +7,7 @@
 #include <mathutil/umath.h>
 #include <stdexcept>
 
+#pragma optimize("",off)
 std::shared_ptr<util::ImageBuffer> util::ImageBuffer::Create(const void *data,uint32_t width,uint32_t height,Format format)
 {
 	return Create(const_cast<void*>(data),width,height,format,false);
@@ -335,6 +336,21 @@ void util::ImageBuffer::Convert(Format targetFormat)
 	auto cpy = *this;
 	Convert(cpy,*this,targetFormat);
 }
+void util::ImageBuffer::SwapChannels(Channel channel0,Channel channel1)
+{
+	auto channelSize = GetChannelSize();
+	std::vector<uint8_t> tmpChannelData {};
+	tmpChannelData.resize(channelSize);
+	for(auto &px : *this)
+	{
+		auto *pxData = px.GetPixelData();
+		auto &channelData0 = *(static_cast<uint8_t*>(pxData) +umath::to_integral(channel0) *channelSize);
+		auto &channelData1 = *(static_cast<uint8_t*>(pxData) +umath::to_integral(channel1) *channelSize);
+		memcpy(tmpChannelData.data(),&channelData0,channelSize);
+		memcpy(&channelData0,&channelData1,channelSize);
+		memcpy(&channelData1,tmpChannelData.data(),channelSize);
+	}
+}
 void util::ImageBuffer::ToLDR()
 {
 	switch(m_format)
@@ -433,3 +449,4 @@ void util::ImageBuffer::Resize(Size width,Size height)
 	// TODO
 	throw std::runtime_error{"Resizing images not yet implemented!"};
 }
+#pragma optimize("",on)

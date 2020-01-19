@@ -149,6 +149,7 @@ namespace util
 		std::shared_ptr<ImageBuffer> Copy() const;
 		std::shared_ptr<ImageBuffer> Copy(Format format) const;
 		void Convert(Format targetFormat);
+		void SwapChannels(Channel channel0,Channel channel1);
 		void ToLDR();
 		void ToHDR();
 		void ToFloat();
