@@ -493,10 +493,19 @@ Bool ustring::get_key_value(const std::string &str,std::string &rkey,std::string
 #ifdef _WIN32
 std::wstring ustring::string_to_wstring(const std::string &str)
 {
-	return std::wstring(str.begin(),str.end());
+	// Source: https://stackoverflow.com/a/27296/2482983
+	int len;
+	int slength = (int)str.length() + 1;
+	len = MultiByteToWideChar(CP_ACP, 0, str.c_str(), slength, 0, 0); 
+	wchar_t* buf = new wchar_t[len];
+	MultiByteToWideChar(CP_ACP, 0, str.c_str(), slength, buf, len);
+	std::wstring r(buf);
+	delete[] buf;
+	return r;
 }
 std::string ustring::wstring_to_string(const std::wstring &str)
 {
+	// TODO: What about non-ASCII strings?
 	return std::string(str.begin(),str.end());
 }
 #endif

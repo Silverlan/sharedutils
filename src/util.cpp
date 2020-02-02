@@ -29,10 +29,12 @@
 	#include <comutil.h>
 	#include <direct.h>
 	#include <thread>
+	#include <Shlobj_core.h>
 #endif
 
 #pragma comment(lib,"mathutil.lib")
 
+#pragma optimize("",off)
 std::string util::get_pretty_bytes(unsigned long long bytes)
 {
 	auto sz = static_cast<double>(bytes);
@@ -667,6 +669,33 @@ std::string util::get_date_time(const std::string &format)
 	return buf;
 }
 
+void util::open_path_in_explorer(const std::string &path)
+{
+#ifdef _WIN32
+	// Source: https://stackoverflow.com/a/4139684/2482983
+	auto npath = path;
+	ustring::replace(npath,"/","\\");
+	std::wstring stemp = ustring::string_to_wstring(npath);
+	LPCWSTR pszPathToOpen = stemp.c_str();
+	PIDLIST_ABSOLUTE pidl;
+	auto result = SHParseDisplayName(pszPathToOpen, 0, &pidl, 0, 0);
+	if(SUCCEEDED(result))
+	{
+		// we don't want to actually select anything in the folder, so we pass an empty
+		// PIDL in the array. if you want to select one or more items in the opened
+		// folder you'd need to build the PIDL array appropriately
+		ITEMIDLIST idNull = { 0 };
+		LPCITEMIDLIST pidlNull[1] = { &idNull };
+		SHOpenFolderAndSelectItems(pidl, 1, pidlNull, 0);
+		ILFree(pidl);
+	}
+#else
+	// TODO: This is untested!
+	std::string cmd = "xdg-open " +path;
+	system(cmd.c_str());
+#endif
+}
+
 void util::open_url_in_browser(const std::string &url)
 {
 #ifdef _WIN32
@@ -735,3 +764,4 @@ uint64_t util::to_uint64(const std::string_view &str)
 {
 	return strtoll(str.data(),nullptr,10);
 }
+#pragma optimize("",on)

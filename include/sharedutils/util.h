@@ -100,6 +100,7 @@ namespace util
 	DLLSHUTIL bool start_and_wait_for_command(const char *cmd,const char *cwd=nullptr,unsigned int *exitCode=nullptr);
 #endif
 	DLLSHUTIL void open_url_in_browser(const std::string &url);
+	DLLSHUTIL void open_path_in_explorer(const std::string &path);
 
 	enum class ThreadPriority : uint32_t
 	{

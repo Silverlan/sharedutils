@@ -12,17 +12,23 @@ std::shared_ptr<util::ImageBuffer> util::ImageBuffer::Create(const void *data,ui
 {
 	return Create(const_cast<void*>(data),width,height,format,false);
 }
-std::shared_ptr<util::ImageBuffer> util::ImageBuffer::Create(void *data,uint32_t width,uint32_t height,Format format,bool ownedExternally)
+std::shared_ptr<util::ImageBuffer> util::ImageBuffer::CreateWithCustomDeleter(void *data,uint32_t width,uint32_t height,Format format,const std::function<void(void*)> &customDeleter)
 {
-	if(ownedExternally == false)
+	if(customDeleter == nullptr)
 	{
 		auto buf = Create(width,height,format);
 		if(data)
 			buf->Write(0,width *height *GetPixelSize(format),data);
 		return buf;
 	}
-	auto ptrData = std::shared_ptr<void>{data,[](void*) {}};
+	auto ptrData = std::shared_ptr<void>{data,customDeleter};
 	return std::shared_ptr<ImageBuffer>{new ImageBuffer{ptrData,width,height,format}};
+}
+std::shared_ptr<util::ImageBuffer> util::ImageBuffer::Create(void *data,uint32_t width,uint32_t height,Format format,bool ownedExternally)
+{
+	if(ownedExternally == false)
+		return CreateWithCustomDeleter(data,width,height,format,nullptr);
+	return CreateWithCustomDeleter(data,width,height,format,[](void*) {});
 }
 std::shared_ptr<util::ImageBuffer> util::ImageBuffer::Create(uint32_t width,uint32_t height,Format format)
 {

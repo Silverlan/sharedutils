@@ -114,6 +114,7 @@ namespace util
 		};
 
 		static std::shared_ptr<ImageBuffer> Create(void *data,uint32_t width,uint32_t height,Format format,bool ownedExternally=true);
+		static std::shared_ptr<ImageBuffer> CreateWithCustomDeleter(void *data,uint32_t width,uint32_t height,Format format,const std::function<void(void*)> &customDeleter);
 		static std::shared_ptr<ImageBuffer> Create(const void *data,uint32_t width,uint32_t height,Format format);
 		static std::shared_ptr<ImageBuffer> Create(uint32_t width,uint32_t height,Format format);
 		static Size GetPixelSize(Format format);
