@@ -8,6 +8,7 @@
 #include "utildefinitions.h"
 #include <string>
 #include <vector>
+#include <array>
 #include <unordered_map>
 #include <memory>
 #include <functional>
@@ -24,6 +25,7 @@
 namespace std {class thread;};
 namespace util
 {
+	using GUID = std::array<uint8_t,16>;
 	DLLSHUTIL std::string get_pretty_bytes(unsigned long long bytes);
 	DLLSHUTIL std::string get_pretty_duration(unsigned long long ms,int addSegments=0,bool bNoMs=true);
 	DLLSHUTIL std::string get_program_path();
@@ -101,6 +103,9 @@ namespace util
 #endif
 	DLLSHUTIL void open_url_in_browser(const std::string &url);
 	DLLSHUTIL void open_path_in_explorer(const std::string &path);
+
+	DLLSHUTIL std::string guid_to_string(const GUID &guid);
+	DLLSHUTIL bool compare_guid(const GUID &guid0,const GUID &guid1);
 
 	enum class ThreadPriority : uint32_t
 	{
