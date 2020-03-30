@@ -10,7 +10,7 @@ bool ufile::get_extension(const std::string &f,std::string *ext)
 {
 	size_t epos = f.rfind(".");
 	size_t dpos = f.find_last_of("\\/");
-	if(epos != std::string::npos && epos > dpos +1)
+	if(epos != std::string::npos && (epos > dpos +1 || dpos == std::string::npos))
 	{
 		*ext = f.substr(epos +1);
 		return true;
