@@ -12,6 +12,8 @@
 #include <vector>
 #include <iostream>
 
+#undef CreateFile
+
 namespace util
 {
 	DLLSHUTIL void canonicalize_path(std::string &inOutPath);
@@ -48,7 +50,9 @@ namespace util
 	class DLLSHUTIL Path
 	{
 	public:
-		Path(const std::string &path="",std::optional<bool> optIsFile={});
+		static Path CreatePath(const std::string &path);
+		static Path CreateFile(const std::string &path);
+		Path(const std::string &path="");
 		Path(const std::vector<std::string> &fromComponents);
 		Path(const Path&)=default;
 		Path &operator=(const Path&)=default;
@@ -80,6 +84,7 @@ namespace util
 		void MoveUp();
 		void Canonicalize();
 		bool IsFile() const;
+		bool IsDirectory() const;
 		std::optional<std::string> GetFileExtension() const;
 		void RemoveFileExtension();
 
@@ -93,9 +98,7 @@ namespace util
 		PathIterator<const Path> rend() const;*/
 	private:
 		void SetPath(const std::string &path);
-		void UpdateFileState(const std::string &path);
 		std::string m_path = "";
-		bool m_bFile = false;
 	};
 };
 

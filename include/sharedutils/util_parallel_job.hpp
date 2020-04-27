@@ -51,10 +51,13 @@ namespace util
 		const std::function<void(float)> &GetProgressCallback() const;
 
 		bool IsPending() const;
+
+		// Note: In general the worker should assign its status on its own, but in some cases
+		// it may be useful to be able to change it from outside.
+		void SetStatus(JobStatus jobStatus,const std::optional<std::string> &resultMsg={});
 	protected:
 		friend BaseParallelJob;
 		void SetResultMessage(const std::string &resultMsg);
-		void SetStatus(JobStatus jobStatus,const std::optional<std::string> &resultMsg={});
 		void AddThread(const std::function<void()> &fThread);
 		void UpdateProgress(float progress);
 		virtual void CallCompletionHandler()=0;

@@ -22,6 +22,8 @@ static auto USE_CASE_SENSITIVE_PATHS = false;
 static auto USE_CASE_SENSITIVE_PATHS = true;
 #endif
 
+#undef CreateFile
+
 #pragma optimize("",off)
 void util::canonicalize_path(std::string &inOutPath)
 {
@@ -43,12 +45,22 @@ void util::canonicalize_path(std::string &inOutPath)
 	std::replace(inOutPath.begin(),inOutPath.end(),'\\','/');
 }
 
-util::Path::Path(const std::string &path,std::optional<bool> optIsFile)
+util::Path util::Path::CreatePath(const std::string &path)
 {
-	if(optIsFile.has_value())
-		m_bFile = *optIsFile;
-	else
-		UpdateFileState(path);
+	auto npath = path;
+	if(npath.empty())
+		npath = '/';
+	else if(npath.back() != '/')
+		npath += '/';
+	return util::Path{path};
+}
+util::Path util::Path::CreateFile(const std::string &path)
+{
+	return util::Path{path};
+}
+
+util::Path::Path(const std::string &path)
+{
 	SetPath(path);
 }
 util::Path::Path(const std::vector<std::string> &fromComponents)
@@ -62,11 +74,9 @@ util::Path::Path(const std::vector<std::string> &fromComponents)
 			m_path += '/';
 		m_path += c;
 	}
-	UpdateFileState(m_path);
 }
 util::Path &util::Path::operator=(const std::string &path)
 {
-	UpdateFileState(path);
 	SetPath(path);
 	return *this;
 }
@@ -96,7 +106,7 @@ util::Path util::Path::operator+(const Path &other)
 }
 util::Path &util::Path::operator+=(const Path &other)
 {
-	if(m_bFile)
+	if(IsFile())
 	{
 		if(other.GetString().find('/') != std::string::npos)
 			return *this; // Appending a path to a file makes no sense, we'll just ignore it...
@@ -104,7 +114,6 @@ util::Path &util::Path::operator+=(const Path &other)
 		return *this;
 	}
 	m_path += other.m_path;
-	m_bFile = other.m_bFile;
 	return *this;
 }
 util::Path util::Path::operator+(const char *other) {return operator+(std::string{other});}
@@ -112,8 +121,6 @@ util::Path &util::Path::operator+=(const char *other) {return operator+=(std::st
 
 std::string util::Path::GetPath() const
 {
-	if(m_bFile == false)
-		return m_path;
 	auto path = m_path;
 	auto br = path.rfind('/');
 	if(br != std::string::npos)
@@ -122,7 +129,7 @@ std::string util::Path::GetPath() const
 }
 std::string util::Path::GetFileName() const
 {
-	if(m_bFile == false)
+	if(IsFile() == false)
 		return "";
 	auto file = m_path;
 	auto br = file.rfind('/');
@@ -141,7 +148,7 @@ std::string util::Path::GetFront() const
 std::string util::Path::GetBack() const
 {
 	auto br = m_path.rfind('/');
-	if(m_bFile == false)
+	if(IsFile() == false)
 		br = m_path.rfind('/',br -1);
 	if(br == std::string::npos)
 		return "";
@@ -158,12 +165,11 @@ void util::Path::PopFront()
 void util::Path::PopBack()
 {
 	auto br = m_path.rfind('/');
-	if(m_bFile == false)
+	if(IsFile() == false)
 		br = m_path.rfind('/',br -1);
 	if(br == std::string::npos)
 		return;
 	m_path = m_path.substr(0,br);
-	m_bFile = false;
 }
 void util::Path::MakeRelative(const Path &relativeTo)
 {
@@ -180,7 +186,7 @@ void util::Path::MakeRelative(const Path &relativeTo)
 uint32_t util::Path::GetComponentCount() const
 {
 	auto n = std::count(m_path.begin(),m_path.end(),'/');
-	if(m_bFile)
+	if(IsFile())
 		++n;
 	return n;
 }
@@ -194,7 +200,8 @@ std::vector<std::string> util::Path::ToComponents() const
 const std::string &util::Path::GetString() const {return m_path;}
 void util::Path::MoveUp() {PopBack();}
 void util::Path::Canonicalize() {canonicalize_path(m_path);}
-bool util::Path::IsFile() const {return m_bFile;}
+bool util::Path::IsFile() const {return !IsDirectory();}
+bool util::Path::IsDirectory() const {return m_path.empty() || m_path.back() == '/' || m_path.back() == '\\';}
 std::optional<std::string> util::Path::GetFileExtension() const
 {
 	std::string ext;
@@ -208,14 +215,6 @@ void util::Path::SetPath(const std::string &path)
 	std::replace(m_path.begin(),m_path.end(),'\\','/');
 	if(m_path.empty() == false && m_path.front() == '/')
 		m_path.erase(m_path.begin());
-	if(m_bFile == false && (m_path.empty() || m_path.back() != '/'))
-		m_path += '/';
-}
-
-void util::Path::UpdateFileState(const std::string &path)
-{
-	std::string ext;
-	m_bFile = ufile::get_extension(path,&ext);
 }
 
 util::PathIterator<util::Path> util::Path::begin()

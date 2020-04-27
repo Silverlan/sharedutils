@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <stdexcept>
 
+#pragma optimize("",off)
 const auto SIM_INF = std::numeric_limits<double>::lowest();
 const auto SIM_CONSECUTIVE_FACTOR = 10u;
 
@@ -92,6 +93,48 @@ double ustring::calc_similarity(const std::string_view &inputWord,const std::str
 	return r;
 }
 
+void ustring::gather_similar_elements(const std::string_view &baseElement,const std::vector<std::string> &elements,std::vector<size_t> &outElements,uint32_t limit,std::vector<float> *inOutSimilarities)
+{
+	if(limit > elements.size())
+		limit = elements.size();
+	std::vector<float> similarities;
+	if(inOutSimilarities == nullptr)
+		inOutSimilarities = &similarities;
+	outElements.reserve(limit +1);
+	inOutSimilarities->reserve(limit +1);
+	for(auto it=elements.begin();it!=elements.end();++it)
+	{
+		auto &curEl = *it;
+		auto sim = ustring::calc_similarity(baseElement,curEl);
+		auto insertAsFirst = true;
+		for(auto i=inOutSimilarities->size() -1;i!=static_cast<decltype(inOutSimilarities->size())>(-1);--i)
+		{
+			auto simOther = inOutSimilarities->at(i);
+			if(sim > simOther)
+			{
+				insertAsFirst = false;
+				if(i == inOutSimilarities->size() -1 && inOutSimilarities->size() >= limit)
+					break; // This is the most common case, so we bail out early
+				inOutSimilarities->insert(inOutSimilarities->begin() +i +1,sim);
+				outElements.insert(outElements.begin() +i +1,it -elements.begin());
+				break;
+			}
+		}
+
+		if(insertAsFirst)
+		{
+			inOutSimilarities->insert(inOutSimilarities->begin(),sim);
+			outElements.insert(outElements.begin(),it -elements.begin());
+		}
+
+		if(inOutSimilarities->size() > limit)
+		{
+			inOutSimilarities->erase(inOutSimilarities->end() -1);
+			outElements.erase(outElements.end() -1);
+		}
+	}
+}
+
 void ustring::gather_similar_elements(const std::string_view &baseElement,const std::function<std::optional<std::string_view>(void)> &f,std::vector<std::string_view> &outElements,uint32_t limit,std::vector<float> *inOutSimilarities)
 {
 	std::vector<float> locSimilarities;
@@ -130,3 +173,4 @@ void ustring::gather_similar_elements(const std::string_view &baseElement,const 
 		curEl = f();
 	}
 }
+#pragma optimize("",on)

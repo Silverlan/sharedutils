@@ -98,6 +98,7 @@ namespace ustring
 	// This function is VERY expensive (O(n^3)) and should be used sparingly.
 	DLLSHUTIL double calc_similarity(const std::string_view &inputWord,const std::string_view &checkWord);
 
+	DLLSHUTIL void gather_similar_elements(const std::string_view &baseElement,const std::vector<std::string> &elements,std::vector<size_t> &outElements,uint32_t limit,std::vector<float> *inOutSimilarities=nullptr);
 	DLLSHUTIL void gather_similar_elements(const std::string_view &baseElement,const std::function<std::optional<std::string_view>(void)> &f,std::vector<std::string_view> &outElements,uint32_t limit,std::vector<float> *inOutSimilarities=nullptr);
 	
 	DLLSHUTIL uint32_t ip_to_int(const std::string_view &ip);

@@ -102,7 +102,7 @@ namespace util
 	DLLSHUTIL bool start_and_wait_for_command(const char *cmd,const char *cwd=nullptr,unsigned int *exitCode=nullptr);
 #endif
 	DLLSHUTIL void open_url_in_browser(const std::string &url);
-	DLLSHUTIL void open_path_in_explorer(const std::string &path);
+	DLLSHUTIL void open_path_in_explorer(const std::string &path,const std::optional<std::string> &selectFile={});
 
 	DLLSHUTIL std::string guid_to_string(const GUID &guid);
 	DLLSHUTIL bool compare_guid(const GUID &guid0,const GUID &guid1);

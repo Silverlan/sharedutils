@@ -669,9 +669,21 @@ std::string util::get_date_time(const std::string &format)
 	return buf;
 }
 
-void util::open_path_in_explorer(const std::string &path)
+void util::open_path_in_explorer(const std::string &path,const std::optional<std::string> &selectFile)
 {
 #ifdef _WIN32
+	if(selectFile.has_value())
+	{
+		auto absPath = path +*selectFile;
+		ustring::replace(absPath,"/","\\");
+		auto *pidl = ILCreateFromPath(absPath.c_str());
+		if(pidl)
+		{
+			SHOpenFolderAndSelectItems(pidl,0,0,0);
+			ILFree(pidl);
+			return;
+		}
+	}
 	// Source: https://stackoverflow.com/a/4139684/2482983
 	auto npath = path;
 	ustring::replace(npath,"/","\\");
@@ -693,6 +705,7 @@ void util::open_path_in_explorer(const std::string &path)
 	// TODO: This is untested!
 	std::string cmd = "xdg-open " +path;
 	system(cmd.c_str());
+	// TODO: Can we select the file as well?
 #endif
 }
 
