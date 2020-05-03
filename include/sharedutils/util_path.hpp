@@ -17,6 +17,7 @@
 namespace util
 {
 	DLLSHUTIL void canonicalize_path(std::string &inOutPath);
+	DLLSHUTIL std::string get_normalized_path(const std::string &path);
 
 	class Path;
 	template<class TPath>

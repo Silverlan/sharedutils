@@ -25,6 +25,14 @@ static auto USE_CASE_SENSITIVE_PATHS = true;
 #undef CreateFile
 
 #pragma optimize("",off)
+std::string util::get_normalized_path(const std::string &path)
+{
+	auto newPath = path;
+	canonicalize_path(newPath);
+	if(newPath.empty() == false && newPath.back() != '/')
+		newPath += '/';
+	return newPath;
+}
 void util::canonicalize_path(std::string &inOutPath)
 {
 	if(inOutPath.empty())
@@ -169,7 +177,7 @@ void util::Path::PopBack()
 		br = m_path.rfind('/',br -1);
 	if(br == std::string::npos)
 		return;
-	m_path = m_path.substr(0,br);
+	m_path = m_path.substr(0,br +1);
 }
 void util::Path::MakeRelative(const Path &relativeTo)
 {
