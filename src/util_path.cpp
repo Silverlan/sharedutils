@@ -157,7 +157,11 @@ std::string util::Path::GetBack() const
 {
 	auto br = m_path.rfind('/');
 	if(IsFile() == false)
+	{
 		br = m_path.rfind('/',br -1);
+		if(br == std::string::npos)
+			return m_path;
+	}
 	if(br == std::string::npos)
 		return "";
 	return m_path.substr(br +1);
@@ -174,7 +178,14 @@ void util::Path::PopBack()
 {
 	auto br = m_path.rfind('/');
 	if(IsFile() == false)
+	{
 		br = m_path.rfind('/',br -1);
+		if(br == std::string::npos)
+		{
+			m_path = "";
+			return;
+		}
+	}
 	if(br == std::string::npos)
 		return;
 	m_path = m_path.substr(0,br +1);
