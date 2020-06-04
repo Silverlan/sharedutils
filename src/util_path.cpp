@@ -60,7 +60,7 @@ util::Path util::Path::CreatePath(const std::string &path)
 		npath = '/';
 	else if(npath.back() != '/')
 		npath += '/';
-	return util::Path{path};
+	return util::Path{npath};
 }
 util::Path util::Path::CreateFile(const std::string &path)
 {
