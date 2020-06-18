@@ -36,7 +36,7 @@ namespace util
 		virtual ~BaseParallelWorker();
 		BaseParallelWorker &operator=(const BaseParallelWorker&)=default;
 		void Cancel();
-		virtual void Cancel(const std::string &resultMsg);
+		void Cancel(const std::string &resultMsg);
 		virtual void Wait();
 		virtual void Start();
 		virtual bool IsValid() const;
@@ -57,6 +57,7 @@ namespace util
 		void SetStatus(JobStatus jobStatus,const std::optional<std::string> &resultMsg={});
 	protected:
 		friend BaseParallelJob;
+		virtual void DoCancel(const std::string &resultMsg);
 		void SetResultMessage(const std::string &resultMsg);
 		void AddThread(const std::function<void()> &fThread);
 		void UpdateProgress(float progress);

@@ -73,7 +73,14 @@ void util::BaseParallelWorker::UpdateProgress(float progress)
 	m_progressCallback(progress);
 }
 void util::BaseParallelWorker::Cancel() {Cancel("Job has been cancelled!");}
-void util::BaseParallelWorker::Cancel(const std::string &resultMsg) {SetStatus(JobStatus::Cancelled,resultMsg);}
+void util::BaseParallelWorker::Cancel(const std::string &resultMsg)
+{
+	if(IsValid() == false || IsComplete() || IsCancelled())
+		return;
+	SetStatus(JobStatus::Cancelled,resultMsg);
+	DoCancel(resultMsg);
+}
+void util::BaseParallelWorker::DoCancel(const std::string &resultMsg) {}
 void util::BaseParallelWorker::Start()
 {
 	if(m_pendingThreads.empty())
