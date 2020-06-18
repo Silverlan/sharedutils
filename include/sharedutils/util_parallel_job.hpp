@@ -176,7 +176,13 @@ namespace util
 template<typename TJob,typename... TARGS>
 	util::ParallelJob<typename TJob::RESULT_TYPE> util::create_parallel_job(TARGS&& ...args)
 {
-	auto job = std::shared_ptr<TJob>{new TJob{std::forward<TARGS>(args)...}};
+	auto job = std::shared_ptr<TJob>{new TJob{std::forward<TARGS>(args)...},[](TJob *job) {
+		// These have to ben run before the destructor!
+		job->Cancel();
+		job->Wait();
+
+		delete job;
+	}};
 	if(job->IsValid() == false)
 		return {};
 	return util::ParallelJob<TJob::RESULT_TYPE>{*job};

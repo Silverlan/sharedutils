@@ -7,8 +7,9 @@
 
 util::BaseParallelWorker::~BaseParallelWorker()
 {
-	Cancel();
-	Wait();
+	// (These are already called by the shared_ptr deleter, calling them here would be too late!)
+	// Cancel();
+	// Wait();
 }
 std::string util::BaseParallelWorker::GetResultMessage() const
 {
