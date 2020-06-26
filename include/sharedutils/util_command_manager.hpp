@@ -28,6 +28,7 @@ namespace util
 		static void StartAsync();
 		static void PollEvents();
 		static bool ShouldExit();
+		static void Join();
 	};
 };
 

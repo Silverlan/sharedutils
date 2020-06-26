@@ -319,7 +319,7 @@ bool util::set_current_working_directory(const std::string &path)
 	if(!chdir(path.c_str()))
 		return false;
 #else
-	if(!_chdir(path.c_str()))
+	if(_chdir(path.c_str()) != 0)
 		return false;
 #endif
 	return true;
@@ -776,5 +776,37 @@ void util::set_thread_priority(std::thread &thread,ThreadPriority priority)
 uint64_t util::to_uint64(const std::string_view &str)
 {
 	return strtoll(str.data(),nullptr,10);
+}
+
+HWND util::get_window_handle()
+{
+	return GetActiveWindow();
+}
+
+void util::minimize_window_to_tray()
+{
+#ifdef _WIN32
+	ShowWindow(get_window_handle(),SW_HIDE);
+#endif
+}
+
+void util::unhide_window()
+{
+#ifdef _WIN32
+	ShowWindow(get_window_handle(),SW_SHOW);
+#endif
+}
+
+void util::flash_window()
+{
+#ifdef _WIN32
+	FLASHWINFO fi;
+	fi.cbSize = sizeof(FLASHWINFO);
+	fi.hwnd = get_window_handle();
+	fi.dwFlags = FLASHW_ALL | FLASHW_TIMERNOFG;
+	fi.uCount = 0;
+	fi.dwTimeout = 0;
+	FlashWindowEx(&fi);
+#endif
 }
 #pragma optimize("",on)

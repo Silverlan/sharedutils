@@ -5,6 +5,7 @@
 #if defined(_WIN32) || defined(__linux__)
 #include "sharedutils/util_library.hpp"
 #include "sharedutils/util_string.h"
+#include "sharedutils/util_file.h"
 #include "sharedutils/scope_guard.h"
 
 using namespace util;
@@ -15,7 +16,9 @@ std::shared_ptr<Library> Library::Load(const std::string &name,const std::vector
 	dirCookies.reserve(additionalSearchDirectories.size());
 	for(auto &searchPath : additionalSearchDirectories)
 	{
-		auto cookie = AddDllDirectory(ustring::string_to_wstring(searchPath).c_str());
+		auto nSearchPath = searchPath;
+		ustring::replace(nSearchPath,"/","\\");
+		auto cookie = AddDllDirectory(ustring::string_to_wstring(nSearchPath).c_str());
 		if(cookie == nullptr)
 			continue;
 		dirCookies.push_back(cookie);
@@ -24,7 +27,11 @@ std::shared_ptr<Library> Library::Load(const std::string &name,const std::vector
 		for(auto &cookie : dirCookies)
 			RemoveDllDirectory(cookie);
 	});
-	auto hModule = LoadLibraryEx(name.c_str(),nullptr,LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
+	auto nName = name;
+	ufile::remove_extension_from_filename(nName);
+	nName += ".dll";
+	ustring::replace(nName,"/","\\");
+	auto hModule = LoadLibraryEx(nName.c_str(),nullptr,LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
 	if(hModule == nullptr)
 	{
 		if(outErr != nullptr)

@@ -58,7 +58,7 @@ util::Path util::Path::CreatePath(const std::string &path)
 	auto npath = path;
 	if(npath.empty())
 		npath = '/';
-	else if(npath.back() != '/')
+	else if(npath.back() != '/' && npath.back() != '\\')
 		npath += '/';
 	return util::Path{npath};
 }

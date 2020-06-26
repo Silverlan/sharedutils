@@ -99,3 +99,12 @@ bool CommandManager::ShouldExit()
 {
 	return s_shouldExit;
 }
+void CommandManager::Join()
+{
+	s_thread.detach();
+#ifdef _WIN32
+	INPUT_RECORD input;
+	unsigned long numEvents;
+	WriteConsoleInput(GetStdHandle(STD_INPUT_HANDLE),&input,0,&numEvents); // Workaround: Writes to the console to make sure the thread can end properly
+#endif
+}

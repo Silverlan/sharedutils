@@ -119,6 +119,13 @@ namespace util
 	};
 	DLLSHUTIL void set_thread_priority(std::thread &thread,ThreadPriority priority);
 
+	DLLSHUTIL void flash_window();
+	DLLSHUTIL void minimize_window_to_tray();
+	DLLSHUTIL void unhide_window();
+#ifdef _WIN32
+	DLLSHUTIL HWND get_window_handle();
+#endif
+
 	template<typename T>
 		using unique_ptr_c = std::unique_ptr<T,std::function<void(T*)>>;
 	template<typename T>
