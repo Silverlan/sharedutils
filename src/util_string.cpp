@@ -368,6 +368,19 @@ UInt ustring::find_first_of(FILE *f,const std::string &tofind,std::string *line)
 std::string ustring::float_to_string(float f) {return std::to_string(f);}
 std::string ustring::int_to_string(int i) {return std::to_string(i);}
 
+bool ustring::is_integer(const std::string &str)
+{
+	char *p;
+	long converted = strtol(str.c_str(),&p,10);
+	return !*p;
+}
+bool ustring::is_number(const std::string &str)
+{
+	char *p;
+	long converted = strtod(str.c_str(),&p);
+	return !*p;
+}
+
 UInt ustring::get_args(const std::string &line,std::vector<std::string> &argv)
 {
 	UInt i = 0;

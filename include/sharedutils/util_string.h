@@ -54,6 +54,8 @@ namespace ustring
 	DLLSHUTIL UInt find_first_of(FILE *f,const std::string &tofind,std::string *line=nullptr);
 	DLLSHUTIL std::string float_to_string(Float f);
 	DLLSHUTIL std::string int_to_string(Int32 i);
+	DLLSHUTIL bool is_integer(const std::string &str);
+	DLLSHUTIL bool is_number(const std::string &str);
 	DLLSHUTIL void get_sequence_commands(const std::string &str,const std::function<void(std::string,std::vector<std::string>&)> &f);
 	DLLSHUTIL UInt get_args(const std::string &line,std::vector<std::string> &argv);
 	DLLSHUTIL std::vector<std::string> get_args(const std::string &line);
