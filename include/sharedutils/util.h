@@ -126,6 +126,10 @@ namespace util
 	DLLSHUTIL HWND get_window_handle();
 #endif
 
+	DLLSHUTIL void flip_item_sequence(void *sequence,size_t sequenceSize,uint32_t numItems,uint32_t itemStride);
+	using MurmurHash3 = std::array<uint8_t,sizeof(uint32_t) *4>;
+	DLLSHUTIL MurmurHash3 murmur_hash3(const void *data,int32_t len,uint32_t seed);
+
 	template<typename T>
 		using unique_ptr_c = std::unique_ptr<T,std::function<void(T*)>>;
 	template<typename T>

@@ -797,6 +797,23 @@ void util::unhide_window()
 #endif
 }
 
+void util::flip_item_sequence(void *sequence,size_t sequenceSize,uint32_t numItems,uint32_t itemStride)
+{
+	auto *tmp = new uint8_t[itemStride];
+	auto *row0 = static_cast<uint8_t*>(sequence);
+	auto *row1 = row0 +sequenceSize -itemStride;
+	for(auto y=decltype(numItems){0u};y<numItems /2;++y)
+	{
+		memcpy(tmp,row1,itemStride);
+		memcpy(row1,row0,itemStride);
+		memcpy(row0,tmp,itemStride);
+
+		row0 += itemStride;
+		row1 -= itemStride;
+	}
+	delete[] tmp;
+}
+
 void util::flash_window()
 {
 #ifdef _WIN32
