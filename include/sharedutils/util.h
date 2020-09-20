@@ -29,6 +29,7 @@ namespace util
 	DLLSHUTIL std::string get_pretty_bytes(unsigned long long bytes);
 	DLLSHUTIL std::string get_pretty_duration(unsigned long long ms,int addSegments=0,bool bNoMs=true);
 	DLLSHUTIL std::string get_program_path();
+	DLLSHUTIL void set_program_path(const std::string &path);
 	DLLSHUTIL std::string get_program_name();
 	DLLSHUTIL std::optional<std::string> get_library_file_path(const void *ptrToAnyStaticLibFunc);
 	DLLSHUTIL std::optional<std::string> get_path_to_library(const void *ptrToAnyStaticLibFunc);

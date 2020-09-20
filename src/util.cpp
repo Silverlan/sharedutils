@@ -146,12 +146,17 @@ static std::string program_name(bool bPost=false)
 	return programPath;
 }
 
+static std::string g_programPath = "";
 std::string util::get_program_path()
 {
-	static std::string programPath = "";
-	if(programPath.empty())
-		programPath = program_name();
-	return programPath;
+	if(g_programPath.empty())
+		g_programPath = program_name();
+	return g_programPath;
+}
+
+void util::set_program_path(const std::string &path)
+{
+	g_programPath = path;
 }
 
 std::string util::get_program_name()
