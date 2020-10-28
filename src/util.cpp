@@ -34,7 +34,6 @@
 
 #pragma comment(lib,"mathutil.lib")
 
-#pragma optimize("",off)
 std::string util::get_pretty_bytes(unsigned long long bytes)
 {
 	auto sz = static_cast<double>(bytes);
@@ -831,4 +830,3 @@ void util::flash_window()
 	FlashWindowEx(&fi);
 #endif
 }
-#pragma optimize("",on)

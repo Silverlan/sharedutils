@@ -7,7 +7,6 @@
 #include <algorithm>
 #include <stdexcept>
 
-#pragma optimize("",off)
 const auto SIM_INF = std::numeric_limits<double>::lowest();
 const auto SIM_CONSECUTIVE_FACTOR = 10u;
 
@@ -173,4 +172,3 @@ void ustring::gather_similar_elements(const std::string_view &baseElement,const 
 		curEl = f();
 	}
 }
-#pragma optimize("",on)

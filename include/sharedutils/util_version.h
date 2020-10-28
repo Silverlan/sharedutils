@@ -6,6 +6,7 @@
 #define __UTIL_VERSION_H__
 
 #include "utildefinitions.h"
+#include <iostream>
 #include <string>
 
 #ifdef __linux__
@@ -20,7 +21,9 @@ namespace util
 #endif
 	struct DLLSHUTIL Version
 	{
-		Version(unsigned int _major,unsigned int _minor,unsigned int _revision=0);
+		Version(unsigned int _major,unsigned int _minor,unsigned int _revision);
+		Version(unsigned int _major,unsigned int _minor);
+		Version(const std::string &version);
 		Version();
 		unsigned int major;
 		unsigned int minor;
@@ -43,5 +46,7 @@ namespace util
 	#pragma pack(pop)
 #endif
 }
+
+DLLSHUTIL std::ostream &operator<<(std::ostream &out,const util::Version &version);
 
 #endif

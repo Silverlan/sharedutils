@@ -24,7 +24,6 @@ static auto USE_CASE_SENSITIVE_PATHS = true;
 
 #undef CreateFile
 
-#pragma optimize("",off)
 std::string util::get_normalized_path(const std::string &path)
 {
 	auto newPath = path;
@@ -369,4 +368,3 @@ std::ostream &operator<<(std::ostream &out,const util::Path &path)
 {
 	return out<<path.GetString();
 }
-#pragma optimize("",on)

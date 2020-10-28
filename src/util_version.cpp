@@ -6,8 +6,20 @@
 #include "sharedutils/util.h"
 #include "sharedutils/util_string.h"
 
+std::ostream &operator<<(std::ostream &out,const util::Version &version)
+{
+	out<<version.ToString();
+	return out;
+}
+
 util::Version::Version(unsigned int _major,unsigned int _minor,unsigned int _revision)
 	: major(_major),minor(_minor),revision(_revision)
+{}
+util::Version::Version(unsigned int _major,unsigned int _minor)
+	: Version(_major,_minor,0)
+{}
+util::Version::Version(const std::string &version)
+	: Version{FromString(version)}
 {}
 util::Version::Version()
 	: Version(0,0)
