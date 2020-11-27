@@ -11,7 +11,7 @@ uint32_t util::distribute(const uint32_t& n)
 	return c*xorshift(p*xorshift(n,16),16);
 }
 
-uint64_t util::hash(const uint64_t& n)
+util::Hash util::hash(const Hash& n)
 {
 	uint64_t p = 0x5555555555555555;     // pattern of alternating 0 and 1
 	uint64_t c = 17316035218449499591ull;// random uneven integer constant; 

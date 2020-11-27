@@ -13,6 +13,7 @@
 // Source: https://stackoverflow.com/a/50978188/2482983
 namespace util
 {
+	using Hash = uint64_t;
 	template<typename T>
 		T xorshift(const T& n,int i)
 		{
@@ -20,7 +21,7 @@ namespace util
 		}
 
 	DLLSHUTIL uint32_t distribute(const uint32_t& n);
-	DLLSHUTIL uint64_t hash(const uint64_t& n);
+	DLLSHUTIL Hash hash(const Hash& n);
 
 	// if c++20 rotl is not available:
 	template <typename T,typename S>
@@ -33,7 +34,7 @@ namespace util
 	}
 
 	template <class T>
-		inline size_t hash_combine(std::size_t seed, const T& v)
+		inline Hash hash_combine(Hash seed, const T& v)
 	{
 		return rotl(seed,std::numeric_limits<size_t>::digits/3) ^ distribute(std::hash<T>()(v));
 	}
