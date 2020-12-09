@@ -215,15 +215,14 @@ std::string DataStreamBase::ReadString(UInt32 len)
 		return "";
 	std::string r;
 	r.reserve(len);
-	char c;
-	Read(&c,sizeof(char));
-	do
+	for(auto i=decltype(len){0u};i<len;++i)
 	{
-		r += c;
+		char c;
 		Read(&c,sizeof(char));
-		--len;
+		r += c;
+		if(Eof())
+			break;
 	}
-	while(len > 0 && !Eof());
 	return r;
 }
 DataStreamBase &DataStreamBase::operator>>(std::string &str) {str = ReadString(); return *this;}
