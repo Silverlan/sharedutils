@@ -4,6 +4,8 @@
 
 #include "sharedutils/scope_guard.h"
 
+using namespace util;
+
 ScopeGuard::ScopeGuard()
 	: f(nullptr)
 {}

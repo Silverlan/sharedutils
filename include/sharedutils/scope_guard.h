@@ -8,24 +8,27 @@
 #include "utildefinitions.h"
 #include <functional>
 
-class DLLSHUTIL ScopeGuard
+namespace util
 {
-private:
-	std::function<void()> f;
-public: 
-	template<class Callable>
-		ScopeGuard(Callable &&undo_func);
-	ScopeGuard(ScopeGuard &&other);
-	ScopeGuard();
-	~ScopeGuard();
-	void dismiss() throw();
-	ScopeGuard(const ScopeGuard&)=delete;
-	template<class Callable>
-		ScopeGuard &operator=(Callable &&undo_func);
+	class DLLSHUTIL ScopeGuard
+	{
+	private:
+		std::function<void()> f;
+	public: 
+		template<class Callable>
+			ScopeGuard(Callable &&undo_func);
+		ScopeGuard(ScopeGuard &&other);
+		ScopeGuard();
+		~ScopeGuard();
+		void dismiss() throw();
+		ScopeGuard(const ScopeGuard&)=delete;
+		template<class Callable>
+			ScopeGuard &operator=(Callable &&undo_func);
+	};
 };
 
 template<class Callable>
-	ScopeGuard &ScopeGuard::operator=(Callable &&undo_func)
+	util::ScopeGuard &util::ScopeGuard::operator=(Callable &&undo_func)
 {
 	if(f != nullptr)
 		f();
@@ -35,7 +38,7 @@ template<class Callable>
 
 
 template<class Callable> 
-	ScopeGuard::ScopeGuard(Callable && undo_func)
+	util::ScopeGuard::ScopeGuard(Callable && undo_func)
 		: f(std::forward<Callable>(undo_func))
 {}
 

@@ -136,7 +136,7 @@ static void initialize_co()
 	if(CoInitialize(NULL))
 	{
 		// Cleanup at program shutdown
-		static ScopeGuard sg {[]() {
+		static util::ScopeGuard sg {[]() {
 			CoUninitialize();
 		}};
 	}
