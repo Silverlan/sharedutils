@@ -88,6 +88,11 @@ namespace util
 		bool IsDirectory() const;
 		std::optional<std::string> GetFileExtension() const;
 		void RemoveFileExtension();
+		template<typename TList>
+			void RemoveFileExtension(const TList &extensions)
+		{
+			ufile::remove_extension_from_filename(m_path,extensions);
+		}
 
 		PathIterator<Path> begin();
 		PathIterator<Path> end();
