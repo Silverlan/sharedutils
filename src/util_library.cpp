@@ -9,6 +9,29 @@
 #include "sharedutils/scope_guard.h"
 
 using namespace util;
+std::shared_ptr<Library> Library::Get(const std::string &name,std::string *outErr)
+{
+#ifdef _WIN32
+	auto nName = name;
+	ufile::remove_extension_from_filename(nName);
+	nName += ".dll";
+	ustring::replace(nName,"/","\\");
+	auto hModule = GetModuleHandleA(nName.c_str());
+	if(hModule == nullptr)
+		return nullptr;
+#else
+	auto hModule = dlopen(name.c_str(),RTLD_LAZY | RTLD_GLOBAL);
+	if(hModule == nullptr)
+	{
+		if(outErr != nullptr)
+			*outErr = dlerror();
+		return nullptr;
+	}
+#endif
+	auto lib = std::shared_ptr<Library>(new Library(hModule));
+	lib->m_freeOnDestruct = false;
+	return lib;
+}
 std::shared_ptr<Library> Library::Load(const std::string &name,const std::vector<std::string> &additionalSearchDirectories,std::string *outErr)
 {
 #ifdef _WIN32
@@ -70,6 +93,8 @@ Library::Library(LibraryModule hModule)
 
 Library::~Library()
 {
+	if(m_freeOnDestruct == false)
+		return;
 #ifdef _WIN32
 	FreeLibrary(m_module);
 #else

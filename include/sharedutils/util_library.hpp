@@ -28,6 +28,7 @@ namespace util
 	{
 	public:
 		static std::shared_ptr<Library> Load(const std::string &name,const std::vector<std::string> &additionalSearchDirectories={},std::string *outErr=nullptr);
+		static std::shared_ptr<Library> Get(const std::string &name,std::string *outErr=nullptr);
 
 		void *FindSymbolAddress(const std::string &name) const;
 		template<typename TFunc>
@@ -38,6 +39,7 @@ namespace util
 	private:
 		Library(LibraryModule hModule);
 		LibraryModule m_module = nullptr;
+		bool m_freeOnDestruct = true;
 	};
 };
 
