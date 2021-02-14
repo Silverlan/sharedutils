@@ -49,6 +49,7 @@ namespace ustring
 	DLLSHUTIL void to_upper(std::string &str);
 	DLLSHUTIL void split(const std::string &str,std::vector<std::string> &substrings);
 	DLLSHUTIL void explode(std::string str,const Char *sep,std::vector<std::string> &substrings);
+	DLLSHUTIL std::string implode(const std::vector<std::string> &strs,const std::string &separator=" ");
 	DLLSHUTIL UInt get_parameters(const std::string &s,std::string &rname,std::vector<std::string> &args);
 	DLLSHUTIL UInt find_first_of_outside_quotes(const std::string &str,std::string tofind,UInt qPrev=0);
 	DLLSHUTIL UInt find_first_of(FILE *f,const std::string &tofind,std::string *line=nullptr);

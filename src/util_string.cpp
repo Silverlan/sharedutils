@@ -125,6 +125,21 @@ void ustring::split(const std::string &str,std::vector<std::string> &substrings)
 		substrings.push_back(buf);
 }
 
+std::string ustring::implode(const std::vector<std::string> &strs,const std::string &separator)
+{
+	std::string result {};
+	auto first = true;
+	for(auto &str : strs)
+	{
+		if(first)
+			first = false;
+		else
+			result += separator;
+		result += str;
+	}
+	return result;
+}
+
 void ustring::explode(std::string str,const Char *sep,std::vector<std::string> &substrings)
 {
 	UInt st = find_first_of_outside_quotes(str,sep);
