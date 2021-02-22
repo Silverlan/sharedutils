@@ -103,10 +103,12 @@ namespace util
 	DLLSHUTIL bool start_and_wait_for_command(const char *cmd,const char *cwd=nullptr,unsigned int *exitCode=nullptr);
 #endif
 	DLLSHUTIL void open_url_in_browser(const std::string &url);
+	DLLSHUTIL void open_file_in_default_program(const std::string &filePath);
 	DLLSHUTIL void open_path_in_explorer(const std::string &path,const std::optional<std::string> &selectFile={});
 
 	DLLSHUTIL std::string guid_to_string(const GUID &guid);
 	DLLSHUTIL bool compare_guid(const GUID &guid0,const GUID &guid1);
+	DLLSHUTIL std::string generate_uuid_v4();
 
 	enum class ThreadPriority : uint32_t
 	{
@@ -144,6 +146,31 @@ namespace util
 
 	template<typename T>
 		uint64_t get_size_in_bytes(const T &container);
+
+	// See https://stackoverflow.com/a/28796458/2482983
+	template<typename Test, template<typename...> class Ref>
+		struct is_specialization : std::false_type {};
+	template<template<typename...> class Ref, typename... Args>
+		struct is_specialization<Ref<Args...>, Ref>: std::true_type {};
+
+	template<typename T, std::size_t N>
+		constexpr bool is_c_string_p(T(&)[N]) 
+	{ 
+		return std::is_same_v<const char, T>;
+	}
+	template<typename T>
+		constexpr bool is_c_string_p(T &&) 
+	{ 
+		return std::is_same_v<const char *, T>;
+	}
+
+	template<typename T>
+		struct is_c_string
+		: public std::disjunction<std::is_same<char *, typename std::decay_t<T>>,std::is_same<const char *, typename std::decay_t<T>>> {};
+
+	template<typename T>
+		struct is_string
+		: public std::disjunction<std::is_same<char *, typename std::decay_t<T>>,std::is_same<const char *, typename std::decay_t<T>>,std::is_same<std::string, typename std::decay_t<T>>> {};
 }
 
 uint32_t util::to_uint(const std::string &str)

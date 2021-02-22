@@ -9,6 +9,7 @@
 #include <sstream>
 #include <iomanip>
 #include <cstring>
+#include <random>
 #ifdef __linux__
 	#include <sys/types.h>
 	#include <sys/stat.h>
@@ -715,6 +716,17 @@ void util::open_path_in_explorer(const std::string &path,const std::optional<std
 #endif
 }
 
+void util::open_file_in_default_program(const std::string &filePath)
+{
+#ifdef _WIN32
+	ShellExecute(0,0,filePath.c_str(),0,0,SW_SHOW);
+#else
+	// TODO: This is untested!
+	std::string cmd = "xdg-open " +filePath;
+	system(cmd.c_str());
+#endif
+}
+
 void util::open_url_in_browser(const std::string &url)
 {
 #ifdef _WIN32
@@ -873,4 +885,32 @@ bool util::shutdown_os()
 	reboot(LINUX_REBOOT_MAGIC1,LINUX_REBOOT_MAGIC2,LINUX_REBOOT_CMD_POWER_OFF,0);
 	return true;
 #endif
+}
+
+// Source: https://stackoverflow.com/a/60198074/2482983
+std::string util::generate_uuid_v4()
+{
+	static std::random_device rd;
+	static std::mt19937 gen(rd());
+	static std::uniform_int_distribution<> dis(0,15);
+	static std::uniform_int_distribution<> dis2(8,11);
+	std::stringstream ss;
+	int i;
+	ss << std::hex;
+	for (i = 0; i < 8; i++)
+		ss << dis(gen);
+	ss << "-";
+	for (i = 0; i < 4; i++)
+		ss << dis(gen);
+	ss << "-4";
+	for (i = 0; i < 3; i++)
+		ss << dis(gen);
+	ss << "-";
+	ss << dis2(gen);
+	for (i = 0; i < 3; i++)
+		ss << dis(gen);
+	ss << "-";
+	for (i = 0; i < 12; i++)
+		ss << dis(gen);
+	return ss.str();
 }
