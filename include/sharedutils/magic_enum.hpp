@@ -1126,4 +1126,20 @@ using namespace magic_enum::bitwise_operators;
 #  pragma warning(pop)
 #endif
 
+#include "sharedutils/util_string.h"
+namespace ustring
+{
+    template<typename TEnum>
+        constexpr TEnum string_to_enum(const std::string_view &strVal,TEnum defaultVal)
+    {
+        constexpr auto &enumNames = magic_enum::enum_names<TEnum>();
+        for(auto i=decltype(enumNames.size()){0u};i<enumNames.size();++i)
+        {
+            if(iequals(enumNames[i],strVal))
+                return magic_enum::enum_value<TEnum>(i);
+        }
+        return defaultVal;
+    }
+};
+
 #endif // NEARGYE_MAGIC_ENUM_HPP

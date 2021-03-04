@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef __UTIL_STRING_H__
-#define __UTIL_STRING_H__
+#ifndef __UTIL_STRING_HPP__
+#define __UTIL_STRING_HPP__
 
 #include "utildefinitions.h"
 #include <string>
@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <vector>
 #include <functional>
+#include <algorithm>
 #include <mathutil/umath.h>
 #define StringToLower(str) std::transform(str.begin(),str.end(),str.begin(),::tolower);
 #define StringToUpper(str) std::transform(str.begin(),str.end(),str.begin(),::toupper);
@@ -106,6 +107,31 @@ namespace ustring
 	
 	DLLSHUTIL uint32_t ip_to_int(const std::string_view &ip);
 	DLLSHUTIL std::string int_to_ip(uint32_t ip);
+
+	constexpr char char_to_lower(const char c)
+	{
+		return (c >= 'A' && c <= 'Z') ? c + ('a' - 'A') : c;
+	}
+
+	constexpr bool iequals(const std::string_view& a, const std::string_view& b)
+	{
+		auto l0 = a.length();
+		auto l1 = b.length();
+		if(l0 != l1)
+			return false;
+		for(auto i=decltype(l0){0u};i<l0;++i)
+		{
+			if(char_to_lower(a[i]) != char_to_lower(b[i]))
+				return false;
+		}
+		return true;
+		// TODO: Use this once C++20 is available
+		/*return std::equal(a.begin(), a.end(),
+			b.begin(), b.end(),
+			[](char a, char b) {
+				return char_to_lower(a) == char_to_lower(b);
+		});*/
+	}
 }
 
 template<class type,class rtype>
