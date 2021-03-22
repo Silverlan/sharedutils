@@ -108,7 +108,18 @@ namespace util
 
 	DLLSHUTIL std::string guid_to_string(const GUID &guid);
 	DLLSHUTIL bool compare_guid(const GUID &guid0,const GUID &guid1);
-	DLLSHUTIL std::string generate_uuid_v4();
+
+	using Uuid = std::array<uint64_t,2>;
+	DLLSHUTIL Uuid generate_uuid_v4(const std::optional<uint32_t> seed={});
+	DLLSHUTIL std::string uuid_to_string(const Uuid &uuid);
+	DLLSHUTIL Uuid uuid_string_to_bytes(const std::string &uuid);
+	DLLSHUTIL bool is_uuid(const std::string &uuid);
+
+	template<typename T>
+		constexpr size_t size_of_container(const T &t)
+	{
+		return t.size() *sizeof(t[0]);
+	}
 
 	enum class ThreadPriority : uint32_t
 	{

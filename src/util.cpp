@@ -6,6 +6,7 @@
 #include <mathutil/umath.h>
 #include "sharedutils/util_string.h"
 #include "sharedutils/util_file.h"
+#include "sharedutils/uuid.h"
 #include <sstream>
 #include <iomanip>
 #include <cstring>
@@ -887,30 +888,48 @@ bool util::shutdown_os()
 #endif
 }
 
-// Source: https://stackoverflow.com/a/60198074/2482983
-std::string util::generate_uuid_v4()
+// See https://github.com/mariusbancila/stduuid
+static util::Uuid uuid_to_bytes(const uuids::uuid &uuid)
+{
+	auto bytes = uuid.as_bytes();
+	util::Uuid result;
+	memcpy(result.data(),bytes.data(),util::size_of_container(result));
+	return result;
+}
+util::Uuid util::generate_uuid_v4(const std::optional<uint32_t> seed)
 {
 	static std::random_device rd;
-	static std::mt19937 gen(rd());
-	static std::uniform_int_distribution<> dis(0,15);
-	static std::uniform_int_distribution<> dis2(8,11);
-	std::stringstream ss;
-	int i;
-	ss << std::hex;
-	for (i = 0; i < 8; i++)
-		ss << dis(gen);
-	ss << "-";
-	for (i = 0; i < 4; i++)
-		ss << dis(gen);
-	ss << "-4";
-	for (i = 0; i < 3; i++)
-		ss << dis(gen);
-	ss << "-";
-	ss << dis2(gen);
-	for (i = 0; i < 3; i++)
-		ss << dis(gen);
-	ss << "-";
-	for (i = 0; i < 12; i++)
-		ss << dis(gen);
-	return ss.str();
+	static auto seed_data = std::array<int, std::mt19937::state_size> {};
+	static auto generated = false;
+	if(generated == false)
+	{
+		generated = true;
+		std::generate(std::begin(seed_data), std::end(seed_data), std::ref(rd));
+	}
+	static std::seed_seq seq(std::begin(seed_data), std::end(seed_data));
+	if(seed.has_value())
+	{
+		std::mt19937 generator(*seed);
+		uuids::uuid_random_generator gen{generator};
+		return uuid_to_bytes(gen());
+	}
+	static std::mt19937 generator(seq);
+	static uuids::uuid_random_generator gen{generator};
+	return uuid_to_bytes(gen());
 }
+std::string util::uuid_to_string(const util::Uuid &uuid)
+{
+	std::array<uuids::uuid::value_type,16> a {};
+	static_assert(sizeof(a) == sizeof(uuid));
+	memcpy(a.data(),uuid.data(),size_of_container(uuid));
+	return uuids::to_string(uuids::uuid{a});
+}
+util::Uuid util::uuid_string_to_bytes(const std::string &uuid)
+{
+	auto str = uuids::uuid::from_string(uuid);
+	if(str.has_value() == false)
+		return {};
+	return uuid_to_bytes(*str);
+}
+bool util::is_uuid(const std::string &uuid) {return uuids::uuid::from_string(uuid).has_value();}
+//
