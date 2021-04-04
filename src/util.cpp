@@ -537,11 +537,9 @@ std::unordered_map<std::string,std::string> util::get_launch_parameters(int argc
 	return out;
 }
 
-float util::to_float(const char *str) {return to_float<float>(str);}
-float util::to_float(const std::string &str) {return to_float<float>(str);}
-int util::to_int(const char *str) {return to_int<int>(str);}
-int util::to_int(const std::string &str) {return to_int<int>(str);}
-bool util::to_boolean(const std::string &str)
+float util::to_float(const std::string_view &str) {return to_float<float>(str);}
+int util::to_int(const std::string_view &str) {return to_int<int>(str);}
+bool util::to_boolean(const std::string_view &str)
 {
 	if(str.length() >= 4)
 	{
@@ -561,7 +559,7 @@ std::string util::round_string(double v,int places)
 	return ss.str();
 }
 
-util::Version util::string_to_version(const std::string &str)
+util::Version util::string_to_version(const std::string_view &str)
 {
 	auto v = util::Version();
 	auto pos = str.find_first_of('.');

@@ -69,7 +69,7 @@ namespace ustring
 	DLLSHUTIL std::string read_until(const std::string &t,Char c);
 	DLLSHUTIL std::string read_until_etx(const std::string &t);
 	DLLSHUTIL Bool match(PCTSTR pszText,PCTSTR pszMatch,Bool bMatchCase=false);
-	DLLSHUTIL Bool match(const std::string &text,const std::string &match,Bool bMatchCase=false);
+	DLLSHUTIL Bool match(const std::string_view &text,const std::string_view &match,Bool bMatchCase=false);
 	template<class type,class rtype>
 		void string_to_array(const std::string &str,type *a,rtype(*atot)(const Char*),UInt32 count);
 	template<class type>

@@ -75,7 +75,46 @@ Bool ustring::match(PCTSTR pszText, PCTSTR pszMatch, Bool bMatchCase)
             return match(pszText+1,pszMatch,bMatchCase); 
     } 
 }
-Bool ustring::match(const std::string &text,const std::string &strMatch,Bool bMatchCase) {return match(text.c_str(),strMatch.c_str(),bMatchCase);}
+Bool ustring::match(const std::string_view &text,const std::string_view &strMatch,Bool bMatchCase)
+{
+    // Loop over the string 
+	auto *pszText = text.data();
+	auto *pszTextLast = text.data() +text.length();
+	auto *pszMatch = strMatch.data();
+	auto *pszMatchLast = strMatch.data() +strMatch.length();
+    while (pszText != pszTextLast && *pszMatch!=_T('*')) 
+    { 
+        // Found a match on a next normal character 
+        if ((bMatchCase ? (*pszText!=*pszMatch) : (toupper(*pszText)!=toupper(*pszMatch))) && 
+            *pszMatch!=_T('?')) 
+            return false; // TODO: toupper doesn't account for unicode
+  
+        // still a match 
+        pszMatch++; 
+        pszText++; 
+    } 
+  
+    // Either we have a wildcard or or we are at end of the string to test 
+    if (pszText == pszTextLast) 
+    { 
+        // There is a special case were there is only a wildcard char left 
+        // on the match string, so we just skip it 
+        while (*pszMatch==_T('*')) 
+            ++pszMatch; 
+        // it would be a match if both strings reached the end of the string 
+        return pszText == pszTextLast && pszMatch == pszMatchLast; 
+    } 
+    else 
+    { 
+        // We found a wildcard '*'. We have some chances now: 
+        // 1. we just ignore the wildcard and continue 
+        // 2. we just skip 1 character in the source and reuse the wildcard 
+        if (match(text.substr(pszText -text.data()),strMatch.substr((pszMatch +1) -strMatch.data()),bMatchCase)) 
+            return true; 
+        else 
+            return match(text.substr((pszText +1) -text.data()),strMatch.substr(pszMatch -strMatch.data()),bMatchCase); 
+    } 
+}
 void ustring::remove_whitespace(std::string &s)
 {
 	if(s.empty())

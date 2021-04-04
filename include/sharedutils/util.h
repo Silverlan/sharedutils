@@ -13,6 +13,7 @@
 #include <memory>
 #include <functional>
 #include <optional>
+#include <charconv>
 #include "util_version.h"
 #include <mathutil/umath.h>
 #ifdef _WIN32
@@ -52,21 +53,17 @@ namespace util
 #endif
 	DLLSHUTIL std::unordered_map<std::string,std::string> get_launch_parameters(int argc,char *argv[]);
 	template<class T>
-		T to_float(const char *str);
+		T to_number(const std::string_view &str);
 	template<class T>
-		T to_float(const std::string &str);
-	DLLSHUTIL float to_float(const char *str);
-	DLLSHUTIL float to_float(const std::string &str);
+		T to_float(const std::string_view &str);
+	DLLSHUTIL float to_float(const std::string_view &str);
 	template<class T>
-		T to_int(const char *str);
-	template<class T>
-		T to_int(const std::string &str);
-	DLLSHUTIL int to_int(const char *str);
-	DLLSHUTIL int to_int(const std::string &str);
-	inline uint32_t to_uint(const std::string &str);
+		T to_int(const std::string_view &str);
+	DLLSHUTIL int to_int(const std::string_view &str);
+	inline uint32_t to_uint(const std::string_view &str);
 	DLLSHUTIL uint64_t to_uint64(const std::string_view &str);
 	DLLSHUTIL std::string round_string(double v,int places=0);
-	DLLSHUTIL Version string_to_version(const std::string &str);
+	DLLSHUTIL Version string_to_version(const std::string_view &str);
 	DLLSHUTIL Float get_faded_time_factor(Float cur,Float dur,Float fadeIn=0.f,Float fadeOut=0.f);
 	DLLSHUTIL Float get_scale_factor(Float val,Float range);
 	DLLSHUTIL Float get_scale_factor(Float val,Float min,Float max);
@@ -95,7 +92,7 @@ namespace util
 		std::string to_hex_string(const T &o);
 	template<typename T>
 		uint64_t to_hex_number(const T &o);
-	DLLSHUTIL bool to_boolean(const std::string &str);
+	DLLSHUTIL bool to_boolean(const std::string_view &str);
 	DLLSHUTIL bool get_current_working_directory(std::string &cwd);
 	DLLSHUTIL std::string get_current_working_directory();
 	DLLSHUTIL bool set_current_working_directory(const std::string &path);
@@ -184,20 +181,32 @@ namespace util
 		: public std::disjunction<std::is_same<char *, typename std::decay_t<T>>,std::is_same<const char *, typename std::decay_t<T>>,std::is_same<std::string, typename std::decay_t<T>>> {};
 }
 
-uint32_t util::to_uint(const std::string &str)
+uint32_t util::to_uint(const std::string_view &str)
 {
-	return std::stoul(str);
+	uint32_t result = 0;
+	auto res = std::from_chars(str.data(),str.data() +str.size(),result);
+	return result;
 }
 
 template<class T>
-	T util::to_float(const char *str) {return static_cast<T>(atof(str));}
-template<class T>
-	T util::to_float(const std::string &str) {return to_float(str.c_str());}
+	T util::to_number(const std::string_view &str)
+{
+	T result = 0;
+	auto res = std::from_chars(str.data(),str.data() +str.size(),result);
+	return result;
+}
 
 template<class T>
-	T util::to_int(const char *str) {return static_cast<T>(atoi(str));}
+	T util::to_float(const std::string_view &str)
+{
+	return to_number<T>(str);
+}
+
 template<class T>
-	T util::to_int(const std::string &str) {return to_int(str.c_str());}
+	T util::to_int(const std::string_view &str)
+{
+	return to_number<T>(str);
+}
 
 template<typename T, typename C>
 	constexpr T util::declvalue(T C::* ptr)
