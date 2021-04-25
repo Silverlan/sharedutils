@@ -54,10 +54,12 @@ namespace util
 		static Path CreatePath(const std::string &path);
 		static Path CreateFile(const std::string &path);
 		Path(const std::string &path="");
+		Path(std::string &&path);
 		Path(const std::vector<std::string> &fromComponents);
 		Path(const Path&)=default;
 		Path &operator=(const Path&)=default;
 		Path &operator=(const std::string &path);
+		Path &operator=(std::string &&path);
 
 		bool operator==(const Path &other) const;
 		bool operator==(const std::string &other) const;
@@ -104,6 +106,8 @@ namespace util
 		PathIterator<const Path> rend() const;*/
 	private:
 		void SetPath(const std::string &path);
+		void SetPath(std::string &&path);
+		void UpdatePath();
 		std::string m_path = "";
 	};
 };

@@ -70,6 +70,10 @@ util::Path::Path(const std::string &path)
 {
 	SetPath(path);
 }
+util::Path::Path(std::string &&path)
+{
+	SetPath(std::move(path));
+}
 util::Path::Path(const std::vector<std::string> &fromComponents)
 {
 	auto first = true;
@@ -85,6 +89,11 @@ util::Path::Path(const std::vector<std::string> &fromComponents)
 util::Path &util::Path::operator=(const std::string &path)
 {
 	SetPath(path);
+	return *this;
+}
+util::Path &util::Path::operator=(std::string &&path)
+{
+	SetPath(std::move(path));
 	return *this;
 }
 
@@ -227,12 +236,21 @@ std::optional<std::string> util::Path::GetFileExtension() const
 }
 void util::Path::RemoveFileExtension() {ufile::remove_extension_from_filename(m_path);}
 
-void util::Path::SetPath(const std::string &path)
+void util::Path::UpdatePath()
 {
-	m_path = path;
 	std::replace(m_path.begin(),m_path.end(),'\\','/');
 	if(m_path.empty() == false && m_path.front() == '/')
 		m_path.erase(m_path.begin());
+}
+void util::Path::SetPath(std::string &&path)
+{
+	m_path = std::move(path);
+	UpdatePath();
+}
+void util::Path::SetPath(const std::string &path)
+{
+	m_path = path;
+	UpdatePath();
 }
 
 util::PathIterator<util::Path> util::Path::begin()
