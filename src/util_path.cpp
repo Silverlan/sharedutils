@@ -374,6 +374,30 @@ template<class TPath>
 	return !operator==(other);
 }
 
+util::PathIterator<util::Path>::PathIterator(util::Path &path,bool begin);
+util::PathIterator<const util::Path>::PathIterator(const util::Path &path,bool begin);
+
+const typename util::PathIterator<util::Path>::value_type &util::PathIterator<util::Path>::operator++();
+const typename util::PathIterator<const util::Path>::value_type &util::PathIterator<const util::Path>::operator++();
+
+const typename util::PathIterator<util::Path>::value_type &util::PathIterator<util::Path>::operator++(int);
+const typename util::PathIterator<const util::Path>::value_type &util::PathIterator<const util::Path>::operator++(int);
+
+const typename util::PathIterator<util::Path>::value_type &util::PathIterator<util::Path>::operator--();
+const typename util::PathIterator<const util::Path>::value_type &util::PathIterator<const util::Path>::operator--();
+
+const typename util::PathIterator<util::Path>::value_type &util::PathIterator<util::Path>::operator--(int);
+const typename util::PathIterator<const util::Path>::value_type &util::PathIterator<const util::Path>::operator--(int);
+
+const typename util::PathIterator<util::Path>::value_type &util::PathIterator<util::Path>::operator*() const;
+const typename util::PathIterator<const util::Path>::value_type &util::PathIterator<const util::Path>::operator*() const;
+
+bool typename util::PathIterator<util::Path>::operator==(const PathIterator &other) const;
+bool typename util::PathIterator<const util::Path>::operator==(const PathIterator &other) const;
+
+bool typename util::PathIterator<util::Path>::operator!=(const PathIterator &other) const;
+bool typename util::PathIterator<const util::Path>::operator!=(const PathIterator &other) const;
+
 ////////////
 
 util::Path operator+(const std::string &path,const util::Path &other)

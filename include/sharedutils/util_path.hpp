@@ -43,7 +43,7 @@ namespace util
 		bool operator==(const PathIterator &other) const;
 		bool operator!=(const PathIterator &other) const;
 	private:
-		TPath *m_path = nllptr;
+		TPath *m_path = nullptr;
 		std::string_view m_cur = {};
 		size_t m_pos = 0;
 	};
