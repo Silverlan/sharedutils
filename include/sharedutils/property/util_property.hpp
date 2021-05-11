@@ -226,7 +226,19 @@ template<class TProperty,class T>
 			it = m_modifiers.erase(it);
 			continue;
 		}
-		cbMod.Call<void,std::reference_wrapper<T>>(std::reference_wrapper<T>(newVal));
+		if constexpr(!std::is_enum_v<T>)
+			cbMod.Call<void,std::reference_wrapper<T>>(std::reference_wrapper<T>(newVal));
+		else
+		{
+			// Enum modifiers can be defined with either their actual type or their underlying type
+			if(dynamic_cast<Callback<void,std::reference_wrapper<T>>*>(cbMod.get()))
+				cbMod.Call<void,std::reference_wrapper<T>>(std::reference_wrapper<T>(newVal));
+			else
+			{
+				using TUnderlying = std::underlying_type_t<T>;
+				cbMod.Call<void,std::reference_wrapper<TUnderlying>>(std::reference_wrapper<TUnderlying>(reinterpret_cast<TUnderlying&>(newVal)));
+			}
+		}
 		++it;
 	}
 	if(m_value == newVal)
@@ -290,7 +302,19 @@ template<class TProperty,class T>
 			it = m_callbacks.erase(it);
 		else
 		{
-			cb(std::ref(oldValue),std::ref(newValue));
+			if constexpr(!std::is_enum_v<T>)
+				cb(std::ref(oldValue),std::ref(newValue));
+			else
+			{
+				// Enum callbacks can be defined with either their actual type or their underlying type
+				if(dynamic_cast<Callback<void,std::reference_wrapper<const T>,std::reference_wrapper<const T>>*>(cb.get()))
+					cb(std::ref(oldValue),std::ref(newValue));
+				else
+				{
+					using TUnderlying = std::underlying_type_t<const T>;
+					cb(std::ref(reinterpret_cast<const TUnderlying&>(oldValue)),std::ref(reinterpret_cast<const TUnderlying&>(newValue)));
+				}
+			}
 			++it;
 		}
 	}

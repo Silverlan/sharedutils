@@ -11,7 +11,7 @@
 #include <functional>
 #include <stdexcept>
 
-#define CALLBACK_SANITY_CHECK_ENABLED
+// #define CALLBACK_SANITY_CHECK_ENABLED
 
 enum class CallbackReturnType : uint8_t
 {
