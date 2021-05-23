@@ -137,11 +137,11 @@ util::Path &util::Path::operator+=(const char *other) {return operator+=(std::st
 
 std::string util::Path::GetPath() const
 {
+	if(IsFile() == false)
+		return m_path;
 	auto path = m_path;
 	auto br = path.rfind('/');
-	if(br != std::string::npos)
-		path = path.substr(0,br +1);
-	return path;
+	return (br != std::string::npos) ? path.substr(0,br +1) : "";
 }
 std::string util::Path::GetFileName() const
 {
