@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "sharedutils/netpacket.hpp"
+#include <iostream>
 #include <cstring>
 #include <array>
 
@@ -69,6 +70,12 @@ void NWMPacket::Resize(uint32_t sz,bool bForceResize)
 
 void NWMPacket::SetClient(bool b) {m_bClient = b;}
 bool NWMPacket::IsClient() const {return m_bClient;}
+std::ostream &operator<<(std::ostream &out,const NetPacket &o)
+{
+	out<<"NetPacket";
+	out<<"[Size:"<<o->GetSize()<<"]";
+	return out;
+}
 #ifdef NWM_DISABLE_OPTIMIZATION
 #pragma optimize("",on)
 #endif

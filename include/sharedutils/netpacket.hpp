@@ -65,5 +65,6 @@ public:
 	// The time at which the packet was eithe sent or received
 	uint64_t GetTimeActivated() const;
 };
+DLLSHUTIL std::ostream &operator<<(std::ostream &out,const NetPacket &o);
 
 #endif

@@ -5,6 +5,7 @@
 #include "sharedutils/datastream.h"
 #include <mathutil/umath.h>
 #include <cstring>
+#include <iostream>
 #include <stdexcept>
 
 DataStreamBase::DataStreamBase(uint32_t size,uint32_t headerSize)
@@ -234,3 +235,10 @@ uint32_t DataStreamBase::GetSize() const
 	return m_offset;
 }
 uint32_t DataStreamBase::GetOffset() const {return m_offset;}
+
+std::ostream &operator<<(std::ostream &out,const DataStream &o)
+{
+	out<<"DataStream";
+	out<<"[Size:"<<o->GetSize()<<"]";
+	return out;
+}

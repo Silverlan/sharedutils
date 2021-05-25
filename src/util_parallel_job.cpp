@@ -3,6 +3,7 @@
 * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "sharedutils/util_parallel_job.hpp"
+#include "sharedutils/magic_enum.hpp"
 #include <algorithm>
 
 util::BaseParallelWorker::~BaseParallelWorker()
@@ -182,3 +183,27 @@ util::BaseParallelJob &util::ParallelJobWrapper::operator*() {return *m_job;}
 const util::BaseParallelJob &util::ParallelJobWrapper::operator*() const {return const_cast<ParallelJobWrapper*>(this)->operator*();}
 util::BaseParallelJob *util::ParallelJobWrapper::operator->() {return m_job.get();}
 const util::BaseParallelJob *util::ParallelJobWrapper::operator->() const {return const_cast<ParallelJobWrapper*>(this)->operator->();}
+
+std::ostream &operator<<(std::ostream &out,const util::BaseParallelJob &o)
+{
+	out<<"ParallelJob";
+	if(!o.IsValid())
+	{
+		out<<"[invalid]";
+		return out;
+	}
+	out<<"[Status:";
+	out<<magic_enum::enum_name(o.GetStatus());
+	out<<"]";
+	
+	out<<"[Thread:";
+	if(o.IsThreadActive())
+		out<<"active";
+	else
+		out<<"inactive";
+	out<<"]";
+	
+	out<<"[Progress:"<<o.GetProgress()<<"]";
+	out<<"[Result:"<<o.GetResultMessage()<<"]";
+	return out;
+}

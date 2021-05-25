@@ -134,6 +134,8 @@ public:
 	using TDataStream<DataStreamBase>::TDataStream;
 };
 
+DLLSHUTIL std::ostream &operator<<(std::ostream &out,const DataStream &o);
+
 #pragma warning(push)
 #pragma warning(disable : 4251)
 class DLLSHUTIL DataStreamBase

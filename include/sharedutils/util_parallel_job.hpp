@@ -23,6 +23,7 @@ namespace util
 		Initial,
 		Cancelled,
 		Pending,
+		Count,
 		
 		Invalid = std::numeric_limits<uint8_t>::max()
 	};
@@ -173,6 +174,8 @@ namespace util
 	template<typename TJob,typename... TARGS>
 		ParallelJob<typename TJob::RESULT_TYPE> create_parallel_job(TARGS&& ...args);
 };
+
+DLLSHUTIL std::ostream &operator<<(std::ostream &out,const util::BaseParallelJob &o);
 
 template<typename TJob,typename... TARGS>
 	util::ParallelJob<typename TJob::RESULT_TYPE> util::create_parallel_job(TARGS&& ...args)
