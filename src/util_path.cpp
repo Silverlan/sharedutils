@@ -158,7 +158,7 @@ std::string util::Path::GetFront() const
 {
 	auto br = m_path.find('/');
 	if(br == std::string::npos)
-		return "";
+		return IsFile() ? m_path : "";
 	return m_path.substr(0,br);
 }
 std::string util::Path::GetBack() const
@@ -179,7 +179,11 @@ void util::Path::PopFront()
 {
 	auto br = m_path.find('/');
 	if(br == std::string::npos)
+	{
+		if(IsFile())
+			m_path = "";
 		return;
+	}
 	m_path = m_path.substr(br +1);
 }
 void util::Path::PopBack()
