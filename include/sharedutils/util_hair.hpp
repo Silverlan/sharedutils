@@ -7,6 +7,7 @@
 
 #include "utildefinitions.h"
 #include <mathutil/uvec.h>
+#include <memory>
 
 namespace util
 {

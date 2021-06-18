@@ -22,6 +22,7 @@ THE SOFTWARE.
 * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "sharedutils/util.h"
+#include <cstring>
 
 std::string util::guid_to_string(const GUID &guid)
 {

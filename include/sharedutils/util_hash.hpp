@@ -7,7 +7,7 @@
 
 #include "sharedutils/utildefinitions.h"
 #include <limits>
-#include <cstdint>
+#include <stddef.h>
 #include <type_traits>
 
 // Source: https://stackoverflow.com/a/50978188/2482983

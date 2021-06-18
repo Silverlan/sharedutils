@@ -20,11 +20,12 @@
 	#include <glob.h>
 	#include <stdlib.h>
 	#include <string.h>
-	#include <pthread>
+	#include <pthread.h>
 	#include <stdio.h>
 	#include <dlfcn.h>
 	#include <unistd.h>
 	#include <linux/reboot.h>
+	#include <sys/reboot.h>
 #else
 	#include "Shlwapi.h"
 	#include <vector>
@@ -32,9 +33,9 @@
 	#include <TlHelp32.h>
 	#include <comutil.h>
 	#include <direct.h>
-	#include <thread>
 	#include <Shlobj_core.h>
 #endif
+#include <thread>
 
 #pragma comment(lib,"mathutil.lib")
 
@@ -738,8 +739,8 @@ void util::open_url_in_browser(const std::string &url)
 
 void util::set_thread_priority(std::thread &thread,ThreadPriority priority)
 {
-	auto *threadHandle = thread.native_handle();
 #ifdef _WIN32
+	auto *threadHandle = thread.native_handle();
 	switch(priority)
 	{
 		case ThreadPriority::Lowest:
@@ -761,6 +762,7 @@ void util::set_thread_priority(std::thread &thread,ThreadPriority priority)
 			break;
 	}
 #else
+	auto threadHandle = thread.native_handle();
 	auto minPriority = sched_get_priority_min(SCHED_OTHER);
 	auto maxPriority = sched_get_priority_max(SCHED_OTHER);
 	switch(priority)
@@ -795,10 +797,12 @@ uint64_t util::to_uint64(const std::string_view &str)
 	return strtoll(str.data(),nullptr,10);
 }
 
+#ifdef _WIN32
 HWND util::get_window_handle()
 {
 	return GetActiveWindow();
 }
+#endif
 
 void util::minimize_window_to_tray()
 {
@@ -881,7 +885,7 @@ bool util::shutdown_os()
 	//shutdown was successful
 	return TRUE;
 #else
-	reboot(LINUX_REBOOT_MAGIC1,LINUX_REBOOT_MAGIC2,LINUX_REBOOT_CMD_POWER_OFF,0);
+	reboot(LINUX_REBOOT_CMD_POWER_OFF);
 	return true;
 #endif
 }
