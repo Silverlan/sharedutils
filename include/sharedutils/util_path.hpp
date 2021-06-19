@@ -6,6 +6,7 @@
 #define __UTIL_PATH_HPP__
 
 #include "utildefinitions.h"
+#include "sharedutils/util_file.h"
 #include <string>
 #include <string_view>
 #include <optional>

@@ -20,8 +20,8 @@
 #include <winreg.h>
 #else
 #include <ios>
-#include <sstream>
 #endif
+#include <sstream>
 
 namespace std {class thread;};
 namespace util

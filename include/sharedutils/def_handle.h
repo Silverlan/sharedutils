@@ -85,7 +85,7 @@ template<class TBaseClass,class TInternalClass>
 	int32_t util::BaseHandle<TBaseClass,TInternalClass>::use_count() const {return m_basePointer.use_count();}
 
 template<class TBaseClass,class TInternalClass>
-	bool util::BaseHandle<TBaseClass,TInternalClass>::unique() const {return m_basePointer.unique();}
+	bool util::BaseHandle<TBaseClass,TInternalClass>::unique() const {return m_basePointer.use_count() == 1;}
 
 template<class TBaseClass,class TInternalClass>
 	bool util::BaseHandle<TBaseClass,TInternalClass>::operator==(const TBaseClass &other) const
@@ -252,7 +252,7 @@ template<class TBaseClass,class TInternalClass>
 	void localname##Handle::Invalidate() {m_basePointer.get()->Invalidate();} \
 	localname##Handle *localname##Handle::Copy() {return new localname##Handle(*this);} \
 	int localname##Handle::use_count() {return m_basePointer.use_count();} \
-	bool localname##Handle::unique() {return m_basePointer.unique();} \
+	bool localname##Handle::unique() {return m_basePointer.use_count() == 1;} \
 	bool localname##Handle::operator==(const classname *other) const \
 	{ \
 		if(other == NULL) \

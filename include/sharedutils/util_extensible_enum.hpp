@@ -42,11 +42,9 @@ namespace util
 		TExtensibleEnum(const T &val) : m_value(val) {}
 		// This constructor is dangerous and should only be used if ALL enums are defined in the same compilation unit
 		TExtensibleEnum() : m_value(s_max++) {}
-		static uint32_t s_max;
+		static inline uint32_t s_max = 0u;
 		T m_value;
 	};
-	template<typename T>
-		decltype(TExtensibleEnum<T>::s_max) TExtensibleEnum<T>::s_max = 0u;
 
 	class DLLSHUTIL ExtensibleEnum
 		: public TExtensibleEnum<uint32_t>

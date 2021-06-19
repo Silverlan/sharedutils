@@ -11,10 +11,6 @@
 #include <vector>
 #include <algorithm>
 
-#ifdef __linux__
-#include "sharedutils/util_string.h"
-#endif
-
 namespace ufile
 {
 	DLLSHUTIL bool get_extension(const std::string &f,std::string *ext);
