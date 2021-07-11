@@ -7,6 +7,7 @@
 #include "sharedutils/util_string.h"
 #include "sharedutils/util_file.h"
 #include "sharedutils/uuid.h"
+#include "sharedutils/scope_guard.h"
 #include <sstream>
 #include <iomanip>
 #include <cstring>
@@ -416,7 +417,7 @@ bool util::start_process(const char *program,const std::vector<std::string> &arg
 	return start_process(program,ss.str(),bGlobalPath);
 }
 #ifdef _WIN32
-static bool start_and_wait_for_command(const char *program,const char *cmd,const char *cwd,unsigned int *exitCode,bool bGlobalPath)
+static bool start_and_wait_for_command(const char *program,const char *cmd,const char *cwd,unsigned int *exitCode,bool bGlobalPath,std::string *optOutput)
 {
 	std::string path;
 	if(program != nullptr)
@@ -432,6 +433,44 @@ static bool start_and_wait_for_command(const char *program,const char *cmd,const
 	}
 	STARTUPINFO StartupInfo;
 	ZeroMemory(&StartupInfo,sizeof(StartupInfo));
+
+	//
+	//util::ScopeGuard sgStdIn {};
+	//util::ScopeGuard sgStdOut {};
+	HANDLE g_hChildStd_OUT_Rd;
+	if(optOutput)
+	{
+		// See https://stackoverflow.com/a/54689395/2482983
+		SECURITY_ATTRIBUTES sa;
+		HANDLE g_hChildStd_IN_Rd, g_hChildStd_OUT_Wr, g_hChildStd_IN_Wr; //pipe handles
+
+		sa.nLength = sizeof(SECURITY_ATTRIBUTES);
+		sa.bInheritHandle = TRUE;
+		sa.lpSecurityDescriptor = NULL;
+
+		if (CreatePipe(&g_hChildStd_IN_Rd,&g_hChildStd_IN_Wr,&sa,0)) //create stdin pipe
+		{
+			/*sgStdIn = [&g_hChildStd_IN_Rd,&g_hChildStd_IN_Wr]() {
+				CloseHandle(g_hChildStd_IN_Rd);
+				CloseHandle(g_hChildStd_IN_Wr);
+			};*/
+
+			if (CreatePipe(&g_hChildStd_OUT_Rd, &g_hChildStd_OUT_Wr,&sa,0)) //create stdout pipe
+			{
+				/*sgStdOut = [&g_hChildStd_OUT_Wr,&g_hChildStd_OUT_Rd]() {
+					CloseHandle(g_hChildStd_OUT_Wr);
+					CloseHandle(g_hChildStd_OUT_Rd);
+				};*/
+				
+                StartupInfo.dwFlags = STARTF_USESTDHANDLES;
+				StartupInfo.hStdOutput = g_hChildStd_OUT_Wr;
+				// StartupInfo.hStdError = g_hChildStd_OUT_Wr;
+				StartupInfo.hStdInput = g_hChildStd_IN_Rd;
+			}
+		}
+	}
+	//
+
 	PROCESS_INFORMATION ProcessInfo;
 	auto hProcess = CreateProcess(
 		(program != nullptr) ? path.c_str() : nullptr,	//  pointer to name of executable module  
@@ -456,10 +495,38 @@ static bool start_and_wait_for_command(const char *program,const char *cmd,const
 	GetExitCodeProcess(ProcessInfo.hProcess,&code);
 	if(exitCode != nullptr)
 		*exitCode = code;
+
+	if(optOutput)
+	{
+		DWORD read;   //bytes read
+		DWORD avail;   //bytes available
+		std::vector<char> buf;
+
+		for(;;)
+		{
+			if(!PeekNamedPipe(g_hChildStd_OUT_Rd,nullptr,0,nullptr,&avail,nullptr))
+				break;
+			auto offset = buf.size();
+			buf.resize(buf.size() +avail);
+			auto *data = buf.data() +offset;
+			auto toRead = avail;
+			PeekNamedPipe(g_hChildStd_OUT_Rd,data,toRead,&read,&avail,nullptr);
+			//check to see if there is any data to read from stdout
+			if(read != 0)
+			{
+				if (ReadFile(g_hChildStd_OUT_Rd,data,toRead,&read,nullptr))
+					break;
+			}
+		}
+		*optOutput = {buf.data(),buf.size()};
+	}
+
+	// CloseHandle(ProcessInfo.hThread);
+	// CloseHandle(ProcessInfo.hProcess);
 	return true;
 }
-bool util::start_and_wait_for_command(const char *cmd,const char *cwd,unsigned int *exitCode) {return ::start_and_wait_for_command(nullptr,cmd,cwd,exitCode,false);}
-bool util::start_and_wait_for_process(const char *program,unsigned int *exitCode,bool bGlobalPath) {return ::start_and_wait_for_command(program,nullptr,nullptr,exitCode,bGlobalPath);}
+bool util::start_and_wait_for_command(const char *cmd,const char *cwd,unsigned int *exitCode,std::string *optOutput) {return ::start_and_wait_for_command(nullptr,cmd,cwd,exitCode,false,optOutput);}
+bool util::start_and_wait_for_process(const char *program,unsigned int *exitCode,bool bGlobalPath,std::string *optOutput) {return ::start_and_wait_for_command(program,nullptr,nullptr,exitCode,bGlobalPath,optOutput);}
 #endif
 
 std::string util::get_last_system_error_string()

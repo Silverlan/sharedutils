@@ -41,7 +41,7 @@ namespace util
 	DLLSHUTIL bool start_process(const char *program,const std::string &args,bool bGlobalPath=false);
 	DLLSHUTIL bool start_process(const char *program,const std::vector<std::string> &args,bool bGlobalPath=false);
 #ifdef _WIN32
-	DLLSHUTIL bool start_and_wait_for_process(const char *program,unsigned int *exitCode=nullptr,bool bGlobalPath=false);
+	DLLSHUTIL bool start_and_wait_for_process(const char *program,unsigned int *exitCode=nullptr,bool bGlobalPath=false,std::string *optOutput=nullptr);
 #endif
 	DLLSHUTIL std::string get_last_system_error_string();
 	DLLSHUTIL bool is_x64_system();
@@ -97,7 +97,7 @@ namespace util
 	DLLSHUTIL std::string get_current_working_directory();
 	DLLSHUTIL bool set_current_working_directory(const std::string &path);
 #ifdef _WIN32
-	DLLSHUTIL bool start_and_wait_for_command(const char *cmd,const char *cwd=nullptr,unsigned int *exitCode=nullptr);
+	DLLSHUTIL bool start_and_wait_for_command(const char *cmd,const char *cwd=nullptr,unsigned int *exitCode=nullptr,std::string *optOutput=nullptr);
 #endif
 	DLLSHUTIL void open_url_in_browser(const std::string &url);
 	DLLSHUTIL void open_file_in_default_program(const std::string &filePath);
