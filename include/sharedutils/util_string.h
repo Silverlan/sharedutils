@@ -40,7 +40,8 @@ namespace ustring
 {
 	DLLSHUTIL extern const std::string WHITESPACE;
 	DLLSHUTIL extern const UInt NOT_FOUND;
-
+	
+	DLLSHUTIL void remove_whitespace(std::string_view &s);
 	DLLSHUTIL void remove_whitespace(std::string &s);
 	DLLSHUTIL void remove_whitespace(std::vector<std::string> &ss);
 	DLLSHUTIL void remove_quotes(std::string &s);

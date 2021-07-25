@@ -115,6 +115,19 @@ Bool ustring::match(const std::string_view &text,const std::string_view &strMatc
             return match(text.substr((pszText +1) -text.data()),strMatch.substr(pszMatch -strMatch.data()),bMatchCase); 
     } 
 }
+void ustring::remove_whitespace(std::string_view &s)
+{
+	if(s.empty())
+		return;
+	UInt begin = s.find_first_not_of(WHITESPACE);
+	UInt end = s.find_last_not_of(WHITESPACE);
+	if(begin == UInt(-1) || end == UInt(-1))
+	{
+		s = "";
+		return;
+	}
+	s = s.substr(begin,(end -begin) +1);
+}
 void ustring::remove_whitespace(std::string &s)
 {
 	if(s.empty())
