@@ -30,6 +30,7 @@ namespace util
 		class TSharedHandle
 	{
 	public:
+		using value_type = T;
 		friend TWeakSharedHandle<T>;
 		TSharedHandle(const TSharedHandle<T>&)=default;
 		TSharedHandle(const std::shared_ptr<PtrSharedHandleData> &data,T *typedDataPtr);
@@ -52,6 +53,17 @@ namespace util
 		T *GetRawPtr();
 		void Remove();
 
+		// Alias methods for compatibility with shared_ptr
+		bool valid() const {return IsValid();}
+		bool expired() const {return IsExpired();}
+		const T *get() const {return Get();}
+		T *get() {return Get();}
+
+		template<class T>
+			T *get() {return static_cast<T*>(get());}
+		template<class T>
+			const T *get() const {return static_cast<T*>(get());}
+
 		const std::shared_ptr<PtrSharedHandleData> &GetInternalData() const;
 	private:
 		std::shared_ptr<PtrSharedHandleData> m_data = nullptr;
@@ -60,6 +72,8 @@ namespace util
 
 	template<class TSrc,class TDst>
 		TSharedHandle<TDst> shared_handle_cast(const TSharedHandle<TSrc> &handle);
+	template<class TDst>
+		TSharedHandle<TDst> to_shared_handle(const std::shared_ptr<TDst> &handle);
 	template<class T>
 		TSharedHandle<T> claim_shared_handle_ownership(const TWeakSharedHandle<T> &wkHandle);
 
@@ -67,6 +81,7 @@ namespace util
 		class TWeakSharedHandle
 	{
 	public:
+		using value_type = T;
 		template<class TSrc,class TDst>
 			friend TWeakSharedHandle<TDst> weak_shared_handle_cast(const TWeakSharedHandle<TSrc> &handle);
 		template<class T>
@@ -89,6 +104,18 @@ namespace util
 		const T *GetRawPtr() const;
 		T *GetRawPtr();
 		void Remove();
+		void Reset();
+
+		// Alias methods for compatibility with shared_ptr
+		bool valid() const {return IsValid();}
+		bool expired() const {return IsExpired();}
+		const T *get() const {return Get();}
+		T *get() {return Get();}
+
+		template<class T>
+			T *get() {return static_cast<T*>(get());}
+		template<class T>
+			const T *get() const {return static_cast<T*>(get());}
 
 		std::shared_ptr<PtrSharedHandleData> GetInternalData() const;
 	private:
@@ -161,6 +188,12 @@ template<class TSrc,class TDst>
 		return util::TSharedHandle<TDst>{handle.GetInternalData(),dynamic_cast<TDst*>(const_cast<TSrc*>(handle.Get()))};
 }
 
+template<class TDst>
+	util::TSharedHandle<TDst> util::to_shared_handle(const std::shared_ptr<TDst> &handle)
+{
+	return util::TSharedHandle<TDst>{std::make_shared<PtrSharedHandleData>(handle),handle.get()};
+}
+
 template<class T>
 	util::TSharedHandle<T> util::claim_shared_handle_ownership(const TWeakSharedHandle<T> &wkHandle)
 {
@@ -219,6 +252,12 @@ template<typename T>
 	T *util::TWeakSharedHandle<T>::GetRawPtr() {return m_typedPtr;}
 template<typename T>
 	void util::TWeakSharedHandle<T>::Remove() {m_data.lock()->Invalidate();}
+template<typename T>
+	void util::TWeakSharedHandle<T>::Reset()
+{
+	m_data = {};
+	m_typedPtr = nullptr;
+}
 template<typename T>
 	std::shared_ptr<util::PtrSharedHandleData> util::TWeakSharedHandle<T>::GetInternalData() const {return m_data.lock();}
 

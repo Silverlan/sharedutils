@@ -13,6 +13,8 @@ namespace util
 		class WeakHandle
 	{
 	public:
+		using value_type = T;
+
 		WeakHandle()=default;
 		WeakHandle(const std::shared_ptr<T> &o);
 		WeakHandle(const WeakHandle<T>&)=default;
