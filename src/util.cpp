@@ -8,6 +8,7 @@
 #include "sharedutils/util_file.h"
 #include "sharedutils/uuid.h"
 #include "sharedutils/scope_guard.h"
+#include "sharedutils/util_string_hash.hpp"
 #include <sstream>
 #include <iomanip>
 #include <cstring>
