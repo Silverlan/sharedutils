@@ -133,6 +133,46 @@ namespace ustring
 				return char_to_lower(a) == char_to_lower(b);
 		});*/
 	}
+
+	// See https://stackoverflow.com/a/26082447/2482983
+	template< size_t N >
+	consteval size_t length( char const (&)[N] )
+	{
+		return N -1;
+	}
+
+	namespace string_switch
+	{
+		// See https://stackoverflow.com/a/46711735/2482983
+		constexpr uint32_t hash(const char* data, size_t const size) noexcept
+		{
+			uint32_t hash = 5381;
+
+			for(const char *c = data; c < data + size; ++c)
+				hash = ((hash << 5) + hash) + (unsigned char) *c;
+
+			return hash;
+		}
+
+		constexpr uint32_t hash(const std::string_view &str) noexcept
+		{
+			return hash(str.data(),str.length());
+		}
+
+		template< size_t N >
+		consteval uint32_t hash(char const (&data)[N]) noexcept{
+			return hash(data,N -1);
+		}
+
+		constexpr inline
+		long long int hash(char const * str, int h = 0)
+		{
+			return (!str[h] ? 5381 : (hash(str, h+1)*33) ^ str[h] );
+		}
+
+		constexpr inline
+			long long int operator "" _(char const * p, size_t) { return hash(p); }
+	}
 }
 
 template<class type,class rtype>
