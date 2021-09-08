@@ -135,33 +135,27 @@ util::Path &util::Path::operator+=(const Path &other)
 util::Path util::Path::operator+(const char *other) {return operator+(std::string{other});}
 util::Path &util::Path::operator+=(const char *other) {return operator+=(std::string{other});}
 
-std::string util::Path::GetPath() const
+std::string_view util::Path::GetPath() const
 {
 	if(IsFile() == false)
 		return m_path;
-	auto path = m_path;
+	std::string_view path = m_path;
 	auto br = path.rfind('/');
-	return (br != std::string::npos) ? path.substr(0,br +1) : "";
+	return (br != std::string::npos) ? path.substr(0,br +1) : std::string_view{};
 }
-std::string util::Path::GetFileName() const
+std::string_view util::Path::GetFileName() const
 {
 	if(IsFile() == false)
 		return "";
-	auto file = m_path;
+	std::string_view file = m_path;
 	auto br = file.rfind('/');
 	if(br != std::string::npos)
 		file = file.substr(br +1);
 	return file;
 }
 
-std::string util::Path::GetFront() const
-{
-	auto br = m_path.find('/');
-	if(br == std::string::npos)
-		return IsFile() ? m_path : "";
-	return m_path.substr(0,br);
-}
-std::string util::Path::GetBack() const
+std::string_view util::Path::GetFront() const {return GetComponent(0);}
+std::string_view util::Path::GetBack() const
 {
 	auto br = m_path.rfind('/');
 	if(IsFile() == false)
@@ -171,8 +165,25 @@ std::string util::Path::GetBack() const
 			return m_path;
 	}
 	if(br == std::string::npos)
-		return "";
-	return m_path.substr(br +1);
+		return std::string_view{};
+	return std::string_view{m_path}.substr(br +1);
+}
+std::string_view util::Path::GetComponent(size_t offset,size_t *outOptNextOffset) const
+{
+	if(offset >= m_path.size())
+		return {};
+	std::string_view path {m_path};
+	path = path.substr(offset);
+	auto br = path.find('/');
+	if(br == std::string::npos)
+	{
+		if(outOptNextOffset)
+			*outOptNextOffset = std::numeric_limits<size_t>::max();
+		return IsFile() ? path : std::string_view{};
+	}
+	if(outOptNextOffset)
+		*outOptNextOffset = br +1;
+	return path.substr(0,br);
 }
 
 void util::Path::PopFront()

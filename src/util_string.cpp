@@ -338,7 +338,8 @@ std::string_view ustring::substr(const std::string_view &str,std::size_t start,s
 {
 	return (start < str.length()) ? str.substr(start,len) : std::string_view{};
 }
-bool ustring::compare(const std::string &a,const std::string &b,bool caseSensitive)
+template<typename T> requires(std::is_same_v<T,std::string> || std::is_same_v<T,std::string_view>)
+bool ustring::compare(const T &a,const T &b,bool caseSensitive)
 {
 	if(caseSensitive == true)
 		return a == b;
@@ -348,6 +349,8 @@ bool ustring::compare(const std::string &a,const std::string &b,bool caseSensiti
 		return std::tolower(a) == std::tolower(b);
 	});
 }
+template DLLSHUTIL bool ustring::compare<std::string>(const std::string &a,const std::string &b,bool caseSensitive);
+template DLLSHUTIL bool ustring::compare<std::string_view>(const std::string_view &a,const std::string_view &b,bool caseSensitive);
 bool ustring::compare(const char *a,const char *b,bool caseSensitive,size_t len)
 {
 	if(caseSensitive == true)

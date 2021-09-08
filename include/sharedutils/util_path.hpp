@@ -72,11 +72,12 @@ namespace util
 		Path operator+(const char *other);
 		Path &operator+=(const char *other);
 
-		std::string GetPath() const;
-		std::string GetFileName() const;
+		std::string_view GetPath() const;
+		std::string_view GetFileName() const;
 
-		std::string GetFront() const;
-		std::string GetBack() const;
+		std::string_view GetFront() const;
+		std::string_view GetBack() const;
+		std::string_view GetComponent(size_t offset,size_t *outOptNextOffset=nullptr) const;
 		void PopFront();
 		void PopBack();
 		void MakeRelative(const Path &relativeTo);

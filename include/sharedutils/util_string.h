@@ -94,7 +94,8 @@ namespace ustring
 	DLLSHUTIL std::size_t longest_common_substring(const std::string &str1,const std::string &str2);
 	DLLSHUTIL std::string substr(const std::string &str,std::size_t start,size_t len=std::string::npos);
 	DLLSHUTIL std::string_view substr(const std::string_view &str,std::size_t start,size_t len=std::string::npos);
-	DLLSHUTIL bool compare(const std::string &a,const std::string &b,bool caseSensitive=true);
+	template<typename T> requires(std::is_same_v<T,std::string> || std::is_same_v<T,std::string_view>)
+		bool compare(const T &a,const T &b,bool caseSensitive=true);
 	DLLSHUTIL bool compare(const char *a,const char *b,bool caseSensitive=true,size_t len=std::string::npos);
 	DLLSHUTIL std::string name_to_identifier(const std::string &name);
 
