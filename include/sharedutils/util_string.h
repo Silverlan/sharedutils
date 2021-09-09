@@ -160,19 +160,8 @@ namespace ustring
 			return hash(str.data(),str.length());
 		}
 
-		template< size_t N >
-		consteval uint32_t hash(char const (&data)[N]) noexcept{
-			return hash(data,N -1);
-		}
-
 		constexpr inline
-		long long int hash(char const * str, int h = 0)
-		{
-			return (!str[h] ? 5381 : (hash(str, h+1)*33) ^ str[h] );
-		}
-
-		constexpr inline
-			long long int operator "" _(char const * p, size_t) { return hash(p); }
+			long long int operator "" _(char const * p, size_t) { return ustring::string_switch::hash(p,std::char_traits<char>::length(p)); }
 	}
 }
 
