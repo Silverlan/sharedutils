@@ -182,7 +182,7 @@ std::string_view util::Path::GetComponent(size_t offset,size_t *outOptNextOffset
 		return IsFile() ? path : std::string_view{};
 	}
 	if(outOptNextOffset)
-		*outOptNextOffset = br +1;
+		*outOptNextOffset = offset +br +1;
 	return path.substr(0,br);
 }
 
