@@ -1,6 +1,7 @@
 #include "utildefinitions.h"
 #include <string>
 #include <array>
+#include <unordered_map>
 
 // See https://stackoverflow.com/a/11040947/2482983
 struct UriTextRangeStructA;
@@ -35,4 +36,6 @@ namespace uriparser
 
 			std::string fromList(UriPathSegmentStructA * xs, const std::string & delim) const;
 	};
+	template<typename T> requires(std::is_same_v<T,std::string> || std::is_same_v<T,std::string_view>)
+	void parse_uri_query(const std::string_view &query,std::unordered_map<T,T> &outParams);
 }
