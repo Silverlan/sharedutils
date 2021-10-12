@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
 
 set(PROJ_NAME sharedutils)
-project(${PROJ_NAME} CXX)
+project(${PROJ_NAME} C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 
