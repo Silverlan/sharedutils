@@ -1,0 +1,54 @@
+version: '{build}'
+clone_folder: c:\projects\sharedutils
+image:
+- Visual Studio 2019
+configuration:
+- Release
+- Debug
+
+matrix:
+  fast_finish: true
+
+init:
+- set arch=
+- if "%arch%"=="Win64" ( set arch= Win64)
+- echo %arch%
+- echo %APPVEYOR_BUILD_WORKER_IMAGE%
+- if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2019" ( set generator="Visual Studio 16 2019%arch%" )
+- echo %generator%
+
+before_build:
+# download GLM https://glm.g-truc.net
+- cmd: |-
+    cd c:\projects\
+    curl -LJO https://github.com/g-truc/glm/releases/download/0.9.9.8/glm-0.9.9.8.zip
+    7z x glm-0.9.9.8.zip
+    dir
+# clone mathutil
+- cmd: |-
+    cd c:\projects\
+    git clone https://github.com/Silverlan/mathutil.git
+    cd mathutil
+    git checkout master
+    mkdir build
+# build sharedutils-static
+- cmd: |-
+    cd c:\projects\sharedutils
+    git checkout main
+    mkdir build-static
+    cd build-static
+    cmake .. -G %generator% -DDEPENDENCY_GLM_INCLUDE=c:\projects\glm -DSHAREDUTILS_STATIC=ON  -DDEPENDENCY_MATHUTIL_INCLUDE=C:\projects\mathutil\include\
+    msbuild c:\projects\sharedutils\build-static\sharedutils.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+# build sharedutils
+- cmd: |-
+    cd c:\projects\sharedutils
+    git checkout main
+    mkdir build
+    cd build
+    cmake .. -G %generator% -DDEPENDENCY_GLM_INCLUDE=c:\projects\glm -DSHAREDUTILS_STATIC=OFF  -DDEPENDENCY_MATHUTIL_INCLUDE=C:\projects\mathutil\include\
+    msbuild c:\projects\sharedutils\build-static\sharedutils.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+
+build:
+  project: build-static\sharedutils.sln
+  verbosity: normal
+  parallel: true
