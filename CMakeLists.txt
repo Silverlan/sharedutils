@@ -18,7 +18,7 @@ endif()
 
 add_definitions(-DSHUTIL_DLL)
 add_definitions(-DGLM_FORCE_DEPTH_ZERO_TO_ONE)
-add_definitions(-URI_STATIC_BUILD)
+add_definitions(-DURI_STATIC_BUILD)
 
 function(def_vs_filters FILE_LIST)
 	foreach(source IN LISTS FILE_LIST)
