@@ -34,7 +34,7 @@ before_build:
 # build sharedutils-static
 - cmd: |-
     cd c:\projects\sharedutils
-    git checkout main
+    git checkout master
     mkdir build-static
     cd build-static
     cmake .. -G %generator% -DDEPENDENCY_GLM_INCLUDE=c:\projects\glm -DSHAREDUTILS_STATIC=ON  -DDEPENDENCY_MATHUTIL_INCLUDE=C:\projects\mathutil\include\
@@ -42,7 +42,6 @@ before_build:
 # build sharedutils
 - cmd: |-
     cd c:\projects\sharedutils
-    git checkout main
     mkdir build
     cd build
     cmake .. -G %generator% -DDEPENDENCY_GLM_INCLUDE=c:\projects\glm -DSHAREDUTILS_STATIC=OFF  -DDEPENDENCY_MATHUTIL_INCLUDE=C:\projects\mathutil\include\
