@@ -1,11 +1,11 @@
-name: Generic Pragma CI
+name: Build
 
-on: [push]
-#on:
-#  push:
-#    branches: [ master ]
-#  pull_request:
-#    branches: [ master ]
+# on: [push]
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
     
 env:
   shared_cmake_definitions: -DDEPENDENCY_GLM_INCLUDE=./third_party_libs/glm -DDEPENDENCY_MATHUTIL_INCLUDE=./external_libs/mathutil/include -DMATHUTIL_ENABLE_MESH_FUNCTIONS=OFF -DSHAREDUTILS_STATIC=ON
@@ -39,7 +39,7 @@ jobs:
         run: |
           git submodule update --init --recursive
           
-      - name: Download submodule - GLM 0.9.9.8
+      - name: Download submodule - GLM
         uses: Silverlan/common_actions/get_glm@main
           
       - name: Download submodule - mathutil
