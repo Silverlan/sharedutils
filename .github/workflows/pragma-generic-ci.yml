@@ -49,6 +49,7 @@ jobs:
       - name: CMake Build
         uses: Silverlan/common_actions/build_cmake@actions
         with:
+          build_target: sharedutils
           build_type: ${{ matrix.config.build_type }}
           build_generator: ${{ matrix.config.generators }}
           
