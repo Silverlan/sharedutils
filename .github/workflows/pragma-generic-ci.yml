@@ -47,7 +47,7 @@ jobs:
         with:
           repo: 'https://github.com/Silverlan/mathutil.git'
           repo_name: 'mathutil'
-          cmake_var: 'DEPENDENCY_SHAREDUTILS_INCLUDE'
+          cmake_var: 'DEPENDENCY_MATHUTIL_INCLUDE'
           
       - name: CMake Build
         uses: Silverlan/common_actions/build_cmake@actions
