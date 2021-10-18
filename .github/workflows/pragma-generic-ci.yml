@@ -39,12 +39,15 @@ jobs:
           
       - name: Download submodule - GLM
         uses: Silverlan/common_actions/get_glm@actions
+        with:
+          cmake_var: 'DEPENDENCY_GLM_INCLUDE'
           
       - name: Download submodule - mathutil
         uses: Silverlan/common_actions/get_submodule@actions
         with:
           repo: 'https://github.com/Silverlan/mathutil.git'
           repo_name: 'mathutil'
+          cmake_var: 'DEPENDENCY_SHAREDUTILS_INCLUDE'
           
       - name: CMake Build
         uses: Silverlan/common_actions/build_cmake@actions
