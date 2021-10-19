@@ -9,11 +9,17 @@ set(DEPENDENCY_GLM_INCLUDE "" CACHE PATH "Path to GLM include directory.")
 set(DEPENDENCY_MATHUTIL_INCLUDE "" CACHE PATH "Path to sharedutils include directory.")
 set(DEPENDENCY_MATHUTIL_LIBRARY "" CACHE FILEPATH "Path to mathutil library. Required if this is compiled as a shared library.")
 option(SHAREDUTILS_STATIC "Build as static library?" OFF)
+option(LINK_COMMON_LIBS_STATIC "Link to common Pragma libraries statically?" OFF)
 
 if(${SHAREDUTILS_STATIC})
 	set(LIB_TYPE STATIC)
 else()
 	set(LIB_TYPE SHARED)
+endif()
+
+if(${LINK_COMMON_LIBS_STATIC})
+	add_definitions(-DMUTIL_STATIC)
+	add_definitions(-DVFILESYSTEM_STATIC)
 endif()
 
 add_definitions(-DSHUTIL_DLL)
