@@ -189,7 +189,7 @@ template<typename TJob,typename... TARGS>
 	}};
 	if(job->IsValid() == false)
 		return {};
-	return util::ParallelJob<TJob::RESULT_TYPE>{*job};
+	return util::ParallelJob<typename TJob::RESULT_TYPE>{*job};
 }
 
 template<typename T>

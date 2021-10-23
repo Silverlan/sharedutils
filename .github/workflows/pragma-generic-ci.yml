@@ -1,14 +1,11 @@
 name: Build
 
-# on: [push]
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
-    
-env:
-  shared_cmake_definitions: -DDEPENDENCY_GLM_INCLUDE=./third_party_libs/glm -DDEPENDENCY_MATHUTIL_INCLUDE=./external_libs/mathutil/include -DMATHUTIL_ENABLE_MESH_FUNCTIONS=OFF -DSHAREDUTILS_STATIC=ON
+on: [push]
+#on:
+#  push:
+#    branches: [ master ]
+#  pull_request:
+#    branches: [ master ]
 
 jobs:
   # WINDOWS x64 MSVC
@@ -28,7 +25,8 @@ jobs:
             cc: "cl",
             cxx: "cl",
             archiver: "7z a",
-            generators: "Visual Studio 16 2019"
+            generators: "Visual Studio 16 2019",
+            build_dir: 'build'
           }
 
     steps:
@@ -40,67 +38,26 @@ jobs:
           git submodule update --init --recursive
           
       - name: Download submodule - GLM
-        uses: Silverlan/common_actions/get_glm@main
+        uses: Silverlan/common_actions/get_glm@actions
+        with:
+          cmake_var: 'DEPENDENCY_GLM_INCLUDE'
           
       - name: Download submodule - mathutil
-        uses: Silverlan/common_actions/get_submodule@main
+        uses: Silverlan/common_actions/get_submodule@actions
         with:
           repo: 'https://github.com/Silverlan/mathutil.git'
           repo_name: 'mathutil'
+          cmake_var: 'DEPENDENCY_MATHUTIL_INCLUDE'
           
       - name: CMake Build
-        uses: Silverlan/common_actions/build_cmake@main
+        uses: Silverlan/common_actions/build_cmake@actions
         with:
+          build_target: sharedutils
           build_type: ${{ matrix.config.build_type }}
           build_generator: ${{ matrix.config.generators }}
-          cmake_definitions: ${{ env.shared_cmake_definitions }} -DCMAKE_BUILD_TYPE=${{ matrix.config.build_type }}
           
-  # UBUNTU x64 GCC
-  build-ubuntu:
-    name: Build-Ubuntu-x64
-    runs-on: ${{ matrix.config.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        config:
-        - {
-            name: "Ubuntu GCC-11",
-            os: ubuntu-latest,
-            artifact: "ubuntu_gcc.7z",
-            build_type: "RelWithDebInfo",
-            cc: "gcc-11",
-            cxx: "g++-11",
-            archiver: "7z a",
-            generators: "Unix Makefiles"
-          }
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-
-      - name: Install GCC-11
-        run: |
-          sudo apt update
-          sudo apt install gcc-11 g++-11
-          
-      - name: Download submodules
-        run: |
-          git submodule update --init --recursive
-          
-      - name: Download submodule - GLM 0.9.9.8
-        uses: Silverlan/common_actions/curl_download@main
+      - uses: actions/upload-artifact@v2
         with:
-          download_url: 'https://github.com/g-truc/glm/releases/download/0.9.9.8/glm-0.9.9.8.zip'
-          file_name: 'glm-0.9.9.8.zip'
+          name: upload-binary
+          path: build/${{ matrix.config.build_type }}/sharedutils.lib
           
-      - name: Download submodule - mathutil
-        uses: Silverlan/common_actions/get_submodule@main
-        with:
-          repo: 'https://github.com/Silverlan/mathutil.git'
-          repo_name: 'mathutil'
-          
-      - name: CMake Build
-        uses: Silverlan/common_actions/build_cmake@main
-        with:
-          build_type: ${{ matrix.config.build_type }}
-          build_generator: ${{ matrix.config.generators }}
-          cmake_definitions: ${{ env.shared_cmake_definitions }} -DCMAKE_BUILD_TYPE=${{ matrix.config.build_type }}
