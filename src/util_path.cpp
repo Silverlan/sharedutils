@@ -5,6 +5,7 @@
 #include "sharedutils/util_path.hpp"
 #include "sharedutils/util_file.h"
 #include "sharedutils/util_string.h"
+#include <filesystem>
 #include <algorithm>
 #ifdef __linux__
 	#include <sys/types.h>
@@ -34,22 +35,10 @@ std::string util::get_normalized_path(const std::string &path)
 }
 void util::canonicalize_path(std::string &inOutPath)
 {
-	if(inOutPath.empty())
-		return;
-	std::replace(inOutPath.begin(),inOutPath.end(),'/','\\'); // TODO: Do we need to do this?
-	ustring::replace(inOutPath,"\\\\","");
-#ifdef __linux__
-	std::string spathReal = normalizePath(inOutPath);
-#else
-	const char *buf = inOutPath.c_str();
-	char pathReal[MAX_PATH];
-	PathCanonicalizeA(pathReal,buf);
-	std::string spathReal = pathReal;
-	if(!spathReal.empty() && spathReal[0] == '\\')
-		spathReal = spathReal.substr(1,spathReal.size());
-#endif
-	inOutPath = std::move(spathReal);
-	std::replace(inOutPath.begin(),inOutPath.end(),'\\','/');
+    if(inOutPath.empty())
+        return;
+    inOutPath = std::filesystem::canonical(inOutPath).string();
+    std::replace(inOutPath.begin(),inOutPath.end(),'\\','/');
 }
 
 util::Path util::Path::CreatePath(const std::string &path)
@@ -318,7 +307,7 @@ template<class TPath>
 }
 
 template<class TPath>
-	const util::PathIterator<TPath>::value_type &util::PathIterator<TPath>::operator++()
+	const typename util::PathIterator<TPath>::value_type &util::PathIterator<TPath>::operator++()
 {
 	auto curPos = m_pos;
 	if(curPos >= m_path->GetString().length())
@@ -345,13 +334,13 @@ template<class TPath>
 }
 
 template<class TPath>
-	const util::PathIterator<TPath>::value_type &util::PathIterator<TPath>::operator++(int)
+	const typename util::PathIterator<TPath>::value_type &util::PathIterator<TPath>::operator++(int)
 {
 	return operator++();
 }
 
 template<class TPath>
-	const util::PathIterator<TPath>::value_type &util::PathIterator<TPath>::operator--()
+	const typename util::PathIterator<TPath>::value_type &util::PathIterator<TPath>::operator--()
 {
 	auto curPos = m_pos;
 	if(curPos == 0)
@@ -367,24 +356,24 @@ template<class TPath>
 }
 
 template<class TPath>
-	const util::PathIterator<TPath>::value_type &util::PathIterator<TPath>::operator--(int)
+	const typename util::PathIterator<TPath>::value_type &util::PathIterator<TPath>::operator--(int)
 {
 	return operator--();
 }
 
 template<class TPath>
-	const util::PathIterator<TPath>::value_type &util::PathIterator<TPath>::operator*() const
+	const typename util::PathIterator<TPath>::value_type &util::PathIterator<TPath>::operator*() const
 {
 	return m_cur;
 }
 
 template<class TPath>
-	bool util::PathIterator<TPath>::operator==(const PathIterator &other) const
+	bool typename util::PathIterator<TPath>::operator==(const PathIterator &other) const
 {
 	return m_path == other.m_path && m_pos == other.m_pos;
 }
 template<class TPath>
-	bool util::PathIterator<TPath>::operator!=(const PathIterator &other) const
+	bool typename util::PathIterator<TPath>::operator!=(const PathIterator &other) const
 {
 	return !operator==(other);
 }
@@ -392,26 +381,26 @@ template<class TPath>
 util::PathIterator<util::Path>::PathIterator(util::Path &path,bool begin);
 util::PathIterator<const util::Path>::PathIterator(const util::Path &path,bool begin);
 
-const util::PathIterator<util::Path>::value_type &util::PathIterator<util::Path>::operator++();
-const util::PathIterator<const util::Path>::value_type &util::PathIterator<const util::Path>::operator++();
+const typename util::PathIterator<util::Path>::value_type &util::PathIterator<util::Path>::operator++();
+const typename util::PathIterator<const util::Path>::value_type &util::PathIterator<const util::Path>::operator++();
 
-const util::PathIterator<util::Path>::value_type &util::PathIterator<util::Path>::operator++(int);
-const util::PathIterator<const util::Path>::value_type &util::PathIterator<const util::Path>::operator++(int);
+const typename util::PathIterator<util::Path>::value_type &util::PathIterator<util::Path>::operator++(int);
+const typename util::PathIterator<const util::Path>::value_type &util::PathIterator<const util::Path>::operator++(int);
 
-const util::PathIterator<util::Path>::value_type &util::PathIterator<util::Path>::operator--();
-const util::PathIterator<const util::Path>::value_type &util::PathIterator<const util::Path>::operator--();
+const typename util::PathIterator<util::Path>::value_type &util::PathIterator<util::Path>::operator--();
+const typename util::PathIterator<const util::Path>::value_type &util::PathIterator<const util::Path>::operator--();
 
-const util::PathIterator<util::Path>::value_type &util::PathIterator<util::Path>::operator--(int);
-const util::PathIterator<const util::Path>::value_type &util::PathIterator<const util::Path>::operator--(int);
+const typename util::PathIterator<util::Path>::value_type &util::PathIterator<util::Path>::operator--(int);
+const typename util::PathIterator<const util::Path>::value_type &util::PathIterator<const util::Path>::operator--(int);
 
-const util::PathIterator<util::Path>::value_type &util::PathIterator<util::Path>::operator*() const;
-const util::PathIterator<const util::Path>::value_type &util::PathIterator<const util::Path>::operator*() const;
+const typename util::PathIterator<util::Path>::value_type &util::PathIterator<util::Path>::operator*() const;
+const typename util::PathIterator<const util::Path>::value_type &util::PathIterator<const util::Path>::operator*() const;
 
-bool util::PathIterator<util::Path>::operator==(const PathIterator &other) const;
-bool util::PathIterator<const util::Path>::operator==(const PathIterator &other) const;
+bool typename util::PathIterator<util::Path>::operator==(const PathIterator &other) const;
+bool typename util::PathIterator<const util::Path>::operator==(const PathIterator &other) const;
 
-bool util::PathIterator<util::Path>::operator!=(const PathIterator &other) const;
-bool util::PathIterator<const util::Path>::operator!=(const PathIterator &other) const;
+bool typename util::PathIterator<util::Path>::operator!=(const PathIterator &other) const;
+bool typename util::PathIterator<const util::Path>::operator!=(const PathIterator &other) const;
 
 ////////////
 
