@@ -10,6 +10,7 @@
 #include <stddef.h>
 #include <type_traits>
 #include <cstdint>
+#include <functional>
 
 // Source: https://stackoverflow.com/a/50978188/2482983
 namespace util
