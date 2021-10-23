@@ -1,5 +1,6 @@
 #include "sharedutils/util_uri.hpp"
 #include <uriparser/Uri.h>
+#include <limits>
 
 uriparser::Uri::Uri(std::string uri)
 	: uri_(uri)
