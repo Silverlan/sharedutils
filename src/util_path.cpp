@@ -307,7 +307,7 @@ template<class TPath>
 }
 
 template<class TPath>
-	const util::PathIterator<TPath>::typename value_type &util::PathIterator<TPath>::operator++()
+	const typename util::PathIterator<TPath>::value_type &util::PathIterator<TPath>::operator++()
 {
 	auto curPos = m_pos;
 	if(curPos >= m_path->GetString().length())
@@ -334,13 +334,13 @@ template<class TPath>
 }
 
 template<class TPath>
-	const util::PathIterator<TPath>::value_type &util::PathIterator<TPath>::operator++(int)
+	const typename util::PathIterator<TPath>::value_type &util::PathIterator<TPath>::operator++(int)
 {
 	return operator++();
 }
 
 template<class TPath>
-	const util::PathIterator<TPath>::value_type &util::PathIterator<TPath>::operator--()
+	const typename util::PathIterator<TPath>::value_type &util::PathIterator<TPath>::operator--()
 {
 	auto curPos = m_pos;
 	if(curPos == 0)
@@ -356,13 +356,13 @@ template<class TPath>
 }
 
 template<class TPath>
-	const util::PathIterator<TPath>::value_type &util::PathIterator<TPath>::operator--(int)
+	const typename util::PathIterator<TPath>::value_type &util::PathIterator<TPath>::operator--(int)
 {
 	return operator--();
 }
 
 template<class TPath>
-	const util::PathIterator<TPath>::value_type &util::PathIterator<TPath>::operator*() const
+	const typename util::PathIterator<TPath>::value_type &util::PathIterator<TPath>::operator*() const
 {
 	return m_cur;
 }
