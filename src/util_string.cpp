@@ -648,6 +648,10 @@ uint32_t ustring::ip_to_int(const std::string_view &ip)
 std::string ustring::int_to_ip(uint32_t ip)
 {
 	in_addr paddr;
+#ifdef _WIN32
 	paddr.S_un.S_addr = ip;
+#else
+	paddr.s_addr = ip;
+#endif
 	return inet_ntoa(paddr);
 }
