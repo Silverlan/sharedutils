@@ -307,7 +307,7 @@ template<class TPath>
 }
 
 template<class TPath>
-	const util::PathIterator<TPath>::value_type &util::PathIterator<TPath>::operator++()
+	const util::PathIterator<TPath>::typename value_type &util::PathIterator<TPath>::operator++()
 {
 	auto curPos = m_pos;
 	if(curPos >= m_path->GetString().length())
