@@ -378,29 +378,29 @@ template<class TPath>
 	return !operator==(other);
 }
 
-util::PathIterator<util::Path>::PathIterator(util::Path &path,bool begin);
-util::PathIterator<const util::Path>::PathIterator(const util::Path &path,bool begin);
+template<> util::PathIterator<util::Path>::PathIterator(util::Path &path,bool begin);
+template<> util::PathIterator<const util::Path>::PathIterator(const util::Path &path,bool begin);
 
-const util::PathIterator<util::Path>::value_type &util::PathIterator<util::Path>::operator++();
-const util::PathIterator<const util::Path>::value_type &util::PathIterator<const util::Path>::operator++();
+template<> const util::PathIterator<util::Path>::value_type &util::PathIterator<util::Path>::operator++();
+template<> const util::PathIterator<const util::Path>::value_type &util::PathIterator<const util::Path>::operator++();
 
-const util::PathIterator<util::Path>::value_type &util::PathIterator<util::Path>::operator++(int);
-const util::PathIterator<const util::Path>::value_type &util::PathIterator<const util::Path>::operator++(int);
+template<> const util::PathIterator<util::Path>::value_type &util::PathIterator<util::Path>::operator++(int);
+template<> const util::PathIterator<const util::Path>::value_type &util::PathIterator<const util::Path>::operator++(int);
 
-const util::PathIterator<util::Path>::value_type &util::PathIterator<util::Path>::operator--();
-const util::PathIterator<const util::Path>::value_type &util::PathIterator<const util::Path>::operator--();
+template<> const util::PathIterator<util::Path>::value_type &util::PathIterator<util::Path>::operator--();
+template<> const util::PathIterator<const util::Path>::value_type &util::PathIterator<const util::Path>::operator--();
 
-const util::PathIterator<util::Path>::value_type &util::PathIterator<util::Path>::operator--(int);
-const util::PathIterator<const util::Path>::value_type &util::PathIterator<const util::Path>::operator--(int);
+template<> const util::PathIterator<util::Path>::value_type &util::PathIterator<util::Path>::operator--(int);
+template<> const util::PathIterator<const util::Path>::value_type &util::PathIterator<const util::Path>::operator--(int);
 
-const util::PathIterator<util::Path>::value_type &util::PathIterator<util::Path>::operator*() const;
-const util::PathIterator<const util::Path>::value_type &util::PathIterator<const util::Path>::operator*() const;
+template<> const util::PathIterator<util::Path>::value_type &util::PathIterator<util::Path>::operator*() const;
+template<> const util::PathIterator<const util::Path>::value_type &util::PathIterator<const util::Path>::operator*() const;
 
-bool util::PathIterator<util::Path>::operator==(const PathIterator &other) const;
-bool util::PathIterator<const util::Path>::operator==(const PathIterator &other) const;
+template<> bool util::PathIterator<util::Path>::operator==(const PathIterator &other) const;
+template<> bool util::PathIterator<const util::Path>::operator==(const PathIterator &other) const;
 
-bool util::PathIterator<util::Path>::operator!=(const PathIterator &other) const;
-bool util::PathIterator<const util::Path>::operator!=(const PathIterator &other) const;
+template<> bool util::PathIterator<util::Path>::operator!=(const PathIterator &other) const;
+template<> bool util::PathIterator<const util::Path>::operator!=(const PathIterator &other) const;
 
 ////////////
 
