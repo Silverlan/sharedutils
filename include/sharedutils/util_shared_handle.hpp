@@ -59,10 +59,10 @@ namespace util
 		const T *get() const {return Get();}
 		T *get() {return Get();}
 
-		template<class T>
-			T *get() {return static_cast<T*>(get());}
-		template<class T>
-			const T *get() const {return static_cast<T*>(get());}
+		template<class TT>
+			TT *get() {return static_cast<TT*>(get());}
+		template<class TT>
+			const TT *get() const {return static_cast<TT*>(get());}
 
 		const std::shared_ptr<PtrSharedHandleData> &GetInternalData() const;
 	private:
