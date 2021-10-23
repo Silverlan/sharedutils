@@ -84,8 +84,8 @@ namespace util
 		using value_type = T;
 		template<class TSrc,class TDst>
 			friend TWeakSharedHandle<TDst> weak_shared_handle_cast(const TWeakSharedHandle<TSrc> &handle);
-		template<class T>
-			friend TSharedHandle<T> claim_shared_handle_ownership(const TWeakSharedHandle<T> &wkHandle);
+		template<class TT>
+			friend TSharedHandle<TT> claim_shared_handle_ownership(const TWeakSharedHandle<TT> &wkHandle);
 
 		TWeakSharedHandle(const TWeakSharedHandle<T>&)=default;
 		TWeakSharedHandle(const TSharedHandle<T> &sharedHandle);
@@ -112,10 +112,10 @@ namespace util
 		const T *get() const {return Get();}
 		T *get() {return Get();}
 
-		template<class T>
-			T *get() {return static_cast<T*>(get());}
-		template<class T>
-			const T *get() const {return static_cast<T*>(get());}
+		template<class TT>
+			TT *get() {return static_cast<TT*>(get());}
+		template<class TT>
+			const TT *get() const {return static_cast<TT*>(get());}
 
 		std::shared_ptr<PtrSharedHandleData> GetInternalData() const;
 	private:
