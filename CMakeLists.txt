@@ -14,8 +14,10 @@ option(LINK_COMMON_LIBS_STATIC "Link to common Pragma libraries statically?" OFF
 
 if(${SHAREDUTILS_STATIC})
 	set(LIB_TYPE STATIC)
+	add_definitions(-DSHUTIL_STATIC)
 else()
 	set(LIB_TYPE SHARED)
+	add_definitions(-DSHUTIL_DLL)
 endif()
 
 if(${LINK_COMMON_LIBS_STATIC})
@@ -23,7 +25,6 @@ if(${LINK_COMMON_LIBS_STATIC})
 	add_definitions(-DVFILESYSTEM_STATIC)
 endif()
 
-add_definitions(-DSHUTIL_DLL)
 add_definitions(-DGLM_FORCE_DEPTH_ZERO_TO_ONE)
 add_definitions(-DURI_STATIC_BUILD)
 
