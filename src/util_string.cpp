@@ -195,6 +195,7 @@ std::string ustring::implode(const std::vector<std::string> &strs,const std::str
 void ustring::explode(std::string str,const Char *sep,std::vector<std::string> &substrings)
 {
 	UInt st = find_first_of_outside_quotes(str,sep);
+	auto foundAtLeastOne = (st != NOT_FOUND);
 	while(st != NOT_FOUND)
 	{
 		std::string sub = str.substr(0,st);
@@ -204,7 +205,7 @@ void ustring::explode(std::string str,const Char *sep,std::vector<std::string> &
 		st = find_first_of_outside_quotes(str,sep);
 	}
 	remove_whitespace(str);
-	if(str.empty() == true)
+	if(str.empty() == true && foundAtLeastOne == false)
 		return;
 	substrings.push_back(str);
 }

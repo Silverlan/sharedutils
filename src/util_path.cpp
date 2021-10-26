@@ -24,7 +24,7 @@ static auto USE_CASE_SENSITIVE_PATHS = true;
 #endif
 
 #undef CreateFile
-
+#pragma optimize("",off)
 std::string util::get_normalized_path(const std::string &path)
 {
 	auto newPath = path;
@@ -35,10 +35,64 @@ std::string util::get_normalized_path(const std::string &path)
 }
 void util::canonicalize_path(std::string &inOutPath)
 {
-    if(inOutPath.empty())
-        return;
-    inOutPath = std::filesystem::canonical(inOutPath).string();
-    std::replace(inOutPath.begin(),inOutPath.end(),'\\','/');
+	if(inOutPath.empty())
+		return;
+	std::replace(inOutPath.begin(),inOutPath.end(),'\\','/');
+	std::vector<std::string> components;
+	ustring::explode(inOutPath,"/",components);
+
+	auto first = true;
+	auto startedWithSlash = false;
+	auto endedWithSlash = false;
+
+	for(auto it=components.begin();it!=components.end();)
+	{
+		auto &c = *it;
+		ustring::remove_whitespace(c);
+		if(first)
+		{
+			first = false;
+			if(c.empty())
+				startedWithSlash = true;
+		}
+		if(it == components.end() -1 && c.empty())
+			endedWithSlash = true;
+		if(c.empty() || c == ".")
+		{
+			it = components.erase(it);
+			continue;
+		}
+		if(c == "..")
+		{
+			if(it == components.begin())
+			{
+				it = components.erase(it);
+				continue;
+			}
+			auto idx = it -components.begin();
+			components.erase(components.begin() +idx -1,components.begin() +idx +1);
+			it = components.begin() +(idx -1);
+			continue;
+		}
+		++it;
+	}
+
+	std::string newPath;
+	newPath.reserve(inOutPath.size());
+	first = true;
+	for(auto &c : components)
+	{
+		if(first)
+			first = false;
+		else
+			newPath += '/';
+		newPath += c;
+	}
+	if(startedWithSlash) // If our original path started with a simple slash, we want the new path to also start with it
+		newPath = '/' +newPath;
+	if(endedWithSlash) // If our original path ended with a simple slash, we want the new path to also end with it
+		newPath += '/';
+	inOutPath = std::move(newPath);
 }
 
 util::Path util::Path::CreatePath(const std::string &path)
@@ -393,3 +447,4 @@ std::ostream &operator<<(std::ostream &out,const util::Path &path)
 {
 	return out<<path.GetString();
 }
+#pragma optimize("",on)
