@@ -179,6 +179,9 @@ namespace util
 	template<typename T>
 		struct is_string
 		: public std::disjunction<std::is_same<char *, typename std::decay_t<T>>,std::is_same<const char *, typename std::decay_t<T>>,std::is_same<std::string, typename std::decay_t<T>>> {};
+
+	template <typename T>
+		using base_type = typename std::remove_cv_t<std::remove_pointer_t<std::remove_reference_t<T>>>;
 }
 
 uint32_t util::to_uint(const std::string_view &str)
