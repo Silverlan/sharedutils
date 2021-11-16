@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "sharedutils/util_ifile.hpp"
+#include <cstring>
 
 #define IsEOF(c) (c == EOF || Eof())
 std::string ufile::IFile::ReadLine()
