@@ -17,8 +17,8 @@ bool util::IAssetLoader::AddJob(
 	const std::string &identifier,std::unique_ptr<IAssetProcessor> &&processor,AssetLoadJobPriority priority
 )
 {
-	auto itJob = m_texIdToJobId.find(identifier);
-	if(itJob != m_texIdToJobId.end() && itJob->second.priority >= priority)
+	auto itJob = m_assetIdToJobId.find(identifier);
+	if(itJob != m_assetIdToJobId.end() && itJob->second.priority >= priority)
 		return true; // Already queued up with the same (or higher) priority, no point in adding it again
 	
 	auto jobId = m_nextJobId++;
@@ -28,7 +28,7 @@ bool util::IAssetLoader::AddJob(
 	job.jobId = jobId;
 	job.identifier = identifier;
 	job.queueStartTime = std::chrono::high_resolution_clock::now();
-	m_texIdToJobId[identifier] = {jobId,priority};
+	m_assetIdToJobId[identifier] = {jobId,priority};
 
 	m_queueMutex.lock();
 		m_jobs.emplace(std::move(job));
@@ -73,13 +73,13 @@ void util::IAssetLoader::Poll(
 		if(job.state == AssetLoadJob::State::Succeeded)
 		{
 			assert(job.processor != nullptr);
-			auto it = m_texIdToJobId.find(job.identifier);
-			// If a texture is queued up multiple times, we only care about the latest job
+			auto it = m_assetIdToJobId.find(job.identifier);
+			// If an asset is queued up multiple times, we only care about the latest job
 			// and disregard previous ones.
-			auto valid = (it != m_texIdToJobId.end() && it->second.jobId == job.jobId);
+			auto valid = (it != m_assetIdToJobId.end() && it->second.jobId == job.jobId);
 			if(valid)
 			{
-				m_texIdToJobId.erase(it);
+				m_assetIdToJobId.erase(it);
 				if(job.processor->Finalize())
 				{
 					success = true;

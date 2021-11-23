@@ -49,7 +49,7 @@ namespace util
 			AssetLoadJobId jobId;
 			AssetLoadJobPriority priority;
 		};
-		std::unordered_map<std::string,QueuedJobInfo> m_texIdToJobId;
+		std::unordered_map<std::string,QueuedJobInfo> m_assetIdToJobId;
 		AssetLoadJobId m_nextJobId = 0;
 	};
 };
