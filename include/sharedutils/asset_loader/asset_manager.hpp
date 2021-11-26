@@ -8,6 +8,7 @@
 #include "sharedutils/utildefinitions.h"
 #include <unordered_map>
 #include <unordered_set>
+#include <vector>
 #include <memory>
 
 namespace util
