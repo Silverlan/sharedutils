@@ -34,18 +34,19 @@ namespace util
 		uint32_t ClearUnused();
 		uint32_t ClearFlagged();
 		uint32_t Clear();
-		void FlagForRemoval(const std::string &assetName);
+		void FlagForRemoval(const std::string &assetName,bool flag=true);
 		void FlagAllForRemoval();
 
 		const std::unordered_map<size_t,AssetInfo> &GetCache() const;
 		const IAsset *FindCachedAsset(const std::string &assetName) const;
 		IAsset *FindCachedAsset(const std::string &assetName);
 	protected:
+		void FlagForRemoval(size_t hashId,bool flag=true);
 		void AddToCache(const std::string &assetName,const std::shared_ptr<IAsset> &asset);
 		size_t GetIdentifierHash(const std::string &assetName) const;
 		void RegisterFileExtension(const std::string &ext);
 		void StripFileExtension(std::string_view &key) const;
-	private:
+
 		std::unordered_map<size_t,AssetInfo> m_cache;
 		std::unordered_set<size_t> m_flaggedForDeletion;
 		std::vector<size_t> m_extensionHashes;

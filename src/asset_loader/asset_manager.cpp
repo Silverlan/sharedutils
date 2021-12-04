@@ -162,13 +162,25 @@ uint32_t util::IAssetManager::Clear()
 	m_flaggedForDeletion.clear();
 	return n;
 }
-void util::IAssetManager::FlagForRemoval(const std::string &assetName)
+void util::IAssetManager::FlagForRemoval(const std::string &assetName,bool flag)
 {
 	auto hash = GetIdentifierHash(assetName);
-	auto it = m_cache.find(hash);
+	FlagForRemoval(hash,flag);
+}
+
+void util::IAssetManager::FlagForRemoval(size_t hashId,bool flag)
+{
+	auto it = m_cache.find(hashId);
 	if(it == m_cache.end())
 		return;
-	m_flaggedForDeletion.insert(hash);
+	if(flag)
+		m_flaggedForDeletion.insert(hashId);
+	else
+	{
+		auto itFlag = m_flaggedForDeletion.find(hashId);
+		if(itFlag != m_flaggedForDeletion.end())
+			m_flaggedForDeletion.erase(itFlag);
+	}
 }
 
 void util::IAssetManager::FlagAllForRemoval()
