@@ -83,7 +83,7 @@ void util::IAssetManager::StripFileExtension(std::string_view &key) const
 {
 	if(key.empty())
 		return;
-	auto i = key.length() -1;
+	int32_t i = key.length() -1;
 	while(i >= 0)
 	{
 		auto c = std::tolower(static_cast<unsigned char>(key[i]));
@@ -95,8 +95,10 @@ void util::IAssetManager::StripFileExtension(std::string_view &key) const
 			continue;
 		}
 		auto hash = hash_identifier(key.substr(i +1));
-		auto it = std::find(m_extensionHashes.begin(),m_extensionHashes.end(),hash);
-		if(it != m_extensionHashes.end())
+		auto it = std::find_if(m_extensions.begin(),m_extensions.end(),[hash](const std::pair<std::string,size_t> &pair) {
+			return hash == pair.second;
+		});
+		if(it != m_extensions.end())
 			key = key.substr(0,i);
 		return;
 	}
@@ -109,7 +111,17 @@ void util::IAssetManager::AddToCache(const std::string &assetName,const std::sha
 	auto identifier = ToCacheIdentifier(assetName);
 	m_cache[GetIdentifierHash(identifier)] = AssetInfo{asset,assetName};
 }
-void util::IAssetManager::RegisterFileExtension(const std::string &ext) {m_extensionHashes.push_back(hash_identifier(ext));}
+bool util::IAssetManager::RemoveFromCache(const std::string &assetName)
+{
+	auto identifier = ToCacheIdentifier(assetName);
+	auto hash = GetIdentifierHash(identifier);
+	auto it = m_cache.find(hash);
+	if(it == m_cache.end())
+		return false;
+	m_cache.erase(it);
+	return true;
+}
+void util::IAssetManager::RegisterFileExtension(const std::string &ext) {m_extensions.push_back({ext,hash_identifier(ext)});}
 size_t util::IAssetManager::GetIdentifierHash(const std::string &assetName) const
 {
 	std::string_view strView {assetName};

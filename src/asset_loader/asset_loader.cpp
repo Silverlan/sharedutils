@@ -13,22 +13,47 @@ util::IAssetLoader::IAssetLoader()
 util::IAssetLoader::~IAssetLoader()
 {}
 
-bool util::IAssetLoader::AddJob(
+void util::IAssetLoader::InvalidateLoadJob(const std::string &identifier)
+{
+	auto it = m_assetIdToJobId.find(identifier);
+	if(it == m_assetIdToJobId.end())
+		return;
+	it->second = std::numeric_limits<QueuedJobInfo>::max();
+}
+std::optional<util::AssetLoadJobId> util::IAssetLoader::FindJobId(const std::string &identifier) const
+{
+	auto it = m_assetIdToJobId.find(identifier);
+	return (it != m_assetIdToJobId.end()) ? it->second.jobId : std::optional<util::AssetLoadJobId>{};
+}
+
+std::optional<util::AssetLoadJobId> util::IAssetLoader::AddJob(
 	const std::string &identifier,std::unique_ptr<IAssetProcessor> &&processor,AssetLoadJobPriority priority
 )
 {
-	auto itJob = m_assetIdToJobId.find(identifier);
-	if(itJob != m_assetIdToJobId.end() && itJob->second.priority >= priority)
-		return true; // Already queued up with the same (or higher) priority, no point in adding it again
+	if(!identifier.empty())
+	{
+		auto itJob = m_assetIdToJobId.find(identifier);
+		if(itJob != m_assetIdToJobId.end() && itJob->second.priority >= priority)
+			return itJob->second.jobId; // Already queued up with the same (or higher) priority, no point in adding it again
+	}
 	
 	auto jobId = m_nextJobId++;
 	AssetLoadJob job {};
 	job.processor = std::move(processor);
 	job.priority = priority;
 	job.jobId = jobId;
-	job.identifier = identifier;
 	job.queueStartTime = std::chrono::high_resolution_clock::now();
-	m_assetIdToJobId[identifier] = {jobId,priority};
+	if(!identifier.empty())
+	{
+		job.identifier = identifier;
+		m_assetIdToJobId[identifier] = {jobId,priority};
+	}
+	else
+	{
+		std::string identifier = "#anonymous_" +std::to_string(jobId);
+		job.identifier = identifier;
+		m_assetIdToJobId[identifier] = {jobId,priority};
+	}
 
 	m_queueMutex.lock();
 		m_jobs.emplace(std::move(job));
@@ -48,15 +73,24 @@ bool util::IAssetLoader::AddJob(
 			m_completeQueue.push(job);
 			m_hasCompletedJobs = true;
 		m_completeQueueMutex.unlock();
+		m_completeCondition.notify_one();
 	});
-	return true;
+	return jobId;
 }
 
 void util::IAssetLoader::Poll(
 	const std::function<void(const AssetLoadJob&)> &onComplete,
-	const std::function<void(const AssetLoadJob&)> &onFailed
+	const std::function<void(const AssetLoadJob&)> &onFailed,
+	bool wait
 )
 {
+	if(wait)
+	{
+		std::unique_lock<std::mutex> lock {m_completeQueueMutex};
+		m_completeCondition.wait(lock,[this]() {
+			return m_hasCompletedJobs == true;
+		});
+	}
 	if(!m_hasCompletedJobs)
 		return;
 	m_completeQueueMutex.lock();

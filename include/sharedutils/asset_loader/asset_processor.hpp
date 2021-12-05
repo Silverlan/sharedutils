@@ -15,14 +15,13 @@ namespace prosper {class IBuffer; class IPrContext; class IImage;};
 namespace uimg {class ImageBuffer;};
 namespace util
 {
+	struct IAsset;
 	class ITextureFormatHandler;
 	struct DLLSHUTIL IAssetProcessor
 	{
 	public:
 		virtual bool Load()=0;
 		virtual bool Finalize()=0;
-	private:
-
 	};
 };
 

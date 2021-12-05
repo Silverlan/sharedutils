@@ -30,11 +30,14 @@ namespace util
 
 		void Poll(
 			const std::function<void(const AssetLoadJob&)> &onComplete,
-			const std::function<void(const AssetLoadJob&)> &onFailed
+			const std::function<void(const AssetLoadJob&)> &onFailed,
+			bool wait=false
 		);
-		bool AddJob(
+		std::optional<AssetLoadJobId> AddJob(
 			const std::string &identifier,std::unique_ptr<IAssetProcessor> &&processor,AssetLoadJobPriority priority=0
 		);
+		std::optional<AssetLoadJobId> FindJobId(const std::string &identifier) const;
+		void InvalidateLoadJob(const std::string &identifier);
 	private:
 		ctpl::thread_pool m_pool;
 		std::mutex m_queueMutex;
@@ -43,6 +46,7 @@ namespace util
 		std::mutex m_completeQueueMutex;
 		std::queue<AssetLoadJob> m_completeQueue;
 		std::atomic<bool> m_hasCompletedJobs = false;
+		std::condition_variable m_completeCondition;
 
 		struct QueuedJobInfo
 		{
