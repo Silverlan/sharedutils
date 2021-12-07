@@ -151,6 +151,22 @@ namespace util
 	{
 		return util::unique_ptr_c<T>{new T{std::forward<TARGS>(args)...},[fOnDelete](T *v) {fOnDelete(*v); delete v;}};
 	}
+	template<typename TFrom,typename TTo>
+		static std::unique_ptr<TTo> static_unique_pointer_cast(std::unique_ptr<TFrom> &&p)
+	{
+		return std::unique_ptr<TTo>{static_cast<TTo*>(p.release())};
+	}
+	template<typename TFrom,typename TTo>
+		static std::unique_ptr<TTo> dynamic_unique_pointer_cast(std::unique_ptr<TFrom> &&p)
+	{
+		auto *ptr = dynamic_cast<TTo*>(p.get());
+		if(!ptr)
+		{
+			auto tmp = std::move(p);
+			return nullptr;
+		}
+		return std::unique_ptr<TTo>{ptr};
+	}
 
 	template<typename T>
 		uint64_t get_size_in_bytes(const T &container);
