@@ -15,13 +15,15 @@ util::IAssetLoader::~IAssetLoader()
 
 void util::IAssetLoader::InvalidateLoadJob(const std::string &identifier)
 {
+	std::scoped_lock lock {m_assetIdToJobIdMutex};
 	auto it = m_assetIdToJobId.find(identifier);
 	if(it == m_assetIdToJobId.end())
 		return;
-	it->second = std::numeric_limits<QueuedJobInfo>::max();
+	m_assetIdToJobId.erase(it);
 }
 std::optional<util::AssetLoadJobId> util::IAssetLoader::FindJobId(const std::string &identifier) const
 {
+	std::scoped_lock lock {m_assetIdToJobIdMutex};
 	auto it = m_assetIdToJobId.find(identifier);
 	return (it != m_assetIdToJobId.end()) ? it->second.jobId : std::optional<util::AssetLoadJobId>{};
 }
@@ -32,9 +34,16 @@ std::optional<util::AssetLoadJobId> util::IAssetLoader::AddJob(
 {
 	if(!identifier.empty())
 	{
+		std::scoped_lock lock {m_assetIdToJobIdMutex};
 		auto itJob = m_assetIdToJobId.find(identifier);
-		if(itJob != m_assetIdToJobId.end() && itJob->second.priority >= priority)
-			return itJob->second.jobId; // Already queued up with the same (or higher) priority, no point in adding it again
+		if(itJob != m_assetIdToJobId.end())
+		{
+			// Already queued up
+			if(priority <= itJob->second.priority || itJob->second.complete)
+				return itJob->second.jobId;
+			// New job has higher priority; The old job will be invalidated and the
+			// new job added
+		}
 	}
 	
 	auto jobId = m_nextJobId++;
@@ -46,13 +55,17 @@ std::optional<util::AssetLoadJobId> util::IAssetLoader::AddJob(
 	if(!identifier.empty())
 	{
 		job.identifier = identifier;
-		m_assetIdToJobId[identifier] = {jobId,priority};
+		m_assetIdToJobIdMutex.lock();
+			m_assetIdToJobId[identifier] = {jobId,priority};
+		m_assetIdToJobIdMutex.unlock();
 	}
 	else
 	{
 		std::string identifier = "#anonymous_" +std::to_string(jobId);
 		job.identifier = identifier;
-		m_assetIdToJobId[identifier] = {jobId,priority};
+		m_assetIdToJobIdMutex.lock();
+			m_assetIdToJobId[identifier] = {jobId,priority};
+		m_assetIdToJobIdMutex.unlock();
 	}
 
 	m_queueMutex.lock();
@@ -65,13 +78,25 @@ std::optional<util::AssetLoadJobId> util::IAssetLoader::AddJob(
 			m_jobs.pop();
 		m_queueMutex.unlock();
 		
+		m_assetIdToJobIdMutex.lock();
+			auto it = m_assetIdToJobId.find(job.identifier);
+			auto isValid = (it != m_assetIdToJobId.end() && it->second.jobId == job.jobId);
+		m_assetIdToJobIdMutex.unlock();
 		job.taskStartTime = std::chrono::high_resolution_clock::now();
-		job.state = job.processor->Load() ? AssetLoadJob::State::Succeeded : AssetLoadJob::State::Failed;
+		job.state = isValid ? (job.processor->Load() ? AssetLoadJob::State::Succeeded : AssetLoadJob::State::Failed) : AssetLoadJob::State::Cancelled;
 		job.completionTime = std::chrono::high_resolution_clock::now();
 
 		m_completeQueueMutex.lock();
 			m_completeQueue.push(job);
 			m_hasCompletedJobs = true;
+			if(isValid)
+			{
+				m_assetIdToJobIdMutex.lock();
+					auto it = m_assetIdToJobId.find(job.identifier);
+					if(it != m_assetIdToJobId.end() && it->second.jobId == job.jobId)
+						it->second.complete = true;
+				m_assetIdToJobIdMutex.unlock();
+			}
 		m_completeQueueMutex.unlock();
 		m_completeCondition.notify_one();
 	});
@@ -79,12 +104,24 @@ std::optional<util::AssetLoadJobId> util::IAssetLoader::AddJob(
 }
 
 void util::IAssetLoader::Poll(
-	const std::function<void(const AssetLoadJob&)> &onComplete,
-	const std::function<void(const AssetLoadJob&)> &onFailed,
-	bool wait
+	const std::function<void(const AssetLoadJob&,AssetLoadResult)> &onComplete,
+	AssetLoaderWaitMode wait
 )
 {
-	if(wait)
+	if(wait == AssetLoaderWaitMode::All)
+	{
+		for(;;)
+		{
+			m_queueMutex.lock();
+				auto hasJobsRemaining = !m_jobs.empty();
+			m_queueMutex.unlock();
+			if(!hasJobsRemaining && !m_hasCompletedJobs)
+				return;
+			Poll(onComplete,AssetLoaderWaitMode::Single);
+		}
+		return; // Unreachable
+	}
+	if(wait == AssetLoaderWaitMode::Single)
 	{
 		std::unique_lock<std::mutex> lock {m_completeQueueMutex};
 		m_completeCondition.wait(lock,[this]() {
@@ -104,25 +141,31 @@ void util::IAssetLoader::Poll(
 		auto &job = completeQueue.front();
 		job.completionTime = std::chrono::high_resolution_clock::now();
 		auto success = false;
-		if(job.state == AssetLoadJob::State::Succeeded)
+		
+		assert(job.processor != nullptr);
+
+		m_assetIdToJobIdMutex.lock();
+		auto it = m_assetIdToJobId.find(job.identifier);
+		// If an asset is queued up multiple times, we only care about the latest job
+		// and disregard previous ones.
+		auto valid = (it != m_assetIdToJobId.end() && it->second.jobId == job.jobId);
+		if(valid)
 		{
-			assert(job.processor != nullptr);
-			auto it = m_assetIdToJobId.find(job.identifier);
-			// If an asset is queued up multiple times, we only care about the latest job
-			// and disregard previous ones.
-			auto valid = (it != m_assetIdToJobId.end() && it->second.jobId == job.jobId);
-			if(valid)
+			m_assetIdToJobId.erase(it);
+			m_assetIdToJobIdMutex.unlock();
+			if(job.state == AssetLoadJob::State::Succeeded && job.processor->Finalize())
 			{
-				m_assetIdToJobId.erase(it);
-				if(job.processor->Finalize())
-				{
-					success = true;
-					onComplete(job);
-				}
+				success = true;
+				onComplete(job,AssetLoadResult::Succeeded);
 			}
+			else
+				onComplete(job,AssetLoadResult::Failed);
 		}
-		if(!success)
-			onFailed(job);
+		else
+		{
+			m_assetIdToJobIdMutex.unlock();
+			onComplete(job,AssetLoadResult::Cancelled);
+		}
 		completeQueue.pop();
 	}
 }

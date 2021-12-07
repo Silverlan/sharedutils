@@ -22,16 +22,27 @@ namespace util
 	using AssetLoadJobId = uint64_t;
 	using AssetLoadJobPriority = int32_t;
 	class IAssetProcessor;
+	enum class AssetLoaderWaitMode : uint8_t
+	{
+		None = 0,
+		Single,
+		All
+	};
 	class DLLSHUTIL IAssetLoader
 	{
 	public:
 		IAssetLoader();
 		virtual ~IAssetLoader();
+		enum class AssetLoadResult : uint8_t
+		{
+			Succeeded = 0,
+			Failed,
+			Cancelled
+		};
 
 		void Poll(
-			const std::function<void(const AssetLoadJob&)> &onComplete,
-			const std::function<void(const AssetLoadJob&)> &onFailed,
-			bool wait=false
+			const std::function<void(const AssetLoadJob&,AssetLoadResult)> &onComplete,
+			AssetLoaderWaitMode wait=AssetLoaderWaitMode::None
 		);
 		std::optional<AssetLoadJobId> AddJob(
 			const std::string &identifier,std::unique_ptr<IAssetProcessor> &&processor,AssetLoadJobPriority priority=0
@@ -52,7 +63,9 @@ namespace util
 		{
 			AssetLoadJobId jobId;
 			AssetLoadJobPriority priority;
+			bool complete = false;
 		};
+		mutable std::mutex m_assetIdToJobIdMutex;
 		std::unordered_map<std::string,QueuedJobInfo> m_assetIdToJobId;
 		AssetLoadJobId m_nextJobId = 0;
 	};

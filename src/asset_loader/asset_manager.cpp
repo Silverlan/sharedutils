@@ -79,6 +79,8 @@ unsigned long hash_identifier(std::string_view key)
 	return hash;
 }
 
+bool util::Asset::IsInUse() const {return assetObject.use_count() > 1;}
+
 void util::IAssetManager::StripFileExtension(std::string_view &key) const
 {
 	if(key.empty())
@@ -106,7 +108,7 @@ void util::IAssetManager::StripFileExtension(std::string_view &key) const
 
 util::IAssetManager::IAssetManager()
 {}
-void util::IAssetManager::AddToCache(const std::string &assetName,const std::shared_ptr<IAsset> &asset)
+void util::IAssetManager::AddToCache(const std::string &assetName,const std::shared_ptr<Asset> &asset)
 {
 	auto identifier = ToCacheIdentifier(assetName);
 	m_cache[GetIdentifierHash(identifier)] = AssetInfo{asset,assetName};
@@ -204,11 +206,11 @@ void util::IAssetManager::FlagAllForRemoval()
 
 const std::unordered_map<size_t,util::IAssetManager::AssetInfo> &util::IAssetManager::GetCache() const {return m_cache;}
 
-const util::IAsset *util::IAssetManager::FindCachedAsset(const std::string &assetName) const
+const util::Asset *util::IAssetManager::FindCachedAsset(const std::string &assetName) const
 {
 	return const_cast<IAssetManager*>(this)->FindCachedAsset(assetName);
 }
-util::IAsset *util::IAssetManager::FindCachedAsset(const std::string &assetName)
+util::Asset *util::IAssetManager::FindCachedAsset(const std::string &assetName)
 {
 	auto it = m_cache.find(GetIdentifierHash(assetName));
 	return (it != m_cache.end()) ? it->second.asset.get() : nullptr;

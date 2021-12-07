@@ -13,17 +13,19 @@
 
 namespace util
 {
-	struct DLLSHUTIL IAsset
+	using AssetObject = std::shared_ptr<void>;
+	struct DLLSHUTIL Asset
 	{
 	public:
-		virtual bool IsInUse() const=0;
+		bool IsInUse() const;
+		AssetObject assetObject;
 	};
 	class DLLSHUTIL IAssetManager
 	{
 	public:
 		struct DLLSHUTIL AssetInfo
 		{
-			std::shared_ptr<IAsset> asset;
+			std::shared_ptr<Asset> asset;
 			std::string identifier;
 		};
 		std::string ToCacheIdentifier(const std::string &assetName);
@@ -38,12 +40,12 @@ namespace util
 		void FlagAllForRemoval();
 
 		const std::unordered_map<size_t,AssetInfo> &GetCache() const;
-		const IAsset *FindCachedAsset(const std::string &assetName) const;
-		IAsset *FindCachedAsset(const std::string &assetName);
+		const Asset *FindCachedAsset(const std::string &assetName) const;
+		Asset *FindCachedAsset(const std::string &assetName);
 	protected:
 		bool RemoveFromCache(const std::string &assetName);
 		void FlagForRemoval(size_t hashId,bool flag=true);
-		void AddToCache(const std::string &assetName,const std::shared_ptr<IAsset> &asset);
+		void AddToCache(const std::string &assetName,const std::shared_ptr<Asset> &asset);
 		size_t GetIdentifierHash(const std::string &assetName) const;
 		void RegisterFileExtension(const std::string &ext);
 		void StripFileExtension(std::string_view &key) const;

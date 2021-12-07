@@ -24,7 +24,8 @@ namespace util
 		{
 			Pending = 0,
 			Succeeded,
-			Failed
+			Failed,
+			Cancelled
 		};
 		AssetLoadJob()=default;
 		AssetLoadJob(AssetLoadJob &&other)=default;
