@@ -8,6 +8,8 @@
 #include "sharedutils/utildefinitions.h"
 #include <unordered_map>
 #include <unordered_set>
+#include <optional>
+#include <string>
 #include <vector>
 #include <memory>
 
@@ -20,15 +22,24 @@ namespace util
 		bool IsInUse() const;
 		AssetObject assetObject;
 	};
+	using AssetIndex = uint32_t;
+	using AssetIdentifierHash = size_t;
+	enum class AssetFormatType : uint8_t
+	{
+		Binary = 0,
+		Text
+	};
 	class DLLSHUTIL IAssetManager
 	{
 	public:
 		struct DLLSHUTIL AssetInfo
 		{
+			AssetIndex index;
+			AssetIdentifierHash hash;
 			std::shared_ptr<Asset> asset;
 			std::string identifier;
 		};
-		std::string ToCacheIdentifier(const std::string &assetName);
+		std::string ToCacheIdentifier(const std::string &assetName) const;
 
 		IAssetManager();
 		virtual ~IAssetManager()=default;
@@ -39,20 +50,33 @@ namespace util
 		void FlagForRemoval(const std::string &assetName,bool flag=true);
 		void FlagAllForRemoval();
 
-		const std::unordered_map<size_t,AssetInfo> &GetCache() const;
+		Asset *GetAsset(AssetIndex index);
+		const Asset *GetAsset(AssetIndex index) const {return const_cast<IAssetManager*>(this)->GetAsset(index);}
+		std::optional<AssetIndex> GetAssetIndex(const std::string &assetName) const;
+
+		const std::vector<AssetInfo> &GetAssets() const;
+		const std::unordered_map<AssetIdentifierHash,AssetIndex> &GetCache() const;
 		const Asset *FindCachedAsset(const std::string &assetName) const;
 		Asset *FindCachedAsset(const std::string &assetName);
 	protected:
+		struct FormatExtensionInfo
+		{
+			std::string extension;
+			size_t hash;
+			AssetFormatType formatType;
+		};
+		bool ClearAsset(AssetIndex idx);
 		bool RemoveFromCache(const std::string &assetName);
-		void FlagForRemoval(size_t hashId,bool flag=true);
+		void FlagForRemoval(AssetIndex idx,bool flag=true);
 		void AddToCache(const std::string &assetName,const std::shared_ptr<Asset> &asset);
-		size_t GetIdentifierHash(const std::string &assetName) const;
-		void RegisterFileExtension(const std::string &ext);
+		AssetIdentifierHash GetIdentifierHash(const std::string &assetName) const;
+		void RegisterFileExtension(const std::string &ext,AssetFormatType formatType=AssetFormatType::Binary);
 		void StripFileExtension(std::string_view &key) const;
 
-		std::unordered_map<size_t,AssetInfo> m_cache;
-		std::unordered_set<size_t> m_flaggedForDeletion;
-		std::vector<std::pair<std::string,size_t /* hash */>> m_extensions;
+		std::vector<AssetInfo> m_assets;
+		std::unordered_map<AssetIdentifierHash,AssetIndex> m_cache;
+		std::unordered_set<AssetIndex> m_flaggedForDeletion;
+		std::vector<FormatExtensionInfo> m_extensions;
 	};
 };
 

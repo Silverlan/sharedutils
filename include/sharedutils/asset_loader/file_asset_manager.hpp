@@ -15,7 +15,7 @@ namespace util
 	struct AssetLoadInfo;
 	struct DLLSHUTIL AssetFileHandler
 	{
-		std::function<std::unique_ptr<ufile::IFile>(const std::string&)> open;
+		std::function<std::unique_ptr<ufile::IFile>(const std::string&,AssetFormatType)> open;
 		std::function<bool(const std::string&)> exists;
 	};
 	class IAssetFormatHandler;
@@ -32,6 +32,7 @@ namespace util
 		};
 
 		FileAssetManager();
+		std::optional<std::string> FindAssetFilePath(const std::string &assetName) const;
 		PreloadResult PreloadAsset(const std::string &path,std::unique_ptr<AssetLoadInfo> &&loadInfo=nullptr);
 		util::AssetObject LoadAsset(const std::string &path,std::unique_ptr<AssetLoadInfo> &&loadInfo=nullptr);
 		util::AssetObject LoadAsset(
@@ -48,11 +49,16 @@ namespace util
 		AssetFormatLoader &GetLoader() {return *m_loader;}
 		const AssetFormatLoader &GetLoader() const {return const_cast<FileAssetManager*>(this)->GetLoader();}
 
-		void Poll();
+		void CallOnLoad(const std::string &path,const std::function<void(util::Asset*,AssetLoadResult)> &onLoad);
+
+		virtual void Poll();
 	protected:
 		virtual void InitializeProcessor(util::IAssetProcessor &processor)=0;
 		virtual util::AssetObject InitializeAsset(const util::AssetLoadJob &job)=0;
-		void RegisterFormatHandler(const std::string &ext,const std::function<std::unique_ptr<IAssetFormatHandler>(util::IAssetManager&)> &factory);
+		void RegisterFormatHandler(
+			const std::string &ext,const std::function<std::unique_ptr<IAssetFormatHandler>(util::IAssetManager&)> &factory,
+			AssetFormatType formatType=AssetFormatType::Binary
+		);
 		PreloadResult PreloadAsset(const std::string &path,util::AssetLoadJobPriority priority,std::unique_ptr<AssetLoadInfo> &&loadInfo);
 		PreloadResult PreloadAsset(
 			const std::string &cacheName,std::unique_ptr<ufile::IFile> &&file,const std::string &ext,util::AssetLoadJobPriority priority,
@@ -66,6 +72,7 @@ namespace util
 		util::AssetObject Poll(std::optional<util::AssetLoadJobId> untilJob,util::AssetLoaderWaitMode wait);
 		std::unique_ptr<AssetFormatLoader> m_loader;
 	private:
+		std::unordered_map<size_t,std::vector<std::function<void(util::Asset*,AssetLoadResult)>>> m_callOnLoad;
 		std::unique_ptr<AssetFileHandler> m_fileHandler;
 		util::Path m_rootDir;
 	};
@@ -80,7 +87,12 @@ namespace util
 		{
 			return std::static_pointer_cast<TAssetType>(asset.assetObject);
 		}
-
+		
+		TAssetType *GetAssetObject(AssetIndex index)
+		{
+			auto *assetInfo = (index < m_assets.size()) ? &m_assets[index] : nullptr;
+			return (assetInfo && assetInfo->asset && assetInfo->asset->assetObject) ? static_cast<TAssetType*>(assetInfo->asset->assetObject.get()) : nullptr;
+		}
 		FileAssetManager::PreloadResult PreloadAsset(const std::string &path,std::unique_ptr<TLoadInfo> &&loadInfo=nullptr)
 		{
 			if(!loadInfo)

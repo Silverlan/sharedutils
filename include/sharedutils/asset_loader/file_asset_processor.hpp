@@ -11,6 +11,7 @@
 
 namespace util
 {
+	enum class AssetLoadResult : uint8_t;
 	class AssetFormatLoader;
 	class DLLSHUTIL FileAssetProcessor
 		: public util::IAssetProcessor
@@ -18,7 +19,7 @@ namespace util
 	public:
 		FileAssetProcessor(AssetFormatLoader &loader,std::unique_ptr<IAssetFormatHandler> &&handler);
 		std::unique_ptr<util::AssetLoadInfo> loadInfo = nullptr;
-		std::function<void(util::Asset*)> onLoaded = nullptr;
+		std::function<void(util::Asset*,AssetLoadResult)> onLoaded = nullptr;
 
 		std::unique_ptr<IAssetFormatHandler> handler;
 	protected:

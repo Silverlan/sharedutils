@@ -97,8 +97,8 @@ void util::IAssetManager::StripFileExtension(std::string_view &key) const
 			continue;
 		}
 		auto hash = hash_identifier(key.substr(i +1));
-		auto it = std::find_if(m_extensions.begin(),m_extensions.end(),[hash](const std::pair<std::string,size_t> &pair) {
-			return hash == pair.second;
+		auto it = std::find_if(m_extensions.begin(),m_extensions.end(),[hash](const FormatExtensionInfo &extInfo) {
+			return hash == extInfo.hash;
 		});
 		if(it != m_extensions.end())
 			key = key.substr(0,i);
@@ -111,7 +111,23 @@ util::IAssetManager::IAssetManager()
 void util::IAssetManager::AddToCache(const std::string &assetName,const std::shared_ptr<Asset> &asset)
 {
 	auto identifier = ToCacheIdentifier(assetName);
-	m_cache[GetIdentifierHash(identifier)] = AssetInfo{asset,assetName};
+
+	auto hash = GetIdentifierHash(identifier);
+	AssetIndex index = 0;
+	auto it = m_cache.find(hash);
+	if(it != m_cache.end())
+		index = it->second;
+	else
+	{
+		index = m_assets.size();
+		m_assets.resize(index +1);
+	}
+	auto &assetInfo = m_assets[index];
+	assetInfo.asset = asset;
+	assetInfo.hash = hash;
+	assetInfo.identifier = identifier;
+	assetInfo.index = index;
+	m_cache[hash] = index;
 }
 bool util::IAssetManager::RemoveFromCache(const std::string &assetName)
 {
@@ -123,14 +139,14 @@ bool util::IAssetManager::RemoveFromCache(const std::string &assetName)
 	m_cache.erase(it);
 	return true;
 }
-void util::IAssetManager::RegisterFileExtension(const std::string &ext) {m_extensions.push_back({ext,hash_identifier(ext)});}
+void util::IAssetManager::RegisterFileExtension(const std::string &ext,AssetFormatType formatType) {m_extensions.push_back({ext,hash_identifier(ext),formatType});}
 size_t util::IAssetManager::GetIdentifierHash(const std::string &assetName) const
 {
 	std::string_view strView {assetName};
 	StripFileExtension(strView);
 	return hash_identifier(strView);
 }
-std::string util::IAssetManager::ToCacheIdentifier(const std::string &assetName)
+std::string util::IAssetManager::ToCacheIdentifier(const std::string &assetName) const
 {
 	auto path = util::Path::CreateFile(assetName);
 	path.Canonicalize();
@@ -139,59 +155,75 @@ std::string util::IAssetManager::ToCacheIdentifier(const std::string &assetName)
 	return std::string{v};
 }
 
+bool util::IAssetManager::ClearAsset(AssetIndex idx)
+{
+	if(idx >= m_assets.size())
+		return false;
+	auto &assetInfo = m_assets[idx];
+	if(!assetInfo.asset)
+		return false;
+	auto hash = assetInfo.hash;
+	auto itCache = m_cache.find(hash);
+	if(itCache != m_cache.end())
+		m_cache.erase(itCache);
+	auto itFlag = m_flaggedForDeletion.find(hash);
+	if(itFlag != m_flaggedForDeletion.end())
+		m_flaggedForDeletion.erase(itFlag);
+
+	assetInfo.asset = nullptr;
+	return true;
+}
+
 uint32_t util::IAssetManager::ClearUnused()
 {
 	uint32_t n = 0;
-	for(auto it=m_cache.begin();it!=m_cache.end();)
+	for(auto &assetInfo : m_assets)
 	{
-		auto &assetInfo = it->second;
-		if(assetInfo.asset->IsInUse() == false)
-		{
-			it = m_cache.erase(it);
-			++n;
+		if(!assetInfo.asset || assetInfo.asset->IsInUse())
 			continue;
-		}
-		++it;
+		if(ClearAsset(assetInfo.index))
+			++n;
 	}
 	return n;
 }
 uint32_t util::IAssetManager::ClearFlagged()
 {
-	uint32_t n = 0;
-	for(auto &name : m_flaggedForDeletion)
-	{
-		auto itCache = m_cache.find(name);
-		if(itCache == m_cache.end())
-			continue;
-		m_cache.erase(itCache);
-		++n;
-	}
+	auto flaggedForDeletion = std::move(m_flaggedForDeletion);
 	m_flaggedForDeletion.clear();
+	uint32_t n = 0;
+	for(auto idx : flaggedForDeletion)
+	{
+		if(ClearAsset(idx))
+			++n;
+	}
 	return n;
 }
 uint32_t util::IAssetManager::Clear()
 {
 	auto n = m_cache.size();
+	m_assets.clear();
 	m_cache.clear();
 	m_flaggedForDeletion.clear();
 	return n;
 }
 void util::IAssetManager::FlagForRemoval(const std::string &assetName,bool flag)
 {
-	auto hash = GetIdentifierHash(assetName);
-	FlagForRemoval(hash,flag);
+	auto idx = GetAssetIndex(assetName);
+	if(!idx.has_value())
+		return;
+	FlagForRemoval(*idx,flag);
 }
 
-void util::IAssetManager::FlagForRemoval(size_t hashId,bool flag)
+void util::IAssetManager::FlagForRemoval(AssetIndex idx,bool flag)
 {
-	auto it = m_cache.find(hashId);
+	auto it = m_cache.find(idx);
 	if(it == m_cache.end())
 		return;
 	if(flag)
-		m_flaggedForDeletion.insert(hashId);
+		m_flaggedForDeletion.insert(idx);
 	else
 	{
-		auto itFlag = m_flaggedForDeletion.find(hashId);
+		auto itFlag = m_flaggedForDeletion.find(idx);
 		if(itFlag != m_flaggedForDeletion.end())
 			m_flaggedForDeletion.erase(itFlag);
 	}
@@ -199,12 +231,31 @@ void util::IAssetManager::FlagForRemoval(size_t hashId,bool flag)
 
 void util::IAssetManager::FlagAllForRemoval()
 {
-	m_flaggedForDeletion.reserve(m_cache.size());
-	for(auto &pair : m_cache)
-		m_flaggedForDeletion.insert(pair.first);
+	m_flaggedForDeletion.reserve(m_assets.size());
+	for(auto i=decltype(m_assets.size()){0u};i<m_assets.size();++i)
+	{
+		auto &assetInfo = m_assets[i];
+		if(!assetInfo.asset)
+			continue;
+		m_flaggedForDeletion.insert(i);
+	}
 }
 
-const std::unordered_map<size_t,util::IAssetManager::AssetInfo> &util::IAssetManager::GetCache() const {return m_cache;}
+util::Asset *util::IAssetManager::GetAsset(AssetIndex index)
+{
+	return (index < m_assets.size()) ? m_assets[index].asset.get() : nullptr;
+}
+std::optional<util::AssetIndex> util::IAssetManager::GetAssetIndex(const std::string &assetName) const
+{
+	auto hash = GetIdentifierHash(assetName);
+	auto it = m_cache.find(hash);
+	if(it == m_cache.end())
+		return {};
+	return it->second;
+}
+
+const std::unordered_map<util::AssetIdentifierHash,util::AssetIndex> &util::IAssetManager::GetCache() const {return m_cache;}
+const std::vector<util::IAssetManager::AssetInfo> &util::IAssetManager::GetAssets() const {return m_assets;}
 
 const util::Asset *util::IAssetManager::FindCachedAsset(const std::string &assetName) const
 {
@@ -213,6 +264,8 @@ const util::Asset *util::IAssetManager::FindCachedAsset(const std::string &asset
 util::Asset *util::IAssetManager::FindCachedAsset(const std::string &assetName)
 {
 	auto it = m_cache.find(GetIdentifierHash(assetName));
-	return (it != m_cache.end()) ? it->second.asset.get() : nullptr;
+	if(it == m_cache.end())
+		return nullptr;
+	return GetAsset(it->second);
 }
 #pragma optimize("",on)

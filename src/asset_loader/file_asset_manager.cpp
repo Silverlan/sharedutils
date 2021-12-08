@@ -22,10 +22,21 @@ void util::FileAssetManager::RemoveFromCache(const std::string &path)
 	IAssetManager::RemoveFromCache(path);
 	m_loader->InvalidateLoadJob(path);
 }
-void util::FileAssetManager::RegisterFormatHandler(const std::string &ext,const std::function<std::unique_ptr<IAssetFormatHandler>(util::IAssetManager&)> &factory)
+void util::FileAssetManager::RegisterFormatHandler(
+	const std::string &ext,const std::function<std::unique_ptr<IAssetFormatHandler>(util::IAssetManager&)> &factory,
+	AssetFormatType formatType
+)
 {
 	GetLoader().RegisterFormatHandler(ext,factory);
-	RegisterFileExtension(ext);
+	RegisterFileExtension(ext,formatType);
+}
+void util::FileAssetManager::CallOnLoad(const std::string &path,const std::function<void(util::Asset*,AssetLoadResult)> &onLoad)
+{
+	auto hash = GetIdentifierHash(path);
+	auto it = m_callOnLoad.find(hash);
+	if(it == m_callOnLoad.end())
+		it = m_callOnLoad.insert(std::make_pair(hash,std::vector<std::function<void(util::Asset*,AssetLoadResult)>>{})).first;
+	it->second.push_back(onLoad);
 }
 util::FileAssetManager::PreloadResult util::FileAssetManager::PreloadAsset(const std::string &strPath,std::unique_ptr<util::AssetLoadInfo> &&loadInfo)
 {
@@ -36,11 +47,12 @@ util::FileAssetManager::PreloadResult util::FileAssetManager::PreloadAsset(
 	std::unique_ptr<util::AssetLoadInfo> &&loadInfo
 )
 {
-	auto jobId = m_loader->AddJob(ToCacheIdentifier(cacheName),ext,std::move(file),priority,[this,&loadInfo](util::IAssetProcessor &processor) {
+	auto hash = GetIdentifierHash(cacheName);
+	auto jobId = m_loader->AddJob(ToCacheIdentifier(cacheName),ext,std::move(file),priority,[this,&loadInfo,hash](util::IAssetProcessor &processor) {
 		auto &faProcessor = static_cast<FileAssetProcessor&>(processor);
 		faProcessor.loadInfo = std::move(loadInfo);
 		InitializeProcessor(processor);
-		faProcessor.onLoaded = [&faProcessor](util::Asset *asset) {
+		faProcessor.onLoaded = [this,&faProcessor,hash](util::Asset *asset,AssetLoadResult result) {
 			auto &loadInfo = *faProcessor.loadInfo;
 			if(asset)
 			{
@@ -49,6 +61,18 @@ util::FileAssetManager::PreloadResult util::FileAssetManager::PreloadAsset(
 			}
 			else if(loadInfo.onFailure)
 				loadInfo.onFailure();
+
+			if(asset)
+			{
+				auto it = m_callOnLoad.find(hash);
+				if(it != m_callOnLoad.end())
+				{
+					auto functions = std::move(it->second);
+					m_callOnLoad.erase(it);
+					for(auto &f : functions)
+						f(asset,result);
+				}
+			}
 		};
 	});
 	if(!jobId.has_value())
@@ -66,32 +90,36 @@ util::FileAssetManager::PreloadResult util::FileAssetManager::PreloadAsset(
 	if(!loadInfo || !umath::is_flag_set(loadInfo->flags,AssetLoadFlags::AbsolutePath))
 		path = m_rootDir +path;
 	auto ext = path.GetFileExtension();
+	AssetFormatType formatType;
 	if(ext.has_value())
 	{
 		// Confirm that this is a valid texture format extension
-		auto it = std::find_if(m_extensions.begin(),m_extensions.end(),[&ext](const std::pair<std::string,size_t> &pair) {
-			return *ext == pair.first;
+		auto it = std::find_if(m_extensions.begin(),m_extensions.end(),[&ext](const FormatExtensionInfo &extInfo) {
+			return *ext == extInfo.extension;
 		});
 		if(it == m_extensions.end())
 			ext = {};
+		else
+			formatType = it->formatType;
 	}
 	if(!ext.has_value())
 	{
 		// No valid extension found, search for all known extensions
-		for(auto &pair : m_extensions)
+		for(auto &extInfo : m_extensions)
 		{
-			auto extPath = path +("." +pair.first);
+			auto extPath = path +("." +extInfo.extension);
 			if(m_fileHandler->exists(extPath.GetString()))
 			{
 				path = std::move(extPath);
-				ext = pair.first;
+				ext = extInfo.extension;
+				formatType = extInfo.formatType;
 				break;
 			}
 		}
 	}
 	if(!ext.has_value())
 		return PreloadResult{{},false};
-	auto f = m_fileHandler->open(path.GetString());
+	auto f = m_fileHandler->open(path.GetString(),formatType);
 	if(!f)
 		return PreloadResult{{},false};
 	return PreloadAsset(strPath,std::move(f),*ext,priority,std::move(loadInfo));
@@ -126,15 +154,31 @@ void util::FileAssetManager::Poll() {Poll({},util::AssetLoaderWaitMode::None);}
 
 void util::FileAssetManager::WaitForAllPendingCompleted() {Poll({},util::AssetLoaderWaitMode::All);}
 
+std::optional<std::string> util::FileAssetManager::FindAssetFilePath(const std::string &assetName) const
+{
+	auto normalizedName = ToCacheIdentifier(assetName);
+	for(auto &extInfo : m_extensions)
+	{
+		auto &ext = extInfo.extension;
+		auto extName = normalizedName +'.' +ext;
+		if(!m_fileHandler->exists(extName))
+			continue;
+		return extName;
+	}
+	return {};
+}
+
 util::AssetObject util::FileAssetManager::Poll(std::optional<util::AssetLoadJobId> untilJob,util::AssetLoaderWaitMode wait)
 {
 	util::AssetObject targetAsset = nullptr;
 	do
 	{
-		m_loader->Poll([this,&untilJob,&targetAsset](const util::AssetLoadJob &job,IAssetLoader::AssetLoadResult result) {
+		m_loader->Poll([this,&untilJob,&targetAsset](const util::AssetLoadJob &job,AssetLoadResult result) {
+			auto &processor = *static_cast<FileAssetProcessor*>(job.processor.get());
+			util::Asset *passet = nullptr;
 			switch(result)
 			{
-			case IAssetLoader::AssetLoadResult::Succeeded:
+			case AssetLoadResult::Succeeded:
 			{
 #ifdef ENABLE_VERBOSE_OUTPUT
 				auto dtQueue = job.completionTime -job.queueStartTime;
@@ -147,7 +191,6 @@ util::AssetObject util::FileAssetManager::Poll(std::optional<util::AssetLoadJobI
 				auto asset = std::make_shared<util::Asset>();
 				asset->assetObject = assetObject;
 			
-				auto &processor = *static_cast<FileAssetProcessor*>(job.processor.get());
 				auto &loadInfo = *processor.loadInfo;
 				if(!umath::is_flag_set(loadInfo.flags,AssetLoadFlags::DontCache))
 					AddToCache(job.identifier,asset);
@@ -156,8 +199,7 @@ util::AssetObject util::FileAssetManager::Poll(std::optional<util::AssetLoadJobI
 					targetAsset = asset->assetObject;
 					untilJob = {};
 				}
-				if(processor.onLoaded)
-					processor.onLoaded(asset.get());
+				passet = asset.get();
 				break;
 			}
 			default:
@@ -166,17 +208,16 @@ util::AssetObject util::FileAssetManager::Poll(std::optional<util::AssetLoadJobI
 				std::cout<<job.identifier<<" has failed!"<<std::endl;
 #endif
 
-				auto &processor = *static_cast<FileAssetProcessor*>(job.processor.get());
 				if(untilJob.has_value() && job.jobId == *untilJob)
 				{
 					targetAsset = nullptr;
 					untilJob = {};
 				}
-				if(processor.onLoaded)
-					processor.onLoaded(nullptr);
 				break;
 			}
 			}
+			if(processor.onLoaded)
+				processor.onLoaded(passet,result);
 		},wait);
 	}
 	while(untilJob.has_value());

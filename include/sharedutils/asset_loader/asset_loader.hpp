@@ -28,18 +28,17 @@ namespace util
 		Single,
 		All
 	};
+	enum class AssetLoadResult : uint8_t
+	{
+		Succeeded = 0,
+		Failed,
+		Cancelled
+	};
 	class DLLSHUTIL IAssetLoader
 	{
 	public:
 		IAssetLoader();
 		virtual ~IAssetLoader();
-		enum class AssetLoadResult : uint8_t
-		{
-			Succeeded = 0,
-			Failed,
-			Cancelled
-		};
-
 		void Poll(
 			const std::function<void(const AssetLoadJob&,AssetLoadResult)> &onComplete,
 			AssetLoaderWaitMode wait=AssetLoaderWaitMode::None
