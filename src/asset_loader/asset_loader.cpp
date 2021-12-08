@@ -7,7 +7,7 @@
 #include <cassert>
 #pragma optimize("",off)
 util::IAssetLoader::IAssetLoader()
-	: m_pool{5}
+	: m_pool{10}
 {}
 
 util::IAssetLoader::~IAssetLoader()
@@ -27,6 +27,9 @@ std::optional<util::AssetLoadJobId> util::IAssetLoader::FindJobId(const std::str
 	auto it = m_assetIdToJobId.find(identifier);
 	return (it != m_assetIdToJobId.end()) ? it->second.jobId : std::optional<util::AssetLoadJobId>{};
 }
+
+void util::IAssetLoader::SetMultiThreadingEnabled(bool enabled) {m_multiThreadingEnabled = enabled;}
+bool util::IAssetLoader::IsMultiThreadingEnabled() const {return m_multiThreadingEnabled;}
 
 std::optional<util::AssetLoadJobId> util::IAssetLoader::AddJob(
 	const std::string &identifier,std::unique_ptr<IAssetProcessor> &&processor,AssetLoadJobPriority priority
@@ -72,7 +75,7 @@ std::optional<util::AssetLoadJobId> util::IAssetLoader::AddJob(
 		m_jobs.emplace(std::move(job));
 	m_queueMutex.unlock();
 
-	m_pool.push([this](int id) {
+	auto f = [this](int id) {
 		m_queueMutex.lock();
 			auto job = std::move(const_cast<AssetLoadJob&>(m_jobs.top()));
 			m_jobs.pop();
@@ -99,7 +102,11 @@ std::optional<util::AssetLoadJobId> util::IAssetLoader::AddJob(
 			}
 		m_completeQueueMutex.unlock();
 		m_completeCondition.notify_one();
-	});
+	};
+	if(IsMultiThreadingEnabled())
+		m_pool.push(std::move(f));
+	else
+		f(0);
 	return jobId;
 }
 

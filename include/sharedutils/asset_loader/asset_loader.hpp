@@ -49,7 +49,11 @@ namespace util
 		);
 		std::optional<AssetLoadJobId> FindJobId(const std::string &identifier) const;
 		void InvalidateLoadJob(const std::string &identifier);
+
+		void SetMultiThreadingEnabled(bool enabled);
+		bool IsMultiThreadingEnabled() const;
 	private:
+		std::atomic<bool> m_multiThreadingEnabled = true;
 		ctpl::thread_pool m_pool;
 		std::mutex m_queueMutex;
 		std::priority_queue<AssetLoadJob,std::vector<AssetLoadJob>,CompareTextureLoadJob> m_jobs;
