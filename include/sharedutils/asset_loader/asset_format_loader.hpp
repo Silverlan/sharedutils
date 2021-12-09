@@ -20,6 +20,8 @@ namespace util
 	{
 	public:
 		AssetFormatLoader(util::IAssetManager &assetManager);
+		// Registering a format handler is *not* MT-safe, all format handlers
+		// should therefore be registered before any jobs are added.
 		void RegisterFormatHandler(const std::string &ext,const std::function<std::unique_ptr<IAssetFormatHandler>(util::IAssetManager&)> &factory);
 		std::optional<util::AssetLoadJobId> AddJob(
 			const std::string &identifier,const std::string &ext,std::unique_ptr<ufile::IFile> &&file,util::AssetLoadJobPriority priority=0,

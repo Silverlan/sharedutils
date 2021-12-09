@@ -108,18 +108,25 @@ void util::IAssetManager::StripFileExtension(std::string_view &key) const
 
 util::IAssetManager::IAssetManager()
 {}
-void util::IAssetManager::AddToCache(const std::string &assetName,const std::shared_ptr<Asset> &asset)
+util::AssetIndex util::IAssetManager::AddToCache(const std::string &assetName,const std::shared_ptr<Asset> &asset)
 {
 	auto identifier = ToCacheIdentifier(assetName);
 
 	auto hash = GetIdentifierHash(identifier);
 	AssetIndex index = 0;
+	m_cacheMutex.lock();
 	auto it = m_cache.find(hash);
 	if(it != m_cache.end())
+	{
 		index = it->second;
+		m_cache[hash] = index;
+		m_cacheMutex.unlock();
+	}
 	else
 	{
 		index = m_assets.size();
+		m_cache[hash] = index;
+		m_cacheMutex.unlock();
 		m_assets.resize(index +1);
 	}
 	auto &assetInfo = m_assets[index];
@@ -127,12 +134,13 @@ void util::IAssetManager::AddToCache(const std::string &assetName,const std::sha
 	assetInfo.hash = hash;
 	assetInfo.identifier = identifier;
 	assetInfo.index = index;
-	m_cache[hash] = index;
+	return index;
 }
 bool util::IAssetManager::RemoveFromCache(const std::string &assetName)
 {
 	auto identifier = ToCacheIdentifier(assetName);
 	auto hash = GetIdentifierHash(identifier);
+	std::scoped_lock lock {m_cacheMutex};
 	auto it = m_cache.find(hash);
 	if(it == m_cache.end())
 		return false;
@@ -163,9 +171,13 @@ bool util::IAssetManager::ClearAsset(AssetIndex idx)
 	if(!assetInfo.asset)
 		return false;
 	auto hash = assetInfo.hash;
+
+	m_cacheMutex.lock();
 	auto itCache = m_cache.find(hash);
 	if(itCache != m_cache.end())
 		m_cache.erase(itCache);
+	m_cacheMutex.unlock();
+
 	auto itFlag = m_flaggedForDeletion.find(hash);
 	if(itFlag != m_flaggedForDeletion.end())
 		m_flaggedForDeletion.erase(itFlag);
@@ -200,9 +212,12 @@ uint32_t util::IAssetManager::ClearFlagged()
 }
 uint32_t util::IAssetManager::Clear()
 {
+	m_cacheMutex.lock();
 	auto n = m_cache.size();
-	m_assets.clear();
 	m_cache.clear();
+	m_cacheMutex.unlock();
+
+	m_assets.clear();
 	m_flaggedForDeletion.clear();
 	return n;
 }
@@ -216,8 +231,11 @@ void util::IAssetManager::FlagForRemoval(const std::string &assetName,bool flag)
 
 void util::IAssetManager::FlagForRemoval(AssetIndex idx,bool flag)
 {
+	m_cacheMutex.lock();
 	auto it = m_cache.find(idx);
-	if(it == m_cache.end())
+	auto isCached = it != m_cache.end();
+	m_cacheMutex.unlock();
+	if(!isCached)
 		return;
 	if(flag)
 		m_flaggedForDeletion.insert(idx);
@@ -248,6 +266,7 @@ util::Asset *util::IAssetManager::GetAsset(AssetIndex index)
 std::optional<util::AssetIndex> util::IAssetManager::GetAssetIndex(const std::string &assetName) const
 {
 	auto hash = GetIdentifierHash(assetName);
+	std::scoped_lock lock {m_cacheMutex};
 	auto it = m_cache.find(hash);
 	if(it == m_cache.end())
 		return {};
@@ -263,9 +282,15 @@ const util::Asset *util::IAssetManager::FindCachedAsset(const std::string &asset
 }
 util::Asset *util::IAssetManager::FindCachedAsset(const std::string &assetName)
 {
+	m_cacheMutex.lock();
 	auto it = m_cache.find(GetIdentifierHash(assetName));
 	if(it == m_cache.end())
+	{
+		m_cacheMutex.unlock();
 		return nullptr;
-	return GetAsset(it->second);
+	}
+	auto idx = it->second;
+	m_cacheMutex.unlock();
+	return GetAsset(idx);
 }
 #pragma optimize("",on)

@@ -32,7 +32,16 @@ namespace util
 	{
 		Succeeded = 0,
 		Failed,
-		Cancelled
+		Cancelled,
+
+		NotStarted,
+		Loading
+	};
+	enum class AssetLoadState : uint8_t
+	{
+		NotQueued = 0,
+		Loading,
+		LoadedAndPendingForCompletion
 	};
 	class DLLSHUTIL IAssetLoader
 	{
@@ -49,11 +58,14 @@ namespace util
 		std::optional<AssetLoadJobId> FindJobId(const std::string &identifier) const;
 		void InvalidateLoadJob(const std::string &identifier);
 
+		AssetLoadState GetLoadState(const std::string &identifier) const;
+
 		void SetMultiThreadingEnabled(bool enabled);
 		bool IsMultiThreadingEnabled() const;
 	private:
 		std::atomic<bool> m_multiThreadingEnabled = true;
 		ctpl::thread_pool m_pool;
+		std::mutex m_jobMutex;
 		std::mutex m_queueMutex;
 		std::priority_queue<AssetLoadJob,std::vector<AssetLoadJob>,CompareTextureLoadJob> m_jobs;
 

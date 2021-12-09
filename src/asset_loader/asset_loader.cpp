@@ -4,6 +4,7 @@
 
 #include "sharedutils/asset_loader/asset_loader.hpp"
 #include "sharedutils/asset_loader/asset_processor.hpp"
+#include <iostream>
 #include <cassert>
 #pragma optimize("",off)
 util::IAssetLoader::IAssetLoader()
@@ -31,10 +32,21 @@ std::optional<util::AssetLoadJobId> util::IAssetLoader::FindJobId(const std::str
 void util::IAssetLoader::SetMultiThreadingEnabled(bool enabled) {m_multiThreadingEnabled = enabled;}
 bool util::IAssetLoader::IsMultiThreadingEnabled() const {return m_multiThreadingEnabled;}
 
+util::AssetLoadState util::IAssetLoader::GetLoadState(const std::string &identifier) const
+{
+	std::scoped_lock lock {m_assetIdToJobIdMutex};
+	auto it = m_assetIdToJobId.find(identifier);
+	if(it == m_assetIdToJobId.end())
+		return AssetLoadState::NotQueued;
+	auto &jobInfo = it->second;
+	return jobInfo.complete ? AssetLoadState::LoadedAndPendingForCompletion : AssetLoadState::Loading;
+}
+
 std::optional<util::AssetLoadJobId> util::IAssetLoader::AddJob(
 	const std::string &identifier,std::unique_ptr<IAssetProcessor> &&processor,AssetLoadJobPriority priority
 )
 {
+	std::unique_lock jobLock {m_jobMutex};
 	if(!identifier.empty())
 	{
 		std::scoped_lock lock {m_assetIdToJobIdMutex};
@@ -86,7 +98,27 @@ std::optional<util::AssetLoadJobId> util::IAssetLoader::AddJob(
 			auto isValid = (it != m_assetIdToJobId.end() && it->second.jobId == job.jobId);
 		m_assetIdToJobIdMutex.unlock();
 		job.taskStartTime = std::chrono::high_resolution_clock::now();
-		job.state = isValid ? (job.processor->Load() ? AssetLoadJob::State::Succeeded : AssetLoadJob::State::Failed) : AssetLoadJob::State::Cancelled;
+		if(!isValid)
+			job.state = AssetLoadJob::State::Cancelled;
+		else
+		{
+			auto success = false;
+			try
+			{
+				success = job.processor->Load();
+			}
+			catch(const std::exception &e)
+			{
+				success = false;
+				std::cout<<"Asset loader exception: "<<e.what()<<std::endl;
+			}
+			catch(...)
+			{
+				success = false;
+				std::cout<<"Unknown exception in asset loader!"<<std::endl;
+			}
+			job.state = success ? AssetLoadJob::State::Succeeded : AssetLoadJob::State::Failed;
+		}
 		job.completionTime = std::chrono::high_resolution_clock::now();
 
 		m_completeQueueMutex.lock();

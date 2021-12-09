@@ -18,6 +18,13 @@ namespace util
 		std::function<std::unique_ptr<ufile::IFile>(const std::string&,AssetFormatType)> open;
 		std::function<bool(const std::string&)> exists;
 	};
+	enum class AssetState : uint8_t
+	{
+		NotLoaded = 0,
+		Loaded,
+		FailedToLoad,
+		Loading
+	};
 	class IAssetFormatHandler;
 	class DLLSHUTIL FileAssetManager
 		: public util::IAssetManager
@@ -32,8 +39,13 @@ namespace util
 		};
 
 		FileAssetManager();
+		AssetState GetAssetState(const std::string &assetName) const;
 		std::optional<std::string> FindAssetFilePath(const std::string &assetName) const;
+		
+		// MT-safe
 		PreloadResult PreloadAsset(const std::string &path,std::unique_ptr<AssetLoadInfo> &&loadInfo=nullptr);
+
+		// These may only be called from the same thread that handles the polling!
 		util::AssetObject LoadAsset(const std::string &path,std::unique_ptr<AssetLoadInfo> &&loadInfo=nullptr);
 		util::AssetObject LoadAsset(
 			const std::string &cacheName,std::unique_ptr<ufile::IFile> &&file,const std::string &ext,std::unique_ptr<AssetLoadInfo> &&loadInfo=nullptr
@@ -54,7 +66,7 @@ namespace util
 		virtual void Poll();
 	protected:
 		virtual void InitializeProcessor(util::IAssetProcessor &processor)=0;
-		virtual util::AssetObject InitializeAsset(const util::AssetLoadJob &job)=0;
+		virtual util::AssetObject InitializeAsset(const Asset &asset,const util::AssetLoadJob &job)=0;
 		void RegisterFormatHandler(
 			const std::string &ext,const std::function<std::unique_ptr<IAssetFormatHandler>(util::IAssetManager&)> &factory,
 			AssetFormatType formatType=AssetFormatType::Binary
@@ -72,9 +84,11 @@ namespace util
 		util::AssetObject Poll(std::optional<util::AssetLoadJobId> untilJob,util::AssetLoaderWaitMode wait);
 		std::unique_ptr<AssetFormatLoader> m_loader;
 	private:
+		void ValidateMainThread();
 		std::unordered_map<size_t,std::vector<std::function<void(util::Asset*,AssetLoadResult)>>> m_callOnLoad;
 		std::unique_ptr<AssetFileHandler> m_fileHandler;
 		util::Path m_rootDir;
+		std::thread::id m_mainThreadId;
 	};
 
 	template<typename TAssetType,typename TLoadInfo>

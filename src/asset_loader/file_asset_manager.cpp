@@ -8,10 +8,15 @@
 #include "sharedutils/util_ifile.hpp"
 
 #undef AddJob
-
+#pragma optimize("",off)
 util::FileAssetManager::FileAssetManager()
-	: util::IAssetManager{}
+	: util::IAssetManager{},m_mainThreadId{std::this_thread::get_id()}
 {}
+void util::FileAssetManager::ValidateMainThread()
+{
+	if(std::this_thread::get_id() != m_mainThreadId)
+		throw std::runtime_error{"This action is only allowed from the same thread that created the asset manager!"};
+}
 void util::FileAssetManager::SetRootDirectory(const std::string &dir) {m_rootDir = util::Path::CreatePath(dir);}
 const util::Path &util::FileAssetManager::GetRootDirectory() const {return m_rootDir;}
 
@@ -130,6 +135,7 @@ util::AssetObject util::FileAssetManager::LoadAsset(
 	std::function<void()> onFailure
 )
 {
+	ValidateMainThread();
 	if(r.success == false)
 	{
 		if(onFailure)
@@ -154,6 +160,25 @@ void util::FileAssetManager::Poll() {Poll({},util::AssetLoaderWaitMode::None);}
 
 void util::FileAssetManager::WaitForAllPendingCompleted() {Poll({},util::AssetLoaderWaitMode::All);}
 
+util::AssetState util::FileAssetManager::GetAssetState(const std::string &assetName) const
+{
+	auto hash = GetIdentifierHash(assetName);
+	auto it = m_cache.find(hash);
+	if(it != m_cache.end())
+		return AssetState::Loaded;
+	auto loadState = m_loader->GetLoadState(ToCacheIdentifier(assetName));
+	switch(loadState)
+	{
+	case AssetLoadState::NotQueued:
+		return AssetState::NotLoaded;
+	case AssetLoadState::LoadedAndPendingForCompletion:
+	case AssetLoadState::Loading:
+		return AssetState::Loading;
+	}
+	// Unreachable
+	return AssetState::NotLoaded;
+}
+
 std::optional<std::string> util::FileAssetManager::FindAssetFilePath(const std::string &assetName) const
 {
 	auto normalizedName = ToCacheIdentifier(assetName);
@@ -170,6 +195,8 @@ std::optional<std::string> util::FileAssetManager::FindAssetFilePath(const std::
 
 util::AssetObject util::FileAssetManager::Poll(std::optional<util::AssetLoadJobId> untilJob,util::AssetLoaderWaitMode wait)
 {
+	if(untilJob.has_value() && wait == util::AssetLoaderWaitMode::None)
+		wait = util::AssetLoaderWaitMode::Single;
 	util::AssetObject targetAsset = nullptr;
 	do
 	{
@@ -187,13 +214,13 @@ util::AssetObject util::FileAssetManager::Poll(std::optional<util::AssetLoadJobI
 				std::cout<<"Time since job has been queued to completion: "<<(dtQueue.count() /1'000'000'000.0)<<std::endl;
 				std::cout<<"Time since task has been started to completion: "<<(dtTask.count() /1'000'000'000.0)<<std::endl;
 #endif
-				auto assetObject = InitializeAsset(job);
 				auto asset = std::make_shared<util::Asset>();
-				asset->assetObject = assetObject;
 			
 				auto &loadInfo = *processor.loadInfo;
 				if(!umath::is_flag_set(loadInfo.flags,AssetLoadFlags::DontCache))
-					AddToCache(job.identifier,asset);
+					asset->index = AddToCache(job.identifier,asset);
+				auto assetObject = InitializeAsset(*asset,job);
+				asset->assetObject = assetObject;
 				if(untilJob.has_value() && job.jobId == *untilJob)
 				{
 					targetAsset = asset->assetObject;
@@ -228,6 +255,7 @@ util::AssetObject util::FileAssetManager::LoadAsset(
 	const std::string &cacheName,std::unique_ptr<ufile::IFile> &&file,const std::string &ext,std::unique_ptr<util::AssetLoadInfo> &&loadInfo
 )
 {
+	ValidateMainThread();
 	auto onLoaded = loadInfo ? loadInfo->onLoaded : nullptr;
 	auto onFailure = loadInfo ? loadInfo->onFailure : nullptr;
 	auto r = PreloadAsset(cacheName,std::move(file),ext,IMMEDIATE_PRIORITY,std::move(loadInfo));
@@ -237,8 +265,10 @@ util::AssetObject util::FileAssetManager::LoadAsset(
 }
 util::AssetObject util::FileAssetManager::LoadAsset(const std::string &path,std::unique_ptr<util::AssetLoadInfo> &&loadInfo)
 {
+	ValidateMainThread();
 	auto onLoaded = loadInfo ? loadInfo->onLoaded : nullptr;
 	auto onFailure = loadInfo ? loadInfo->onFailure : nullptr;
 	auto r = PreloadAsset(path,IMMEDIATE_PRIORITY,std::move(loadInfo));
 	return LoadAsset(path,r,onLoaded,onFailure);
 }
+#pragma optimize("",on)

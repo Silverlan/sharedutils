@@ -11,18 +11,20 @@
 #include <optional>
 #include <string>
 #include <vector>
+#include <mutex>
 #include <memory>
 
 namespace util
 {
 	using AssetObject = std::shared_ptr<void>;
+	using AssetIndex = uint32_t;
 	struct DLLSHUTIL Asset
 	{
 	public:
 		bool IsInUse() const;
 		AssetObject assetObject;
+		AssetIndex index = std::numeric_limits<AssetIndex>::max();
 	};
-	using AssetIndex = uint32_t;
 	using AssetIdentifierHash = size_t;
 	enum class AssetFormatType : uint8_t
 	{
@@ -68,13 +70,14 @@ namespace util
 		bool ClearAsset(AssetIndex idx);
 		bool RemoveFromCache(const std::string &assetName);
 		void FlagForRemoval(AssetIndex idx,bool flag=true);
-		void AddToCache(const std::string &assetName,const std::shared_ptr<Asset> &asset);
+		AssetIndex AddToCache(const std::string &assetName,const std::shared_ptr<Asset> &asset);
 		AssetIdentifierHash GetIdentifierHash(const std::string &assetName) const;
 		void RegisterFileExtension(const std::string &ext,AssetFormatType formatType=AssetFormatType::Binary);
 		void StripFileExtension(std::string_view &key) const;
 
 		std::vector<AssetInfo> m_assets;
 		std::unordered_map<AssetIdentifierHash,AssetIndex> m_cache;
+		mutable std::mutex m_cacheMutex;
 		std::unordered_set<AssetIndex> m_flaggedForDeletion;
 		std::vector<FormatExtensionInfo> m_extensions;
 	};
