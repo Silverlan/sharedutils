@@ -44,7 +44,7 @@ namespace util
 		std::string ToCacheIdentifier(const std::string &assetName) const;
 
 		IAssetManager();
-		virtual ~IAssetManager()=default;
+		virtual ~IAssetManager();
 
 		uint32_t ClearUnused();
 		uint32_t ClearFlagged();

@@ -9,9 +9,16 @@
 
 #undef AddJob
 #pragma optimize("",off)
+
+#define ENABLE_VERBOSE_OUTPUT
+
 util::FileAssetManager::FileAssetManager()
 	: util::IAssetManager{},m_mainThreadId{std::this_thread::get_id()}
 {}
+util::FileAssetManager::~FileAssetManager()
+{
+	m_loader = nullptr;
+}
 void util::FileAssetManager::ValidateMainThread()
 {
 	if(std::this_thread::get_id() != m_mainThreadId)
@@ -153,7 +160,18 @@ util::AssetObject util::FileAssetManager::LoadAsset(
 	auto identifier = ToCacheIdentifier(path);
 	auto jobId = *r.jobId;
 
-	return Poll(jobId,util::AssetLoaderWaitMode::None);
+#ifdef ENABLE_VERBOSE_OUTPUT
+	auto t = std::chrono::high_resolution_clock::now();
+#endif
+	auto o = Poll(jobId,util::AssetLoaderWaitMode::None);
+#ifdef ENABLE_VERBOSE_OUTPUT
+	if(o)
+	{
+		auto dt = std::chrono::high_resolution_clock::now() -t;
+		std::cout<<"Waited "<<(dt.count() /1'000'000'000.0)<<" seconds for asset '"<<identifier<<"'!"<<std::endl;
+	}
+#endif
+	return o;
 }
 
 void util::FileAssetManager::Poll() {Poll({},util::AssetLoaderWaitMode::None);}

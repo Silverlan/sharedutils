@@ -76,9 +76,15 @@ namespace util
 
 		struct QueuedJobInfo
 		{
+			enum class State : uint8_t
+			{
+				Pending = 0,
+				InProgress,
+				Complete
+			};
 			AssetLoadJobId jobId;
 			AssetLoadJobPriority priority;
-			bool complete = false;
+			State state = State::Pending;
 		};
 		mutable std::mutex m_assetIdToJobIdMutex;
 		std::unordered_map<std::string,QueuedJobInfo> m_assetIdToJobId;

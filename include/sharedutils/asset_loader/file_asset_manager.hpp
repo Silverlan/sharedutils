@@ -39,6 +39,7 @@ namespace util
 		};
 
 		FileAssetManager();
+		virtual ~FileAssetManager() override;
 		AssetState GetAssetState(const std::string &assetName) const;
 		std::optional<std::string> FindAssetFilePath(const std::string &assetName) const;
 		

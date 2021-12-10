@@ -108,6 +108,16 @@ void util::IAssetManager::StripFileExtension(std::string_view &key) const
 
 util::IAssetManager::IAssetManager()
 {}
+util::IAssetManager::~IAssetManager()
+{
+	for(auto &assetInfo : m_assets)
+	{
+		if(!assetInfo.asset)
+			continue;
+		if(assetInfo.asset->IsInUse())
+			std::cout<<"Asset "<<assetInfo.identifier<<" is still in use!"<<std::endl;
+	}
+}
 util::AssetIndex util::IAssetManager::AddToCache(const std::string &assetName,const std::shared_ptr<Asset> &asset)
 {
 	auto identifier = ToCacheIdentifier(assetName);

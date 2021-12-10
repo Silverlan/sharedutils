@@ -12,7 +12,9 @@ util::IAssetLoader::IAssetLoader()
 {}
 
 util::IAssetLoader::~IAssetLoader()
-{}
+{
+	m_pool.stop();
+}
 
 void util::IAssetLoader::InvalidateLoadJob(const std::string &identifier)
 {
@@ -39,7 +41,7 @@ util::AssetLoadState util::IAssetLoader::GetLoadState(const std::string &identif
 	if(it == m_assetIdToJobId.end())
 		return AssetLoadState::NotQueued;
 	auto &jobInfo = it->second;
-	return jobInfo.complete ? AssetLoadState::LoadedAndPendingForCompletion : AssetLoadState::Loading;
+	return (jobInfo.state == QueuedJobInfo::State::Complete) ? AssetLoadState::LoadedAndPendingForCompletion : AssetLoadState::Loading;
 }
 
 std::optional<util::AssetLoadJobId> util::IAssetLoader::AddJob(
@@ -54,7 +56,7 @@ std::optional<util::AssetLoadJobId> util::IAssetLoader::AddJob(
 		if(itJob != m_assetIdToJobId.end())
 		{
 			// Already queued up
-			if(priority <= itJob->second.priority || itJob->second.complete)
+			if(priority <= itJob->second.priority || itJob->second.state != QueuedJobInfo::State::Pending)
 				return itJob->second.jobId;
 			// New job has higher priority; The old job will be invalidated and the
 			// new job added
@@ -96,6 +98,8 @@ std::optional<util::AssetLoadJobId> util::IAssetLoader::AddJob(
 		m_assetIdToJobIdMutex.lock();
 			auto it = m_assetIdToJobId.find(job.identifier);
 			auto isValid = (it != m_assetIdToJobId.end() && it->second.jobId == job.jobId);
+			if(it != m_assetIdToJobId.end())
+				it->second.state = QueuedJobInfo::State::InProgress;
 		m_assetIdToJobIdMutex.unlock();
 		job.taskStartTime = std::chrono::high_resolution_clock::now();
 		if(!isValid)
@@ -129,7 +133,7 @@ std::optional<util::AssetLoadJobId> util::IAssetLoader::AddJob(
 				m_assetIdToJobIdMutex.lock();
 					auto it = m_assetIdToJobId.find(job.identifier);
 					if(it != m_assetIdToJobId.end() && it->second.jobId == job.jobId)
-						it->second.complete = true;
+						it->second.state = QueuedJobInfo::State::Complete;
 				m_assetIdToJobIdMutex.unlock();
 			}
 		m_completeQueueMutex.unlock();
