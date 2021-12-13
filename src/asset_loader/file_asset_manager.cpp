@@ -26,6 +26,8 @@ void util::FileAssetManager::ValidateMainThread()
 }
 void util::FileAssetManager::SetRootDirectory(const std::string &dir) {m_rootDir = util::Path::CreatePath(dir);}
 const util::Path &util::FileAssetManager::GetRootDirectory() const {return m_rootDir;}
+void util::FileAssetManager::SetImportDirectory(const std::string &dir) {m_importRootDir = util::Path::CreatePath(dir);}
+const util::Path &util::FileAssetManager::GetImportDirectory() const {return m_importRootDir;}
 
 void util::FileAssetManager::SetFileHandler(std::unique_ptr<AssetFileHandler> &&fileHandler) {m_fileHandler = std::move(fileHandler);}
 
@@ -88,8 +90,8 @@ util::FileAssetManager::PreloadResult util::FileAssetManager::PreloadAsset(
 		};
 	});
 	if(!jobId.has_value())
-		return PreloadResult{{},false};
-	return PreloadResult{jobId,true};
+		return PreloadResult{{},PreloadResult::Result::JobCreationFailed};
+	return PreloadResult{jobId,PreloadResult::Result::Success};
 }
 util::FileAssetManager::PreloadResult util::FileAssetManager::PreloadAsset(
 	const std::string &strPath,util::AssetLoadJobPriority priority,std::unique_ptr<util::AssetLoadInfo> &&loadInfo
@@ -97,17 +99,18 @@ util::FileAssetManager::PreloadResult util::FileAssetManager::PreloadAsset(
 {
 	auto *asset = FindCachedAsset(strPath);
 	if(asset)
-		return PreloadResult{{},true};
+		return PreloadResult{{},PreloadResult::Result::AlreadyLoaded};
 	auto path = util::Path::CreateFile(strPath);
 	if(!loadInfo || !umath::is_flag_set(loadInfo->flags,AssetLoadFlags::AbsolutePath))
 		path = m_rootDir +path;
 	auto ext = path.GetFileExtension();
 	AssetFormatType formatType;
-	if(ext.has_value())
+	auto hadExtension = ext.has_value();
+	if(hadExtension)
 	{
-		// Confirm that this is a valid texture format extension
+		// Confirm that this is a valid asset format extension
 		auto it = std::find_if(m_extensions.begin(),m_extensions.end(),[&ext](const FormatExtensionInfo &extInfo) {
-			return *ext == extInfo.extension;
+			return extInfo.type == FormatExtensionInfo::Type::Native && *ext == extInfo.extension;
 		});
 		if(it == m_extensions.end())
 			ext = {};
@@ -119,6 +122,8 @@ util::FileAssetManager::PreloadResult util::FileAssetManager::PreloadAsset(
 		// No valid extension found, search for all known extensions
 		for(auto &extInfo : m_extensions)
 		{
+			if(extInfo.type != FormatExtensionInfo::Type::Native)
+				continue;
 			auto extPath = path +("." +extInfo.extension);
 			if(m_fileHandler->exists(extPath.GetString()))
 			{
@@ -130,10 +135,17 @@ util::FileAssetManager::PreloadResult util::FileAssetManager::PreloadAsset(
 		}
 	}
 	if(!ext.has_value())
-		return PreloadResult{{},false};
+	{
+		if(hadExtension && m_fileHandler->exists(path.GetString()))
+		{
+			// File with original path was found, but extension is not a recognized format
+			return PreloadResult{{},PreloadResult::Result::UnsupportedFormat};
+		}
+		return PreloadResult{{},PreloadResult::Result::FileNotFound};
+	}
 	auto f = m_fileHandler->open(path.GetString(),formatType);
 	if(!f)
-		return PreloadResult{{},false};
+		return PreloadResult{{},PreloadResult::Result::UnableToOpenFile};
 	return PreloadAsset(strPath,std::move(f),*ext,priority,std::move(loadInfo));
 }
 util::AssetObject util::FileAssetManager::LoadAsset(
@@ -143,7 +155,7 @@ util::AssetObject util::FileAssetManager::LoadAsset(
 )
 {
 	ValidateMainThread();
-	if(r.success == false)
+	if(r == false)
 	{
 		if(onFailure)
 			onFailure();
@@ -197,11 +209,13 @@ util::AssetState util::FileAssetManager::GetAssetState(const std::string &assetN
 	return AssetState::NotLoaded;
 }
 
-std::optional<std::string> util::FileAssetManager::FindAssetFilePath(const std::string &assetName) const
+std::optional<std::string> util::FileAssetManager::FindAssetFilePath(const std::string &assetName,bool includeImportTypes) const
 {
 	auto normalizedName = ToCacheIdentifier(assetName);
 	for(auto &extInfo : m_extensions)
 	{
+		if(!includeImportTypes && extInfo.type == FormatExtensionInfo::Type::Import)
+			continue;
 		auto &ext = extInfo.extension;
 		auto extName = normalizedName +'.' +ext;
 		if(!m_fileHandler->exists(extName))
@@ -277,7 +291,7 @@ util::AssetObject util::FileAssetManager::LoadAsset(
 	auto onLoaded = loadInfo ? loadInfo->onLoaded : nullptr;
 	auto onFailure = loadInfo ? loadInfo->onFailure : nullptr;
 	auto r = PreloadAsset(cacheName,std::move(file),ext,IMMEDIATE_PRIORITY,std::move(loadInfo));
-	if(r.success == false)
+	if(!r)
 		return nullptr;
 	return LoadAsset(cacheName,r,onLoaded,onFailure);
 }
@@ -287,6 +301,42 @@ util::AssetObject util::FileAssetManager::LoadAsset(const std::string &path,std:
 	auto onLoaded = loadInfo ? loadInfo->onLoaded : nullptr;
 	auto onFailure = loadInfo ? loadInfo->onFailure : nullptr;
 	auto r = PreloadAsset(path,IMMEDIATE_PRIORITY,std::move(loadInfo));
+	if(loadInfo) // loadInfo should always still be valid if PreloadAsset failed
+	{
+		if(r.result == PreloadResult::Result::UnsupportedFormat)
+		{
+			// File was found, but format is not a native format. Try to import it.
+			std::string ext;
+			if(ufile::get_extension(path,&ext)) // This should always be true
+			{
+				if(Import(path,ext))
+				{
+					// Import was successful, attempt to preload again
+					if(loadInfo)
+						r = PreloadAsset(path,IMMEDIATE_PRIORITY,std::move(loadInfo));
+				}
+			}
+		}
+		else if(r.result == PreloadResult::Result::FileNotFound)
+		{
+			// Could not find asset at all, try all our known import methods.
+			auto normPath = ToCacheIdentifier(path);
+			for(auto &extInfo : m_extensions)
+			{
+				if(extInfo.type != FormatExtensionInfo::Type::Import)
+					continue;
+				auto extPath = normPath +'.' +extInfo.extension;
+				if(Import(extPath,extInfo.extension))
+				{
+					// Import was successful, attempt to preload again
+					r = PreloadAsset(path,IMMEDIATE_PRIORITY,std::move(loadInfo));
+					break;
+				}
+			}
+		}
+	}
+	if(!r)
+		return nullptr;
 	return LoadAsset(path,r,onLoaded,onFailure);
 }
 #pragma optimize("",on)

@@ -30,5 +30,8 @@ std::optional<util::AssetLoadJobId> util::AssetFormatLoader::AddJob(
 	auto processor = CreateAssetProcessor(identifier,ext,std::move(handler));
 	if(initProcessor)
 		initProcessor(*processor);
-	return IAssetLoader::AddJob(identifier,std::move(processor),priority);
+	auto jobId = IAssetLoader::AddJob(identifier,std::move(processor),priority);
+	if(!jobId.has_value())
+		file = handler->GetFile();
+	return jobId;
 }

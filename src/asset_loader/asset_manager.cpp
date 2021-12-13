@@ -96,14 +96,21 @@ void util::IAssetManager::StripFileExtension(std::string_view &key) const
 			--i;
 			continue;
 		}
-		auto hash = hash_identifier(key.substr(i +1));
-		auto it = std::find_if(m_extensions.begin(),m_extensions.end(),[hash](const FormatExtensionInfo &extInfo) {
-			return hash == extInfo.hash;
-		});
+		auto it = FindExtension(m_extensions,key.substr(i +1));
 		if(it != m_extensions.end())
 			key = key.substr(0,i);
 		return;
 	}
+}
+
+std::vector<util::IAssetManager::FormatExtensionInfo>::const_iterator util::IAssetManager::FindExtension(
+	const std::vector<FormatExtensionInfo> &exts,const std::string_view &ext,const std::optional<FormatExtensionInfo::Type> type
+)
+{
+	auto hash = hash_identifier(ext);
+	return std::find_if(exts.begin(),exts.end(),[hash,&type](const FormatExtensionInfo &extInfo) {
+		return hash == extInfo.hash && (!type.has_value() || extInfo.type == *type);
+	});
 }
 
 util::IAssetManager::IAssetManager()
@@ -157,7 +164,10 @@ bool util::IAssetManager::RemoveFromCache(const std::string &assetName)
 	m_cache.erase(it);
 	return true;
 }
-void util::IAssetManager::RegisterFileExtension(const std::string &ext,AssetFormatType formatType) {m_extensions.push_back({ext,hash_identifier(ext),formatType});}
+void util::IAssetManager::RegisterFileExtension(const std::string &ext,AssetFormatType formatType,FormatExtensionInfo::Type type)
+{
+	m_extensions.push_back({ext,hash_identifier(ext),formatType,type});
+}
 size_t util::IAssetManager::GetIdentifierHash(const std::string &assetName) const
 {
 	std::string_view strView {assetName};

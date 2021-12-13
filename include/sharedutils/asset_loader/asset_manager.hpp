@@ -63,17 +63,27 @@ namespace util
 	protected:
 		struct FormatExtensionInfo
 		{
+			enum class Type : uint8_t
+			{
+				Native = 0,
+				Import
+			};
 			std::string extension;
 			size_t hash;
 			AssetFormatType formatType;
+			Type type;
 		};
 		bool ClearAsset(AssetIndex idx);
 		bool RemoveFromCache(const std::string &assetName);
 		void FlagForRemoval(AssetIndex idx,bool flag=true);
 		AssetIndex AddToCache(const std::string &assetName,const std::shared_ptr<Asset> &asset);
 		AssetIdentifierHash GetIdentifierHash(const std::string &assetName) const;
-		void RegisterFileExtension(const std::string &ext,AssetFormatType formatType=AssetFormatType::Binary);
+		void RegisterFileExtension(const std::string &ext,AssetFormatType formatType=AssetFormatType::Binary,FormatExtensionInfo::Type type=FormatExtensionInfo::Type::Native);
 		void StripFileExtension(std::string_view &key) const;
+		static std::vector<FormatExtensionInfo>::const_iterator FindExtension(
+			const std::vector<FormatExtensionInfo> &exts,const std::string_view &ext,
+			const std::optional<FormatExtensionInfo::Type> type={}
+		);
 
 		std::vector<AssetInfo> m_assets;
 		std::unordered_map<AssetIdentifierHash,AssetIndex> m_cache;

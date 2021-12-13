@@ -7,6 +7,7 @@
 
 #include "sharedutils/asset_loader/asset_manager.hpp"
 #include "sharedutils/asset_loader/asset_format_loader.hpp"
+#include "sharedutils/asset_loader/asset_format_handler.hpp"
 #include "sharedutils/asset_loader/asset_load_info.hpp"
 #include "sharedutils/util_path.hpp"
 
@@ -34,14 +35,28 @@ namespace util
 		static constexpr util::AssetLoadJobPriority IMMEDIATE_PRIORITY = 10;
 		struct DLLSHUTIL PreloadResult
 		{
+			enum class Result : uint8_t
+			{
+				Pending = 0,
+				AlreadyLoaded,
+				UnsupportedFormat,
+				FileNotFound,
+				UnableToOpenFile,
+				JobCreationFailed,
+				Success
+			};
 			std::optional<util::AssetLoadJobId> jobId {};
-			bool success = false;
+			Result result = Result::Pending;
+			operator bool() const
+			{
+				return result == Result::AlreadyLoaded || result == Result::Success;
+			}
 		};
 
 		FileAssetManager();
 		virtual ~FileAssetManager() override;
 		AssetState GetAssetState(const std::string &assetName) const;
-		std::optional<std::string> FindAssetFilePath(const std::string &assetName) const;
+		std::optional<std::string> FindAssetFilePath(const std::string &assetName,bool includeImportTypes=false) const;
 		
 		// MT-safe
 		PreloadResult PreloadAsset(const std::string &path,std::unique_ptr<AssetLoadInfo> &&loadInfo=nullptr);
@@ -56,6 +71,8 @@ namespace util
 		void RemoveFromCache(const std::string &path);
 		void SetRootDirectory(const std::string &dir);
 		const util::Path &GetRootDirectory() const;
+		void SetImportDirectory(const std::string &dir);
+		const util::Path &GetImportDirectory() const;
 
 		void WaitForAllPendingCompleted();
 
@@ -64,6 +81,7 @@ namespace util
 
 		void CallOnLoad(const std::string &path,const std::function<void(util::Asset*,AssetLoadResult)> &onLoad);
 
+		bool Import(const std::string &path);
 		virtual void Poll();
 	protected:
 		virtual void InitializeProcessor(util::IAssetProcessor &processor)=0;
@@ -72,6 +90,18 @@ namespace util
 			const std::string &ext,const std::function<std::unique_ptr<IAssetFormatHandler>(util::IAssetManager&)> &factory,
 			AssetFormatType formatType=AssetFormatType::Binary
 		);
+
+		template<class T>
+			void RegisterFormatHandler(
+				const std::string &ext,
+				AssetFormatType formatType=AssetFormatType::Binary
+			)
+		{
+			return RegisterFormatHandler(ext,[](util::IAssetManager &assetManager) -> std::unique_ptr<util::IAssetFormatHandler> {
+				return std::make_unique<T>(assetManager);
+			},formatType);
+		}
+
 		PreloadResult PreloadAsset(const std::string &path,util::AssetLoadJobPriority priority,std::unique_ptr<AssetLoadInfo> &&loadInfo);
 		PreloadResult PreloadAsset(
 			const std::string &cacheName,std::unique_ptr<ufile::IFile> &&file,const std::string &ext,util::AssetLoadJobPriority priority,
@@ -83,13 +113,33 @@ namespace util
 			std::function<void()> onFailure
 		);
 		util::AssetObject Poll(std::optional<util::AssetLoadJobId> untilJob,util::AssetLoaderWaitMode wait);
+		
+		void RegisterImportHandler(
+			const std::string &ext,const std::function<std::unique_ptr<util::IImportAssetFormatHandler>(util::IAssetManager &assetManager)> &factory,
+			util::AssetFormatType formatType=util::AssetFormatType::Binary
+		);
+		template<class T>
+			void RegisterImportHandler(
+				const std::string &ext,
+				util::AssetFormatType formatType=util::AssetFormatType::Binary
+			)
+		{
+			return RegisterImportHandler(ext,[](util::IAssetManager &assetManager) -> std::unique_ptr<util::IImportAssetFormatHandler> {
+				return std::make_unique<T>(assetManager);
+			},formatType);
+		}
+		bool Import(const std::string &path,const std::string &ext);
+
 		std::unique_ptr<AssetFormatLoader> m_loader;
 	private:
 		void ValidateMainThread();
 		std::unordered_map<size_t,std::vector<std::function<void(util::Asset*,AssetLoadResult)>>> m_callOnLoad;
 		std::unique_ptr<AssetFileHandler> m_fileHandler;
 		util::Path m_rootDir;
+		util::Path m_importRootDir;
 		std::thread::id m_mainThreadId;
+
+		std::unordered_map<std::string,std::function<std::unique_ptr<IImportAssetFormatHandler>(util::IAssetManager&)>> m_importHandlers;
 	};
 
 	template<typename TAssetType,typename TLoadInfo>

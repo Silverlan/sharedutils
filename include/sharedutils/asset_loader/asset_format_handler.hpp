@@ -15,12 +15,24 @@ namespace util
 	{
 	public:
 		void SetFile(std::unique_ptr<ufile::IFile> &&file) {m_file = std::move(file);}
+		std::unique_ptr<ufile::IFile> GetFile() {return std::move(m_file);}
 		util::IAssetManager &GetAssetManager() {return m_assetManager;}
 		const util::IAssetManager &GetAssetManager() const {return const_cast<IAssetFormatHandler*>(this)->GetAssetManager();}
 	protected:
 		IAssetFormatHandler(util::IAssetManager &assetManager);
 		std::unique_ptr<ufile::IFile> m_file = nullptr;
+		std::optional<std::string> m_error {};
 		util::IAssetManager &m_assetManager;
+	};
+
+	class DLLSHUTIL IImportAssetFormatHandler
+		: public IAssetFormatHandler
+	{
+	public:
+		IImportAssetFormatHandler(util::IAssetManager &assetManager)
+			: IAssetFormatHandler{assetManager}
+		{}
+		virtual bool Import(const std::string &outputPath,std::string &outFilePath)=0;
 	};
 };
 
