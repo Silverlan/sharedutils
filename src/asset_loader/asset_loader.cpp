@@ -16,13 +16,14 @@ util::IAssetLoader::~IAssetLoader()
 	m_pool.stop();
 }
 
-void util::IAssetLoader::InvalidateLoadJob(const std::string &identifier)
+bool util::IAssetLoader::InvalidateLoadJob(const std::string &identifier)
 {
 	std::scoped_lock lock {m_assetIdToJobIdMutex};
 	auto it = m_assetIdToJobId.find(identifier);
 	if(it == m_assetIdToJobId.end())
-		return;
+		return false;
 	m_assetIdToJobId.erase(it);
+	return true;
 }
 std::optional<util::AssetLoadJobId> util::IAssetLoader::FindJobId(const std::string &identifier) const
 {

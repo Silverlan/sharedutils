@@ -56,7 +56,7 @@ namespace util
 			const std::string &identifier,std::unique_ptr<IAssetProcessor> &&processor,AssetLoadJobPriority priority=0
 		);
 		std::optional<AssetLoadJobId> FindJobId(const std::string &identifier) const;
-		void InvalidateLoadJob(const std::string &identifier);
+		bool InvalidateLoadJob(const std::string &identifier);
 
 		AssetLoadState GetLoadState(const std::string &identifier) const;
 

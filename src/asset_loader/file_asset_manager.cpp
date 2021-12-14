@@ -30,11 +30,20 @@ void util::FileAssetManager::SetImportDirectory(const std::string &dir) {m_impor
 const util::Path &util::FileAssetManager::GetImportDirectory() const {return m_importRootDir;}
 
 void util::FileAssetManager::SetFileHandler(std::unique_ptr<AssetFileHandler> &&fileHandler) {m_fileHandler = std::move(fileHandler);}
+void util::FileAssetManager::SetExternalSourceFileImportHandler(const std::function<std::optional<std::string>(const std::string&,const std::string&)> &handler) {m_externalSourceFileImportHandler = handler;}
+const std::function<std::optional<std::string>(const std::string&,const std::string&)> &util::FileAssetManager::GetExternalSourceFileImportHandler() const {return m_externalSourceFileImportHandler;}
 
 void util::FileAssetManager::RemoveFromCache(const std::string &path)
 {
-	IAssetManager::RemoveFromCache(path);
-	m_loader->InvalidateLoadJob(path);
+	auto removed = IAssetManager::RemoveFromCache(path);
+	auto invalidated = m_loader->InvalidateLoadJob(path);
+	if(m_callbacks.onAssetRemoved && removed || invalidated)
+		m_callbacks.onAssetRemoved(path);
+}
+void util::FileAssetManager::OnAssetReloaded(const std::string &assetName)
+{
+	if(m_callbacks.onAssetReloaded)
+		m_callbacks.onAssetReloaded(assetName);
 }
 void util::FileAssetManager::RegisterFormatHandler(
 	const std::string &ext,const std::function<std::unique_ptr<IAssetFormatHandler>(util::IAssetManager&)> &factory,
@@ -75,6 +84,9 @@ util::FileAssetManager::PreloadResult util::FileAssetManager::PreloadAsset(
 			}
 			else if(loadInfo.onFailure)
 				loadInfo.onFailure();
+
+			if(m_callbacks.onAssetLoaded)
+				m_callbacks.onAssetLoaded(asset,result);
 
 			if(asset)
 			{
@@ -283,6 +295,25 @@ util::AssetObject util::FileAssetManager::Poll(std::optional<util::AssetLoadJobI
 	return targetAsset;
 }
 
+std::optional<std::string> util::FileAssetManager::ImportAssetFilesFromExternalSource(const std::string &assetName,const std::string &outputName)
+{
+	if(!m_externalSourceFileImportHandler)
+		return {};
+	return m_externalSourceFileImportHandler(assetName,outputName);
+}
+std::optional<std::string> util::FileAssetManager::ImportAssetFilesFromExternalSource(const std::string &assetName)
+{
+	return ImportAssetFilesFromExternalSource(assetName,assetName);
+}
+util::AssetObject util::FileAssetManager::ReloadAsset(const std::string &path,std::unique_ptr<AssetLoadInfo> &&loadInfo)
+{
+	RemoveFromCache(path);
+	auto obj = LoadAsset(path,std::move(loadInfo));
+	if(!obj)
+		return nullptr;
+	OnAssetReloaded(path);
+	return obj;
+}
 util::AssetObject util::FileAssetManager::LoadAsset(
 	const std::string &cacheName,std::unique_ptr<ufile::IFile> &&file,const std::string &ext,std::unique_ptr<util::AssetLoadInfo> &&loadInfo
 )
@@ -319,18 +350,47 @@ util::AssetObject util::FileAssetManager::LoadAsset(const std::string &path,std:
 		}
 		else if(r.result == PreloadResult::Result::FileNotFound)
 		{
-			// Could not find asset at all, try all our known import methods.
+			// Could not find asset at all, try all our known import formats.
 			auto normPath = ToCacheIdentifier(path);
-			for(auto &extInfo : m_extensions)
-			{
-				if(extInfo.type != FormatExtensionInfo::Type::Import)
-					continue;
+			auto importFormat = [this,&normPath,&r,&path,&loadInfo](const FormatExtensionInfo &extInfo) {
+				if(extInfo.type != FormatExtensionInfo::Type::Import || !loadInfo)
+					return false;
 				auto extPath = normPath +'.' +extInfo.extension;
 				if(Import(extPath,extInfo.extension))
 				{
 					// Import was successful, attempt to preload again
 					r = PreloadAsset(path,IMMEDIATE_PRIORITY,std::move(loadInfo));
+					return true;
+				}
+				return false;
+			};
+			auto importSuccess = false;
+			for(auto &extInfo : m_extensions)
+			{
+				if(importFormat(extInfo))
+				{
+					importSuccess = true;
 					break;
+				}
+			}
+
+			if(!importSuccess && loadInfo)
+			{
+				// Import failed, but we may still be able to find the asset in an external source
+				auto formatExt = ImportAssetFilesFromExternalSource(normPath);
+				if(formatExt.has_value())
+				{
+					// Asset files have been found and copied to a location
+					// where we should be able to find them; Re-try importing the asset
+					auto it = FindExtension(m_extensions,*formatExt);
+					if(it != m_extensions.end())
+					{
+						auto &extInfo = *it;
+						if(extInfo.type == FormatExtensionInfo::Type::Import)
+							importFormat(*it); // Not a native format, still need to import
+						else
+							r = PreloadAsset(path,IMMEDIATE_PRIORITY,std::move(loadInfo)); // Native format, load directly
+					}
 				}
 			}
 		}

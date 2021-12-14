@@ -52,6 +52,12 @@ namespace util
 				return result == Result::AlreadyLoaded || result == Result::Success;
 			}
 		};
+		struct DLLSHUTIL Callbacks
+		{
+			std::function<void(util::Asset*,AssetLoadResult)> onAssetLoaded;
+			std::function<void(const std::string&)> onAssetReloaded;
+			std::function<void(const std::string&)> onAssetRemoved;
+		};
 
 		FileAssetManager();
 		virtual ~FileAssetManager() override;
@@ -67,7 +73,12 @@ namespace util
 			const std::string &cacheName,std::unique_ptr<ufile::IFile> &&file,const std::string &ext,std::unique_ptr<AssetLoadInfo> &&loadInfo=nullptr
 		);
 
+		Callbacks &GetCallbacks() {return m_callbacks;}
+
+		virtual util::AssetObject ReloadAsset(const std::string &path,std::unique_ptr<AssetLoadInfo> &&loadInfo=nullptr);
 		void SetFileHandler(std::unique_ptr<AssetFileHandler> &&fileHandler);
+		void SetExternalSourceFileImportHandler(const std::function<std::optional<std::string>(const std::string&,const std::string&)> &handler);
+		const std::function<std::optional<std::string>(const std::string&,const std::string&)> &GetExternalSourceFileImportHandler() const;
 		void RemoveFromCache(const std::string &path);
 		void SetRootDirectory(const std::string &dir);
 		const util::Path &GetRootDirectory() const;
@@ -86,11 +97,13 @@ namespace util
 	protected:
 		virtual void InitializeProcessor(util::IAssetProcessor &processor)=0;
 		virtual util::AssetObject InitializeAsset(const Asset &asset,const util::AssetLoadJob &job)=0;
+		void OnAssetReloaded(const std::string &assetName);
+		std::optional<std::string> ImportAssetFilesFromExternalSource(const std::string &assetName,const std::string &outputName);
+		std::optional<std::string> ImportAssetFilesFromExternalSource(const std::string &assetName);
 		void RegisterFormatHandler(
 			const std::string &ext,const std::function<std::unique_ptr<IAssetFormatHandler>(util::IAssetManager&)> &factory,
 			AssetFormatType formatType=AssetFormatType::Binary
 		);
-
 		template<class T>
 			void RegisterFormatHandler(
 				const std::string &ext,
@@ -131,8 +144,10 @@ namespace util
 		bool Import(const std::string &path,const std::string &ext);
 
 		std::unique_ptr<AssetFormatLoader> m_loader;
+		Callbacks m_callbacks;
 	private:
 		void ValidateMainThread();
+		std::function<std::optional<std::string>(const std::string&,const std::string&)> m_externalSourceFileImportHandler = nullptr;
 		std::unordered_map<size_t,std::vector<std::function<void(util::Asset*,AssetLoadResult)>>> m_callOnLoad;
 		std::unique_ptr<AssetFileHandler> m_fileHandler;
 		util::Path m_rootDir;

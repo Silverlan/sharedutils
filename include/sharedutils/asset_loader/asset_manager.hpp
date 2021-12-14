@@ -41,6 +41,18 @@ namespace util
 			std::shared_ptr<Asset> asset;
 			std::string identifier;
 		};
+		struct DLLSHUTIL FormatExtensionInfo
+		{
+			enum class Type : uint8_t
+			{
+				Native = 0,
+				Import
+			};
+			std::string extension;
+			size_t hash;
+			AssetFormatType formatType;
+			Type type;
+		};
 		std::string ToCacheIdentifier(const std::string &assetName) const;
 
 		IAssetManager();
@@ -60,19 +72,9 @@ namespace util
 		const std::unordered_map<AssetIdentifierHash,AssetIndex> &GetCache() const;
 		const Asset *FindCachedAsset(const std::string &assetName) const;
 		Asset *FindCachedAsset(const std::string &assetName);
+
+		const std::vector<FormatExtensionInfo> &GetSupportedFormatExtensions() const {return m_extensions;}
 	protected:
-		struct FormatExtensionInfo
-		{
-			enum class Type : uint8_t
-			{
-				Native = 0,
-				Import
-			};
-			std::string extension;
-			size_t hash;
-			AssetFormatType formatType;
-			Type type;
-		};
 		bool ClearAsset(AssetIndex idx);
 		bool RemoveFromCache(const std::string &assetName);
 		void FlagForRemoval(AssetIndex idx,bool flag=true);
