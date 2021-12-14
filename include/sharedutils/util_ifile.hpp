@@ -47,6 +47,7 @@ namespace ufile
 			return size;
 		}
 		virtual bool Eof() {return Tell() >= GetSize();}
+		virtual std::optional<std::string> GetFileName() const {return {};}
 
 		int32_t WriteString(const std::string &str);
 		std::string ReadString();
