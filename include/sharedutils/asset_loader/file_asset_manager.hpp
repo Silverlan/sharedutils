@@ -191,6 +191,12 @@ namespace util
 			loadInfo->flags = flags;
 			return LoadAsset(path,std::move(loadInfo));
 		}
+		std::shared_ptr<TAssetType> ReloadAsset(const std::string &path,std::unique_ptr<TLoadInfo> &&loadInfo=nullptr)
+		{
+			if(!loadInfo)
+				loadInfo = std::make_unique<TLoadInfo>();
+			return std::static_pointer_cast<TAssetType>(FileAssetManager::ReloadAsset(path,std::move(loadInfo)));
+		}
 		std::shared_ptr<TAssetType> LoadAsset(
 			const std::string &cacheName,std::unique_ptr<ufile::IFile> &&file,const std::string &ext,std::unique_ptr<TLoadInfo> &&loadInfo=nullptr
 		)
