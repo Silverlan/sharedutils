@@ -109,9 +109,12 @@ util::FileAssetManager::PreloadResult util::FileAssetManager::PreloadAsset(
 	const std::string &strPath,util::AssetLoadJobPriority priority,std::unique_ptr<util::AssetLoadInfo> &&loadInfo
 )
 {
-	auto *asset = FindCachedAsset(strPath);
-	if(asset)
-		return PreloadResult{{},PreloadResult::Result::AlreadyLoaded};
+	if(!loadInfo || !umath::is_flag_set(loadInfo->flags,AssetLoadFlags::IgnoreCache))
+	{
+		auto *asset = FindCachedAsset(strPath);
+		if(asset)
+			return PreloadResult{{},PreloadResult::Result::AlreadyLoaded};
+	}
 	auto path = util::Path::CreateFile(strPath);
 	if(!loadInfo || !umath::is_flag_set(loadInfo->flags,AssetLoadFlags::AbsolutePath))
 		path = m_rootDir +path;
@@ -261,7 +264,7 @@ util::AssetObject util::FileAssetManager::Poll(std::optional<util::AssetLoadJobI
 				auto asset = std::make_shared<util::Asset>();
 			
 				auto &loadInfo = *processor.loadInfo;
-				if(!umath::is_flag_set(loadInfo.flags,AssetLoadFlags::DontCache))
+				if(!umath::is_flag_set(loadInfo.flags,AssetLoadFlags::DontCache) && !umath::is_flag_set(loadInfo.flags,AssetLoadFlags::IgnoreCache))
 					asset->index = AddToCache(job.identifier,asset);
 				auto assetObject = InitializeAsset(*asset,job);
 				asset->assetObject = assetObject;
