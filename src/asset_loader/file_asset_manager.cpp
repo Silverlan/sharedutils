@@ -233,7 +233,7 @@ std::optional<std::string> util::FileAssetManager::FindAssetFilePath(const std::
 			continue;
 		auto &ext = extInfo.extension;
 		auto extName = normalizedName +'.' +ext;
-		if(!m_fileHandler->exists(extName))
+		if(!m_fileHandler->exists(m_rootDir.GetString() +extName))
 			continue;
 		return extName;
 	}
