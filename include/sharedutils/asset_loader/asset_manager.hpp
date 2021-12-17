@@ -24,6 +24,7 @@ namespace util
 		bool IsInUse() const;
 		AssetObject assetObject;
 		AssetIndex index = std::numeric_limits<AssetIndex>::max();
+		bool alwaysInUse = false;
 	};
 	using AssetIdentifierHash = size_t;
 	enum class AssetFormatType : uint8_t
@@ -72,6 +73,7 @@ namespace util
 		const std::unordered_map<AssetIdentifierHash,AssetIndex> &GetCache() const;
 		const Asset *FindCachedAsset(const std::string &assetName) const;
 		Asset *FindCachedAsset(const std::string &assetName);
+		void FlagAssetAsAlwaysInUse(const std::string &assetName,bool alwaysInUse);
 
 		const std::vector<FormatExtensionInfo> &GetSupportedFormatExtensions() const {return m_extensions;}
 	protected:

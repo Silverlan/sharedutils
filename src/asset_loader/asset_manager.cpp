@@ -79,7 +79,19 @@ unsigned long hash_identifier(std::string_view key)
 	return hash;
 }
 
-bool util::Asset::IsInUse() const {return assetObject.use_count() > 1;}
+bool util::Asset::IsInUse() const {return assetObject.use_count() > 1 || alwaysInUse;}
+
+void util::IAssetManager::FlagAssetAsAlwaysInUse(const std::string &assetName,bool alwaysInUse)
+{
+	auto identifier = ToCacheIdentifier(assetName);
+
+	auto hash = GetIdentifierHash(identifier);
+	std::scoped_lock lock {m_cacheMutex};
+	auto it = m_cache.find(hash);
+	if(it == m_cache.end() || !m_assets[it->second].asset)
+		return;
+	m_assets[it->second].asset->alwaysInUse = alwaysInUse;
+}
 
 void util::IAssetManager::StripFileExtension(std::string_view &key) const
 {
@@ -121,6 +133,7 @@ util::IAssetManager::~IAssetManager()
 	{
 		if(!assetInfo.asset)
 			continue;
+		assetInfo.asset->alwaysInUse = false;
 		if(assetInfo.asset->IsInUse())
 			std::cout<<"Asset "<<assetInfo.identifier<<" is still in use!"<<std::endl;
 	}
