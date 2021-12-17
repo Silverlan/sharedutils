@@ -80,7 +80,7 @@ namespace util
 		std::string_view GetComponent(size_t offset,size_t *outOptNextOffset=nullptr) const;
 		void PopFront();
 		void PopBack();
-		void MakeRelative(const Path &relativeTo);
+		bool MakeRelative(const Path &relativeTo);
 
 		uint32_t GetComponentCount() const;
 		bool IsEmpty() const;
@@ -98,6 +98,7 @@ namespace util
 			ufile::remove_extension_from_filename(m_path,extensions);
 		}
 
+		std::string Move();
 		PathIterator<Path> begin();
 		PathIterator<Path> end();
 		PathIterator<const Path> begin() const;

@@ -256,17 +256,25 @@ void util::Path::PopBack()
 		return;
 	m_path = m_path.substr(0,br +1);
 }
-void util::Path::MakeRelative(const Path &relativeTo)
+bool util::Path::MakeRelative(const Path &relativeTo)
 {
 	auto itThis = begin();
 	auto itOther = relativeTo.begin();
+	uint32_t numMatch = 0;
 	while(itThis != end() && itOther != relativeTo.end() && *itThis == *itOther)
 	{
-		PopFront();
-		itThis = begin();
+		++numMatch;
+		++itThis;
 		++itOther;
 	}
+	if(itOther != relativeTo.end())
+		return false;
+	for(auto i=decltype(numMatch){0u};i<numMatch;++i)
+		PopFront();
+	return true;
 }
+
+std::string util::Path::Move() {return std::move(m_path);}
 
 uint32_t util::Path::GetComponentCount() const
 {
