@@ -5,6 +5,7 @@
 #include "sharedutils/asset_loader/asset_manager.hpp"
 #include "sharedutils/util_path.hpp"
 #include <cctype>
+#include <cassert>
 #pragma optimize("",off)
 static bool contains_dot_file(const std::string_view &key,size_t i)
 {
@@ -126,9 +127,20 @@ std::vector<util::IAssetManager::FormatExtensionInfo>::const_iterator util::IAss
 }
 
 util::IAssetManager::IAssetManager()
+	: m_mainThreadId{std::this_thread::get_id()}
 {}
 util::IAssetManager::~IAssetManager()
 {
+	assert(m_reset);
+	if(!m_reset)
+		throw std::runtime_error{"Asset manager was not reset!"};
+}
+void util::IAssetManager::Reset()
+{
+	ValidateMainThread();
+	if(m_reset)
+		return;
+	m_reset = true;
 	for(auto &assetInfo : m_assets)
 	{
 		if(!assetInfo.asset)
@@ -137,9 +149,45 @@ util::IAssetManager::~IAssetManager()
 		if(assetInfo.asset->IsInUse())
 			std::cout<<"Asset "<<assetInfo.identifier<<" is still in use!"<<std::endl;
 	}
+	m_cacheMutex.lock();
+		m_cache.clear();
+	m_cacheMutex.unlock();
+	m_assets.clear();
+
+	m_freeIndices = {};
+	m_flaggedForDeletion.clear();
+	m_extensions.clear();
+}
+void util::IAssetManager::ValidateMainThread()
+{
+	if(std::this_thread::get_id() != m_mainThreadId)
+		throw std::runtime_error{"This action is only allowed from the same thread that created the asset manager!"};
+}
+util::AssetIndex util::IAssetManager::AddToIndex(const std::shared_ptr<Asset> &asset)
+{
+	ValidateMainThread();
+	AssetIndex index = 0;
+	if(!m_freeIndices.empty())
+	{
+		index = m_freeIndices.front();
+		m_freeIndices.pop();
+	}
+	else
+		index = m_assets.size();
+	if(index >= m_assets.size())
+		m_assets.resize(index +1);
+
+	auto &assetInfo = m_assets[index];
+	assetInfo.asset = asset;
+	assetInfo.hash = std::numeric_limits<AssetIdentifierHash>::max();
+	assetInfo.identifier = "";
+	assetInfo.index = index;
+	assetInfo.anonymous = true;
+	return index;
 }
 util::AssetIndex util::IAssetManager::AddToCache(const std::string &assetName,const std::shared_ptr<Asset> &asset)
 {
+	ValidateMainThread();
 	auto identifier = ToCacheIdentifier(assetName);
 
 	auto hash = GetIdentifierHash(identifier);
@@ -154,20 +202,29 @@ util::AssetIndex util::IAssetManager::AddToCache(const std::string &assetName,co
 	}
 	else
 	{
-		index = m_assets.size();
+		if(!m_freeIndices.empty())
+		{
+			index = m_freeIndices.front();
+			m_freeIndices.pop();
+		}
+		else
+			index = m_assets.size();
 		m_cache[hash] = index;
 		m_cacheMutex.unlock();
-		m_assets.resize(index +1);
+		if(index >= m_assets.size())
+			m_assets.resize(index +1);
 	}
 	auto &assetInfo = m_assets[index];
 	assetInfo.asset = asset;
 	assetInfo.hash = hash;
 	assetInfo.identifier = identifier;
 	assetInfo.index = index;
+	assetInfo.anonymous = false;
 	return index;
 }
 bool util::IAssetManager::RemoveFromCache(const std::string &assetName)
 {
+	ValidateMainThread();
 	auto identifier = ToCacheIdentifier(assetName);
 	auto hash = GetIdentifierHash(identifier);
 	std::scoped_lock lock {m_cacheMutex};
@@ -179,6 +236,7 @@ bool util::IAssetManager::RemoveFromCache(const std::string &assetName)
 }
 void util::IAssetManager::RegisterFileExtension(const std::string &ext,AssetFormatType formatType,FormatExtensionInfo::Type type)
 {
+	ValidateMainThread();
 	m_extensions.push_back({ext,hash_identifier(ext),formatType,type});
 }
 size_t util::IAssetManager::GetIdentifierHash(const std::string &assetName) const
@@ -198,22 +256,27 @@ std::string util::IAssetManager::ToCacheIdentifier(const std::string &assetName)
 
 bool util::IAssetManager::ClearAsset(AssetIndex idx)
 {
+	ValidateMainThread();
 	if(idx >= m_assets.size())
 		return false;
 	auto &assetInfo = m_assets[idx];
 	if(!assetInfo.asset)
 		return false;
 	auto hash = assetInfo.hash;
+	if(assetInfo.anonymous)
+		m_freeIndices.push(idx);
+	else
+	{
+		m_cacheMutex.lock();
+		auto itCache = m_cache.find(hash);
+		if(itCache != m_cache.end())
+			m_cache.erase(itCache);
+		m_cacheMutex.unlock();
 
-	m_cacheMutex.lock();
-	auto itCache = m_cache.find(hash);
-	if(itCache != m_cache.end())
-		m_cache.erase(itCache);
-	m_cacheMutex.unlock();
-
-	auto itFlag = m_flaggedForDeletion.find(hash);
-	if(itFlag != m_flaggedForDeletion.end())
-		m_flaggedForDeletion.erase(itFlag);
+		auto itFlag = m_flaggedForDeletion.find(hash);
+		if(itFlag != m_flaggedForDeletion.end())
+			m_flaggedForDeletion.erase(itFlag);
+	}
 
 	assetInfo.asset = nullptr;
 	return true;
@@ -221,6 +284,7 @@ bool util::IAssetManager::ClearAsset(AssetIndex idx)
 
 uint32_t util::IAssetManager::ClearUnused()
 {
+	ValidateMainThread();
 	uint32_t n = 0;
 	for(auto &assetInfo : m_assets)
 	{
@@ -233,6 +297,7 @@ uint32_t util::IAssetManager::ClearUnused()
 }
 uint32_t util::IAssetManager::ClearFlagged()
 {
+	ValidateMainThread();
 	auto flaggedForDeletion = std::move(m_flaggedForDeletion);
 	m_flaggedForDeletion.clear();
 	uint32_t n = 0;
@@ -245,17 +310,19 @@ uint32_t util::IAssetManager::ClearFlagged()
 }
 uint32_t util::IAssetManager::Clear()
 {
+	ValidateMainThread();
 	m_cacheMutex.lock();
 	auto n = m_cache.size();
 	m_cache.clear();
 	m_cacheMutex.unlock();
-
 	m_assets.clear();
+	m_freeIndices = {};
 	m_flaggedForDeletion.clear();
 	return n;
 }
 void util::IAssetManager::FlagForRemoval(const std::string &assetName,bool flag)
 {
+	ValidateMainThread();
 	auto idx = GetAssetIndex(assetName);
 	if(!idx.has_value())
 		return;
@@ -264,6 +331,7 @@ void util::IAssetManager::FlagForRemoval(const std::string &assetName,bool flag)
 
 void util::IAssetManager::FlagForRemoval(AssetIndex idx,bool flag)
 {
+	ValidateMainThread();
 	m_cacheMutex.lock();
 	auto it = m_cache.find(idx);
 	auto isCached = it != m_cache.end();
@@ -282,6 +350,7 @@ void util::IAssetManager::FlagForRemoval(AssetIndex idx,bool flag)
 
 void util::IAssetManager::FlagAllForRemoval()
 {
+	ValidateMainThread();
 	m_flaggedForDeletion.reserve(m_assets.size());
 	for(auto i=decltype(m_assets.size()){0u};i<m_assets.size();++i)
 	{
@@ -294,6 +363,7 @@ void util::IAssetManager::FlagAllForRemoval()
 
 util::Asset *util::IAssetManager::GetAsset(AssetIndex index)
 {
+	// ValidateMainThread();
 	return (index < m_assets.size()) ? m_assets[index].asset.get() : nullptr;
 }
 std::optional<util::AssetIndex> util::IAssetManager::GetAssetIndex(const std::string &assetName) const

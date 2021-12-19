@@ -10,20 +10,12 @@
 #undef AddJob
 #pragma optimize("",off)
 
-#define ENABLE_VERBOSE_OUTPUT
+// #define ENABLE_VERBOSE_OUTPUT
 
 util::FileAssetManager::FileAssetManager()
-	: util::IAssetManager{},m_mainThreadId{std::this_thread::get_id()}
+	: util::IAssetManager{}
 {}
-util::FileAssetManager::~FileAssetManager()
-{
-	m_loader = nullptr;
-}
-void util::FileAssetManager::ValidateMainThread()
-{
-	if(std::this_thread::get_id() != m_mainThreadId)
-		throw std::runtime_error{"This action is only allowed from the same thread that created the asset manager!"};
-}
+util::FileAssetManager::~FileAssetManager() {Reset();}
 void util::FileAssetManager::SetRootDirectory(const std::string &dir) {m_rootDir = util::Path::CreatePath(dir);}
 const util::Path &util::FileAssetManager::GetRootDirectory() const {return m_rootDir;}
 void util::FileAssetManager::SetImportDirectory(const std::string &dir) {m_importRootDir = util::Path::CreatePath(dir);}
@@ -52,6 +44,13 @@ void util::FileAssetManager::RegisterFormatHandler(
 {
 	GetLoader().RegisterFormatHandler(ext,factory);
 	RegisterFileExtension(ext,formatType);
+}
+void util::FileAssetManager::Reset()
+{
+	m_callbacks = {};
+	m_loader = nullptr;
+	m_importHandlers.clear();
+	util::IAssetManager::Reset();
 }
 void util::FileAssetManager::CallOnLoad(const std::string &path,const std::function<void(util::Asset*,AssetLoadResult)> &onLoad)
 {

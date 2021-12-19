@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 #include <mutex>
+#include <queue>
 #include <memory>
 
 namespace util
@@ -41,6 +42,7 @@ namespace util
 			AssetIdentifierHash hash;
 			std::shared_ptr<Asset> asset;
 			std::string identifier;
+			bool anonymous = false; // If true, asset is not named (only indexed)
 		};
 		struct DLLSHUTIL FormatExtensionInfo
 		{
@@ -77,10 +79,13 @@ namespace util
 
 		const std::vector<FormatExtensionInfo> &GetSupportedFormatExtensions() const {return m_extensions;}
 	protected:
+		virtual void Reset();
+		void ValidateMainThread();
 		bool ClearAsset(AssetIndex idx);
 		bool RemoveFromCache(const std::string &assetName);
 		void FlagForRemoval(AssetIndex idx,bool flag=true);
 		AssetIndex AddToCache(const std::string &assetName,const std::shared_ptr<Asset> &asset);
+		AssetIndex AddToIndex(const std::shared_ptr<Asset> &asset);
 		AssetIdentifierHash GetIdentifierHash(const std::string &assetName) const;
 		void RegisterFileExtension(const std::string &ext,AssetFormatType formatType=AssetFormatType::Binary,FormatExtensionInfo::Type type=FormatExtensionInfo::Type::Native);
 		void StripFileExtension(std::string_view &key) const;
@@ -91,9 +96,12 @@ namespace util
 
 		std::vector<AssetInfo> m_assets;
 		std::unordered_map<AssetIdentifierHash,AssetIndex> m_cache;
+		std::queue<AssetIndex> m_freeIndices;
 		mutable std::mutex m_cacheMutex;
 		std::unordered_set<AssetIndex> m_flaggedForDeletion;
 		std::vector<FormatExtensionInfo> m_extensions;
+		std::thread::id m_mainThreadId;
+		bool m_reset = false;
 	};
 };
 

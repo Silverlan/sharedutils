@@ -19,6 +19,7 @@ namespace util
 	class DLLSHUTIL IAssetProcessor
 	{
 	public:
+		virtual ~IAssetProcessor()=default;
 		virtual bool Load()=0;
 		virtual bool Finalize()=0;
 	};

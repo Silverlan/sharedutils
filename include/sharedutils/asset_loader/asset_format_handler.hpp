@@ -14,6 +14,7 @@ namespace util
 	class DLLSHUTIL IAssetFormatHandler
 	{
 	public:
+		virtual ~IAssetFormatHandler()=default;
 		void SetFile(std::unique_ptr<ufile::IFile> &&file) {m_file = std::move(file);}
 		std::unique_ptr<ufile::IFile> GetFile() {return std::move(m_file);}
 		util::IAssetManager &GetAssetManager() {return m_assetManager;}

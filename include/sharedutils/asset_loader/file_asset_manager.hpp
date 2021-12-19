@@ -95,6 +95,7 @@ namespace util
 		bool Import(const std::string &path);
 		virtual void Poll();
 	protected:
+		virtual void Reset() override;
 		virtual void InitializeProcessor(util::IAssetProcessor &processor)=0;
 		virtual util::AssetObject InitializeAsset(const Asset &asset,const util::AssetLoadJob &job)=0;
 		void OnAssetReloaded(const std::string &assetName);
@@ -146,13 +147,11 @@ namespace util
 		std::unique_ptr<AssetFormatLoader> m_loader;
 		Callbacks m_callbacks;
 	private:
-		void ValidateMainThread();
 		std::function<std::optional<std::string>(const std::string&,const std::string&)> m_externalSourceFileImportHandler = nullptr;
 		std::unordered_map<size_t,std::vector<std::function<void(util::Asset*,AssetLoadResult)>>> m_callOnLoad;
 		std::unique_ptr<AssetFileHandler> m_fileHandler;
 		util::Path m_rootDir;
 		util::Path m_importRootDir;
-		std::thread::id m_mainThreadId;
 
 		std::unordered_map<std::string,std::function<std::unique_ptr<IImportAssetFormatHandler>(util::IAssetManager&)>> m_importHandlers;
 	};
