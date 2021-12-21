@@ -74,7 +74,8 @@ namespace util
 		);
 
 		Callbacks &GetCallbacks() {return m_callbacks;}
-
+		
+		virtual std::unique_ptr<AssetLoadInfo> CreateDefaultLoadInfo() const=0;
 		virtual util::AssetObject ReloadAsset(const std::string &path,std::unique_ptr<AssetLoadInfo> &&loadInfo=nullptr);
 		void SetFileHandler(std::unique_ptr<AssetFileHandler> &&fileHandler);
 		void SetExternalSourceFileImportHandler(const std::function<std::optional<std::string>(const std::string&,const std::string&)> &handler);
@@ -174,14 +175,10 @@ namespace util
 		}
 		FileAssetManager::PreloadResult PreloadAsset(const std::string &path,std::unique_ptr<TLoadInfo> &&loadInfo=nullptr)
 		{
-			if(!loadInfo)
-				loadInfo = std::make_unique<TLoadInfo>();
 			return FileAssetManager::PreloadAsset(path,std::move(loadInfo));
 		}
 		std::shared_ptr<TAssetType> LoadAsset(const std::string &path,std::unique_ptr<TLoadInfo> &&loadInfo=nullptr)
 		{
-			if(!loadInfo)
-				loadInfo = std::make_unique<TLoadInfo>();
 			return std::static_pointer_cast<TAssetType>(FileAssetManager::LoadAsset(path,std::move(loadInfo)));
 		}
 		std::shared_ptr<TAssetType> LoadAsset(const std::string &path,util::AssetLoadFlags flags)
@@ -192,23 +189,21 @@ namespace util
 		}
 		std::shared_ptr<TAssetType> ReloadAsset(const std::string &path,std::unique_ptr<TLoadInfo> &&loadInfo=nullptr)
 		{
-			if(!loadInfo)
-				loadInfo = std::make_unique<TLoadInfo>();
 			return std::static_pointer_cast<TAssetType>(FileAssetManager::ReloadAsset(path,std::move(loadInfo)));
 		}
 		std::shared_ptr<TAssetType> LoadAsset(
 			const std::string &cacheName,std::unique_ptr<ufile::IFile> &&file,const std::string &ext,std::unique_ptr<TLoadInfo> &&loadInfo=nullptr
 		)
 		{
-			if(!loadInfo)
-				loadInfo = std::make_unique<TLoadInfo>();
 			return std::static_pointer_cast<TAssetType>(FileAssetManager::LoadAsset(cacheName,std::move(file),ext,std::move(loadInfo)));
+		}
+		virtual std::unique_ptr<AssetLoadInfo> CreateDefaultLoadInfo() const override
+		{
+			return std::make_unique<TLoadInfo>();
 		}
 	private:
 		FileAssetManager::PreloadResult PreloadAsset(const std::string &path,util::AssetLoadJobPriority priority,std::unique_ptr<TLoadInfo> &&loadInfo)
 		{
-			if(!loadInfo)
-				loadInfo = std::make_unique<TLoadInfo>();
 			return FileAssetManager::PreloadAsset(path,priority,std::move(loadInfo));
 		}
 		FileAssetManager::PreloadResult PreloadAsset(
@@ -216,8 +211,6 @@ namespace util
 			std::unique_ptr<TLoadInfo> &&loadInfo
 		)
 		{
-			if(!loadInfo)
-				loadInfo = std::make_unique<TLoadInfo>();
 			return FileAssetManager::PreloadAsset(cacheName,std::move(file),ext,priority,std::move(loadInfo));
 		}
 	};

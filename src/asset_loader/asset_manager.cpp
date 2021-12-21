@@ -262,6 +262,7 @@ bool util::IAssetManager::ClearAsset(AssetIndex idx)
 	auto &assetInfo = m_assets[idx];
 	if(!assetInfo.asset)
 		return false;
+	// std::cout<<"Clearing asset "<<assetInfo.identifier<<std::endl;
 	auto hash = assetInfo.hash;
 	if(assetInfo.anonymous)
 		m_freeIndices.push(idx);

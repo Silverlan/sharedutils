@@ -62,6 +62,8 @@ void util::FileAssetManager::CallOnLoad(const std::string &path,const std::funct
 }
 util::FileAssetManager::PreloadResult util::FileAssetManager::PreloadAsset(const std::string &strPath,std::unique_ptr<util::AssetLoadInfo> &&loadInfo)
 {
+	if(!loadInfo)
+		loadInfo = CreateDefaultLoadInfo();
 	return PreloadAsset(strPath,DEFAULT_PRIORITY,std::move(loadInfo));
 }
 util::FileAssetManager::PreloadResult util::FileAssetManager::PreloadAsset(
@@ -309,6 +311,8 @@ std::optional<std::string> util::FileAssetManager::ImportAssetFilesFromExternalS
 }
 util::AssetObject util::FileAssetManager::ReloadAsset(const std::string &path,std::unique_ptr<AssetLoadInfo> &&loadInfo)
 {
+	if(!loadInfo)
+		loadInfo = CreateDefaultLoadInfo();
 	RemoveFromCache(path);
 	auto obj = LoadAsset(path,std::move(loadInfo));
 	if(!obj)
@@ -321,6 +325,8 @@ util::AssetObject util::FileAssetManager::LoadAsset(
 )
 {
 	ValidateMainThread();
+	if(!loadInfo)
+		loadInfo = CreateDefaultLoadInfo();
 	auto onLoaded = loadInfo ? loadInfo->onLoaded : nullptr;
 	auto onFailure = loadInfo ? loadInfo->onFailure : nullptr;
 	auto r = PreloadAsset(cacheName,std::move(file),ext,IMMEDIATE_PRIORITY,std::move(loadInfo));
@@ -330,9 +336,11 @@ util::AssetObject util::FileAssetManager::LoadAsset(
 }
 util::AssetObject util::FileAssetManager::LoadAsset(const std::string &path,std::unique_ptr<util::AssetLoadInfo> &&loadInfo)
 {
+	if(!loadInfo)
+		loadInfo = CreateDefaultLoadInfo();
 	ValidateMainThread();
-	auto onLoaded = loadInfo ? loadInfo->onLoaded : nullptr;
-	auto onFailure = loadInfo ? loadInfo->onFailure : nullptr;
+	auto onLoaded = loadInfo->onLoaded;
+	auto onFailure = loadInfo->onFailure;
 	auto r = PreloadAsset(path,IMMEDIATE_PRIORITY,std::move(loadInfo));
 	if(loadInfo) // loadInfo should always still be valid if PreloadAsset failed
 	{
