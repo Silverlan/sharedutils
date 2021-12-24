@@ -8,6 +8,7 @@
 #include "utildefinitions.h"
 #include "functioncallback.h"
 #include <vector>
+#include <mutex>
 #include <cinttypes>
 
 namespace util
@@ -22,9 +23,13 @@ namespace util
 		const std::vector<std::string> &GetEnums() const;
 		CallbackHandle CallOnRegister(const std::function<void(std::reference_wrapper<const std::string>,uint32_t)> &f);
 		static const uint32_t InvalidEnum;
+
+		void Lock();
+		void Unlock();
 	protected:
 		std::vector<std::string> m_enums;
 		std::vector<CallbackHandle> m_onRegisterCallbacks;
+		mutable std::mutex m_enumMutex;
 	};
 };
 

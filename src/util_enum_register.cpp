@@ -11,9 +11,11 @@ uint32_t util::EnumRegister::RegisterEnum(const std::string &name)
 {
 	if(name.empty())
 		return InvalidEnum;
-	auto val = GetEnumValue(name);
-	if(val != InvalidEnum)
-		return val;
+	std::scoped_lock lock {m_enumMutex};
+	auto it = std::find(m_enums.begin(),m_enums.end(),name);
+	if(it == m_enums.end())
+		return false;
+	auto val = it -m_enums.begin();
 	if(m_enums.size() == m_enums.capacity())
 		m_enums.reserve(m_enums.size() +100);
 	m_enums.push_back(name);
@@ -32,6 +34,7 @@ uint32_t util::EnumRegister::RegisterEnum(const std::string &name)
 }
 bool util::EnumRegister::GetEnumValue(const std::string &name,uint32_t &val) const
 {
+	std::scoped_lock lock {m_enumMutex};
 	auto it = std::find(m_enums.begin(),m_enums.end(),name);
 	if(it == m_enums.end())
 		return false;
@@ -46,13 +49,17 @@ uint32_t util::EnumRegister::GetEnumValue(const std::string &name) const
 }
 const std::string *util::EnumRegister::GetEnumName(uint32_t val) const
 {
+	std::scoped_lock lock {m_enumMutex};
 	if(val >= m_enums.size())
 		return nullptr;
 	return &m_enums.at(val);
 }
 const std::vector<std::string> &util::EnumRegister::GetEnums() const {return m_enums;}
+void util::EnumRegister::Lock() {m_enumMutex.lock();}
+void util::EnumRegister::Unlock() {m_enumMutex.unlock();}
 CallbackHandle util::EnumRegister::CallOnRegister(const std::function<void(std::reference_wrapper<const std::string>,uint32_t)> &f)
 {
+	std::scoped_lock lock {m_enumMutex};
 	m_onRegisterCallbacks.push_back(FunctionCallback<void,std::reference_wrapper<const std::string>,uint32_t>::Create(f));
 	return m_onRegisterCallbacks.back();
 }
