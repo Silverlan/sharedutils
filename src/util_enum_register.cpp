@@ -13,9 +13,8 @@ uint32_t util::EnumRegister::RegisterEnum(const std::string &name)
 		return InvalidEnum;
 	std::scoped_lock lock {m_enumMutex};
 	auto it = std::find(m_enums.begin(),m_enums.end(),name);
-	if(it == m_enums.end())
-		return false;
-	auto val = it -m_enums.begin();
+	if(it != m_enums.end())
+		return it -m_enums.begin();
 	if(m_enums.size() == m_enums.capacity())
 		m_enums.reserve(m_enums.size() +100);
 	m_enums.push_back(name);
