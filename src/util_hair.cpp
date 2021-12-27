@@ -4,7 +4,7 @@
 
 #include "sharedutils/util_hair.hpp"
 #include <mathutil/umath_geometry.hpp>
-#pragma optimize("",off)
+
 util::HairData util::HairGenerator::Generate(float hairPerArea)
 {
 	auto numTris = m_meshData->GetTriangleCount();
@@ -95,5 +95,3 @@ util::HairData util::HairGenerator::Generate(float hairPerArea)
 	}
 	return hairData;
 }
-
-#pragma optimize("",on)

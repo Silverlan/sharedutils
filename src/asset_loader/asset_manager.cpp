@@ -6,7 +6,7 @@
 #include "sharedutils/util_path.hpp"
 #include <cctype>
 #include <cassert>
-#pragma optimize("",off)
+
 static bool contains_dot_file(const std::string_view &key,size_t i)
 {
 	auto c = key[i];
@@ -397,4 +397,3 @@ util::Asset *util::IAssetManager::FindCachedAsset(const std::string &assetName)
 	m_cacheMutex.unlock();
 	return GetAsset(idx);
 }
-#pragma optimize("",on)

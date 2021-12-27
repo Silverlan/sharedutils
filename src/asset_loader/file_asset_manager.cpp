@@ -8,7 +8,6 @@
 #include "sharedutils/util_ifile.hpp"
 
 #undef AddJob
-#pragma optimize("",off)
 
 // #define ENABLE_VERBOSE_OUTPUT
 
@@ -420,4 +419,3 @@ util::AssetObject util::FileAssetManager::LoadAsset(const std::string &path,std:
 		return nullptr;
 	return LoadAsset(path,r,onLoaded,onFailure);
 }
-#pragma optimize("",on)

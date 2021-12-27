@@ -6,7 +6,7 @@
 #include "sharedutils/asset_loader/asset_processor.hpp"
 #include <iostream>
 #include <cassert>
-#pragma optimize("",off)
+
 util::IAssetLoader::IAssetLoader()
 	: m_pool{10}
 {}
@@ -213,4 +213,3 @@ void util::IAssetLoader::Poll(
 		completeQueue.pop();
 	}
 }
-#pragma optimize("",on)
