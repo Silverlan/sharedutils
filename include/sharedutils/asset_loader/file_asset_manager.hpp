@@ -72,6 +72,7 @@ namespace util
 		util::AssetObject LoadAsset(
 			const std::string &cacheName,std::unique_ptr<ufile::IFile> &&file,const std::string &ext,std::unique_ptr<AssetLoadInfo> &&loadInfo=nullptr
 		);
+		bool WaitUntilAssetLoaded(const std::string &path);
 
 		Callbacks &GetCallbacks() {return m_callbacks;}
 		

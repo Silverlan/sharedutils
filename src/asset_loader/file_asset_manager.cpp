@@ -25,6 +25,18 @@ void util::FileAssetManager::SetFileHandler(std::unique_ptr<AssetFileHandler> &&
 void util::FileAssetManager::SetExternalSourceFileImportHandler(const std::function<std::optional<std::string>(const std::string&,const std::string&)> &handler) {m_externalSourceFileImportHandler = handler;}
 const std::function<std::optional<std::string>(const std::string&,const std::string&)> &util::FileAssetManager::GetExternalSourceFileImportHandler() const {return m_externalSourceFileImportHandler;}
 
+bool util::FileAssetManager::WaitUntilAssetLoaded(const std::string &path)
+{
+	auto normalizedPath = ToCacheIdentifier(path);
+	if(FindCachedAsset(normalizedPath))
+		return true;
+	auto jobId = m_loader->FindJobId(normalizedPath);
+	if(!jobId.has_value())
+		return false;
+	auto asset = Poll(jobId,util::AssetLoaderWaitMode::Single);
+	return asset != nullptr;
+}
+
 void util::FileAssetManager::RemoveFromCache(const std::string &path)
 {
 	auto removed = IAssetManager::RemoveFromCache(path);
@@ -398,8 +410,7 @@ util::AssetObject util::FileAssetManager::LoadAsset(const std::string &path,std:
 						auto &extInfo = *it;
 						if(extInfo.type == FormatExtensionInfo::Type::Import)
 							importFormat(*it); // Not a native format, still need to import
-						else
-							r = PreloadAsset(path,IMMEDIATE_PRIORITY,std::move(loadInfo)); // Native format, load directly
+						r = PreloadAsset(path,IMMEDIATE_PRIORITY,std::move(loadInfo)); // Native format, load directly
 					}
 				}
 			}
