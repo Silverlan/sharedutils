@@ -6,6 +6,7 @@
 #include "sharedutils/asset_loader/file_asset_processor.hpp"
 #include "sharedutils/asset_loader/asset_load_info.hpp"
 #include "sharedutils/util_ifile.hpp"
+#include <cassert>
 
 #undef AddJob
 
@@ -38,6 +39,13 @@ bool util::FileAssetManager::WaitUntilAssetLoaded(const std::string &path)
 
 void util::FileAssetManager::RemoveFromCache(const std::string &path)
 {
+	{
+		auto hash = GetIdentifierHash(path);
+		std::scoped_lock lock {m_errorCacheMutex};
+		auto it = m_errorCache.find(hash);
+		if(it != m_errorCache.end())
+			m_errorCache.erase(it);
+	}
 	auto removed = IAssetManager::RemoveFromCache(path);
 	auto invalidated = m_loader->InvalidateLoadJob(path);
 	if(m_callbacks.onAssetRemoved && removed || invalidated)
@@ -59,6 +67,7 @@ void util::FileAssetManager::RegisterFormatHandler(
 void util::FileAssetManager::Reset()
 {
 	m_callbacks = {};
+	m_errorCache.clear();
 	m_loader = nullptr;
 	m_importHandlers.clear();
 	util::IAssetManager::Reset();
@@ -83,6 +92,9 @@ util::FileAssetManager::PreloadResult util::FileAssetManager::PreloadAsset(
 )
 {
 	auto hash = GetIdentifierHash(cacheName);
+	auto cachedResult = GetCachedResult(hash);
+	if(cachedResult.has_value())
+		return *cachedResult;
 	auto jobId = m_loader->AddJob(ToCacheIdentifier(cacheName),ext,std::move(file),priority,[this,&loadInfo,hash](util::IAssetProcessor &processor) {
 		auto &faProcessor = static_cast<FileAssetProcessor&>(processor);
 		faProcessor.loadInfo = std::move(loadInfo);
@@ -114,8 +126,29 @@ util::FileAssetManager::PreloadResult util::FileAssetManager::PreloadAsset(
 		};
 	});
 	if(!jobId.has_value())
-		return PreloadResult{{},PreloadResult::Result::JobCreationFailed};
+		return PreloadResult{{},CacheResult(cacheName,PreloadResult::Result::JobCreationFailed)};
 	return PreloadResult{jobId,PreloadResult::Result::Success};
+}
+std::optional<util::FileAssetManager::PreloadResult> util::FileAssetManager::GetCachedResult(size_t hash) const
+{
+	std::scoped_lock lock {m_errorCacheMutex};
+	auto it = m_errorCache.find(hash);
+	if(it == m_errorCache.end())
+		return {};
+	util::FileAssetManager::PreloadResult result {};
+	result.firstTimeError = false;
+	result.result = it->second;
+	return result;
+}
+util::FileAssetManager::PreloadResult::Result util::FileAssetManager::CacheResult(size_t hash,util::FileAssetManager::PreloadResult::Result result)
+{
+	std::scoped_lock lock {m_errorCacheMutex};
+	m_errorCache[hash] = result;
+	return result;
+}
+util::FileAssetManager::PreloadResult::Result util::FileAssetManager::CacheResult(const std::string &assetName,util::FileAssetManager::PreloadResult::Result result)
+{
+	return CacheResult(GetIdentifierHash(assetName),result);
 }
 util::FileAssetManager::PreloadResult util::FileAssetManager::PreloadAsset(
 	const std::string &strPath,util::AssetLoadJobPriority priority,std::unique_ptr<util::AssetLoadInfo> &&loadInfo
@@ -127,6 +160,11 @@ util::FileAssetManager::PreloadResult util::FileAssetManager::PreloadAsset(
 		if(asset)
 			return PreloadResult{{},PreloadResult::Result::AlreadyLoaded};
 	}
+
+	auto cachedResult = GetCachedResult(GetIdentifierHash(strPath));
+	if(cachedResult.has_value())
+		return *cachedResult;
+
 	auto path = util::Path::CreateFile(strPath);
 	if(!loadInfo || !umath::is_flag_set(loadInfo->flags,AssetLoadFlags::AbsolutePath))
 		path = m_rootDir +path;
@@ -166,13 +204,13 @@ util::FileAssetManager::PreloadResult util::FileAssetManager::PreloadAsset(
 		if(hadExtension && m_fileHandler->exists(path.GetString()))
 		{
 			// File with original path was found, but extension is not a recognized format
-			return PreloadResult{{},PreloadResult::Result::UnsupportedFormat};
+			return PreloadResult{{},CacheResult(strPath,PreloadResult::Result::UnsupportedFormat)};
 		}
-		return PreloadResult{{},PreloadResult::Result::FileNotFound};
+		return PreloadResult{{},CacheResult(strPath,PreloadResult::Result::FileNotFound)};
 	}
 	auto f = m_fileHandler->open(path.GetString(),formatType);
 	if(!f)
-		return PreloadResult{{},PreloadResult::Result::UnableToOpenFile};
+		return PreloadResult{{},CacheResult(strPath,PreloadResult::Result::UnableToOpenFile)};
 	return PreloadAsset(strPath,std::move(f),*ext,priority,std::move(loadInfo));
 }
 util::AssetObject util::FileAssetManager::LoadAsset(
@@ -320,19 +358,19 @@ std::optional<std::string> util::FileAssetManager::ImportAssetFilesFromExternalS
 {
 	return ImportAssetFilesFromExternalSource(assetName,assetName);
 }
-util::AssetObject util::FileAssetManager::ReloadAsset(const std::string &path,std::unique_ptr<AssetLoadInfo> &&loadInfo)
+util::AssetObject util::FileAssetManager::ReloadAsset(const std::string &path,std::unique_ptr<AssetLoadInfo> &&loadInfo,PreloadResult *optOutResult)
 {
 	if(!loadInfo)
 		loadInfo = CreateDefaultLoadInfo();
 	RemoveFromCache(path);
-	auto obj = LoadAsset(path,std::move(loadInfo));
+	auto obj = LoadAsset(path,std::move(loadInfo),optOutResult);
 	if(!obj)
 		return nullptr;
 	OnAssetReloaded(path);
 	return obj;
 }
 util::AssetObject util::FileAssetManager::LoadAsset(
-	const std::string &cacheName,std::unique_ptr<ufile::IFile> &&file,const std::string &ext,std::unique_ptr<util::AssetLoadInfo> &&loadInfo
+	const std::string &cacheName,std::unique_ptr<ufile::IFile> &&file,const std::string &ext,std::unique_ptr<util::AssetLoadInfo> &&loadInfo,PreloadResult *optOutResult
 )
 {
 	ValidateMainThread();
@@ -341,11 +379,13 @@ util::AssetObject util::FileAssetManager::LoadAsset(
 	auto onLoaded = loadInfo ? loadInfo->onLoaded : nullptr;
 	auto onFailure = loadInfo ? loadInfo->onFailure : nullptr;
 	auto r = PreloadAsset(cacheName,std::move(file),ext,IMMEDIATE_PRIORITY,std::move(loadInfo));
+	if(optOutResult)
+		*optOutResult = r;
 	if(!r)
 		return nullptr;
 	return LoadAsset(cacheName,r,onLoaded,onFailure);
 }
-util::AssetObject util::FileAssetManager::LoadAsset(const std::string &path,std::unique_ptr<util::AssetLoadInfo> &&loadInfo)
+util::AssetObject util::FileAssetManager::LoadAsset(const std::string &path,std::unique_ptr<util::AssetLoadInfo> &&loadInfo,PreloadResult *optOutResult)
 {
 	if(!loadInfo)
 		loadInfo = CreateDefaultLoadInfo();
@@ -353,13 +393,22 @@ util::AssetObject util::FileAssetManager::LoadAsset(const std::string &path,std:
 	auto onLoaded = loadInfo->onLoaded;
 	auto onFailure = loadInfo->onFailure;
 	auto r = PreloadAsset(path,IMMEDIATE_PRIORITY,std::move(loadInfo));
+	if(!r && !r.firstTimeError)
+	{
+		// Already failed previously; Don't bother trying again
+		if(optOutResult)
+			*optOutResult = r;
+		return nullptr;
+	}
 	if(loadInfo) // loadInfo should always still be valid if PreloadAsset failed
 	{
 		if(r.result == PreloadResult::Result::UnsupportedFormat)
 		{
 			// File was found, but format is not a native format. Try to import it.
 			std::string ext;
-			if(ufile::get_extension(path,&ext)) // This should always be true
+			auto hasExt = ufile::get_extension(path,&ext);
+			assert(hasExt);
+			if(hasExt) // This should always be true
 			{
 				if(Import(path,ext))
 				{
@@ -415,6 +464,8 @@ util::AssetObject util::FileAssetManager::LoadAsset(const std::string &path,std:
 			}
 		}
 	}
+	if(optOutResult)
+		*optOutResult = r;
 	if(!r)
 		return nullptr;
 	return LoadAsset(path,r,onLoaded,onFailure);

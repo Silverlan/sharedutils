@@ -47,6 +47,7 @@ namespace util
 			};
 			std::optional<util::AssetLoadJobId> jobId {};
 			Result result = Result::Pending;
+			bool firstTimeError = true;
 			operator bool() const
 			{
 				return result == Result::AlreadyLoaded || result == Result::Success;
@@ -68,16 +69,17 @@ namespace util
 		PreloadResult PreloadAsset(const std::string &path,std::unique_ptr<AssetLoadInfo> &&loadInfo=nullptr);
 
 		// These may only be called from the same thread that handles the polling!
-		util::AssetObject LoadAsset(const std::string &path,std::unique_ptr<AssetLoadInfo> &&loadInfo=nullptr);
+		util::AssetObject LoadAsset(const std::string &path,std::unique_ptr<AssetLoadInfo> &&loadInfo=nullptr,PreloadResult *optOutResult=nullptr);
 		util::AssetObject LoadAsset(
-			const std::string &cacheName,std::unique_ptr<ufile::IFile> &&file,const std::string &ext,std::unique_ptr<AssetLoadInfo> &&loadInfo=nullptr
+			const std::string &cacheName,std::unique_ptr<ufile::IFile> &&file,const std::string &ext,std::unique_ptr<AssetLoadInfo> &&loadInfo=nullptr,
+			PreloadResult *optOutResult=nullptr
 		);
 		bool WaitUntilAssetLoaded(const std::string &path);
 
 		Callbacks &GetCallbacks() {return m_callbacks;}
 		
 		virtual std::unique_ptr<AssetLoadInfo> CreateDefaultLoadInfo() const=0;
-		virtual util::AssetObject ReloadAsset(const std::string &path,std::unique_ptr<AssetLoadInfo> &&loadInfo=nullptr);
+		virtual util::AssetObject ReloadAsset(const std::string &path,std::unique_ptr<AssetLoadInfo> &&loadInfo=nullptr,PreloadResult *optOutResult=nullptr);
 		void SetFileHandler(std::unique_ptr<AssetFileHandler> &&fileHandler);
 		void SetExternalSourceFileImportHandler(const std::function<std::optional<std::string>(const std::string&,const std::string&)> &handler);
 		const std::function<std::optional<std::string>(const std::string&,const std::string&)> &GetExternalSourceFileImportHandler() const;
@@ -149,11 +151,17 @@ namespace util
 		std::unique_ptr<AssetFormatLoader> m_loader;
 		Callbacks m_callbacks;
 	private:
+		util::FileAssetManager::PreloadResult::Result CacheResult(size_t hash,util::FileAssetManager::PreloadResult::Result result);
+		util::FileAssetManager::PreloadResult::Result CacheResult(const std::string &assetName,util::FileAssetManager::PreloadResult::Result result);
+		std::optional<util::FileAssetManager::PreloadResult> GetCachedResult(size_t hash) const;
 		std::function<std::optional<std::string>(const std::string&,const std::string&)> m_externalSourceFileImportHandler = nullptr;
 		std::unordered_map<size_t,std::vector<std::function<void(util::Asset*,AssetLoadResult)>>> m_callOnLoad;
 		std::unique_ptr<AssetFileHandler> m_fileHandler;
 		util::Path m_rootDir;
 		util::Path m_importRootDir;
+
+		std::unordered_map<size_t,util::FileAssetManager::PreloadResult::Result> m_errorCache;
+		mutable std::mutex m_errorCacheMutex;
 
 		std::unordered_map<std::string,std::function<std::unique_ptr<IImportAssetFormatHandler>(util::IAssetManager&)>> m_importHandlers;
 	};
@@ -178,25 +186,26 @@ namespace util
 		{
 			return FileAssetManager::PreloadAsset(path,std::move(loadInfo));
 		}
-		std::shared_ptr<TAssetType> LoadAsset(const std::string &path,std::unique_ptr<TLoadInfo> &&loadInfo=nullptr)
+		std::shared_ptr<TAssetType> LoadAsset(const std::string &path,std::unique_ptr<TLoadInfo> &&loadInfo=nullptr,PreloadResult *optOutResult=nullptr)
 		{
-			return std::static_pointer_cast<TAssetType>(FileAssetManager::LoadAsset(path,std::move(loadInfo)));
+			return std::static_pointer_cast<TAssetType>(FileAssetManager::LoadAsset(path,std::move(loadInfo),optOutResult));
 		}
-		std::shared_ptr<TAssetType> LoadAsset(const std::string &path,util::AssetLoadFlags flags)
+		std::shared_ptr<TAssetType> LoadAsset(const std::string &path,util::AssetLoadFlags flags,PreloadResult *optOutResult=nullptr)
 		{
 			auto loadInfo = std::make_unique<TLoadInfo>();
 			loadInfo->flags = flags;
-			return LoadAsset(path,std::move(loadInfo));
+			return LoadAsset(path,std::move(loadInfo),optOutResult);
 		}
-		std::shared_ptr<TAssetType> ReloadAsset(const std::string &path,std::unique_ptr<TLoadInfo> &&loadInfo=nullptr)
+		std::shared_ptr<TAssetType> ReloadAsset(const std::string &path,std::unique_ptr<TLoadInfo> &&loadInfo=nullptr,PreloadResult *optOutResult=nullptr)
 		{
-			return std::static_pointer_cast<TAssetType>(FileAssetManager::ReloadAsset(path,std::move(loadInfo)));
+			return std::static_pointer_cast<TAssetType>(FileAssetManager::ReloadAsset(path,std::move(loadInfo),optOutResult));
 		}
 		std::shared_ptr<TAssetType> LoadAsset(
-			const std::string &cacheName,std::unique_ptr<ufile::IFile> &&file,const std::string &ext,std::unique_ptr<TLoadInfo> &&loadInfo=nullptr
+			const std::string &cacheName,std::unique_ptr<ufile::IFile> &&file,const std::string &ext,std::unique_ptr<TLoadInfo> &&loadInfo=nullptr,
+			PreloadResult *optOutResult=nullptr
 		)
 		{
-			return std::static_pointer_cast<TAssetType>(FileAssetManager::LoadAsset(cacheName,std::move(file),ext,std::move(loadInfo)));
+			return std::static_pointer_cast<TAssetType>(FileAssetManager::LoadAsset(cacheName,std::move(file),ext,std::move(loadInfo),optOutResult));
 		}
 		virtual std::unique_ptr<AssetLoadInfo> CreateDefaultLoadInfo() const override
 		{
