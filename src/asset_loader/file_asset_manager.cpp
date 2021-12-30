@@ -39,13 +39,7 @@ bool util::FileAssetManager::WaitUntilAssetLoaded(const std::string &path)
 
 void util::FileAssetManager::RemoveFromCache(const std::string &path)
 {
-	{
-		auto hash = GetIdentifierHash(path);
-		std::scoped_lock lock {m_errorCacheMutex};
-		auto it = m_errorCache.find(hash);
-		if(it != m_errorCache.end())
-			m_errorCache.erase(it);
-	}
+	ClearCachedResult(GetIdentifierHash(path));
 	auto removed = IAssetManager::RemoveFromCache(path);
 	auto invalidated = m_loader->InvalidateLoadJob(path);
 	if(m_callbacks.onAssetRemoved && removed || invalidated)
@@ -126,8 +120,15 @@ util::FileAssetManager::PreloadResult util::FileAssetManager::PreloadAsset(
 		};
 	});
 	if(!jobId.has_value())
-		return PreloadResult{{},CacheResult(cacheName,PreloadResult::Result::JobCreationFailed)};
+		return PreloadResult{{},PreloadResult::Result::JobCreationFailed};
 	return PreloadResult{jobId,PreloadResult::Result::Success};
+}
+void util::FileAssetManager::ClearCachedResult(size_t hash)
+{
+	std::scoped_lock lock {m_errorCacheMutex};
+	auto it = m_errorCache.find(hash);
+	if(it != m_errorCache.end())
+		m_errorCache.erase(it);
 }
 std::optional<util::FileAssetManager::PreloadResult> util::FileAssetManager::GetCachedResult(size_t hash) const
 {
@@ -204,13 +205,13 @@ util::FileAssetManager::PreloadResult util::FileAssetManager::PreloadAsset(
 		if(hadExtension && m_fileHandler->exists(path.GetString()))
 		{
 			// File with original path was found, but extension is not a recognized format
-			return PreloadResult{{},CacheResult(strPath,PreloadResult::Result::UnsupportedFormat)};
+			return PreloadResult{{},PreloadResult::Result::UnsupportedFormat};
 		}
-		return PreloadResult{{},CacheResult(strPath,PreloadResult::Result::FileNotFound)};
+		return PreloadResult{{},PreloadResult::Result::FileNotFound};
 	}
 	auto f = m_fileHandler->open(path.GetString(),formatType);
 	if(!f)
-		return PreloadResult{{},CacheResult(strPath,PreloadResult::Result::UnableToOpenFile)};
+		return PreloadResult{{},PreloadResult::Result::UnableToOpenFile};
 	return PreloadAsset(strPath,std::move(f),*ext,priority,std::move(loadInfo));
 }
 util::AssetObject util::FileAssetManager::LoadAsset(
@@ -382,7 +383,11 @@ util::AssetObject util::FileAssetManager::LoadAsset(
 	if(optOutResult)
 		*optOutResult = r;
 	if(!r)
+	{
+		if(!loadInfo || (loadInfo->flags &util::AssetLoadFlags::DontCache) == util::AssetLoadFlags::None)
+			CacheResult(cacheName,r.result);
 		return nullptr;
+	}
 	return LoadAsset(cacheName,r,onLoaded,onFailure);
 }
 util::AssetObject util::FileAssetManager::LoadAsset(const std::string &path,std::unique_ptr<util::AssetLoadInfo> &&loadInfo,PreloadResult *optOutResult)
@@ -414,7 +419,10 @@ util::AssetObject util::FileAssetManager::LoadAsset(const std::string &path,std:
 				{
 					// Import was successful, attempt to preload again
 					if(loadInfo)
+					{
+						ClearCachedResult(GetIdentifierHash(path));
 						r = PreloadAsset(path,IMMEDIATE_PRIORITY,std::move(loadInfo));
+					}
 				}
 			}
 		}
@@ -429,6 +437,7 @@ util::AssetObject util::FileAssetManager::LoadAsset(const std::string &path,std:
 				if(Import(extPath,extInfo.extension))
 				{
 					// Import was successful, attempt to preload again
+					ClearCachedResult(GetIdentifierHash(path));
 					r = PreloadAsset(path,IMMEDIATE_PRIORITY,std::move(loadInfo));
 					return true;
 				}
@@ -458,6 +467,7 @@ util::AssetObject util::FileAssetManager::LoadAsset(const std::string &path,std:
 						auto &extInfo = *it;
 						if(extInfo.type == FormatExtensionInfo::Type::Import)
 							importFormat(*it); // Not a native format, still need to import
+						ClearCachedResult(GetIdentifierHash(path));
 						r = PreloadAsset(path,IMMEDIATE_PRIORITY,std::move(loadInfo)); // Native format, load directly
 					}
 				}
@@ -467,6 +477,10 @@ util::AssetObject util::FileAssetManager::LoadAsset(const std::string &path,std:
 	if(optOutResult)
 		*optOutResult = r;
 	if(!r)
+	{
+		if(!loadInfo || (loadInfo->flags &util::AssetLoadFlags::DontCache) == util::AssetLoadFlags::None)
+			CacheResult(path,r.result);
 		return nullptr;
+	}
 	return LoadAsset(path,r,onLoaded,onFailure);
 }

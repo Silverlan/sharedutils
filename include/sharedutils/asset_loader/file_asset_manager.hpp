@@ -154,6 +154,7 @@ namespace util
 		util::FileAssetManager::PreloadResult::Result CacheResult(size_t hash,util::FileAssetManager::PreloadResult::Result result);
 		util::FileAssetManager::PreloadResult::Result CacheResult(const std::string &assetName,util::FileAssetManager::PreloadResult::Result result);
 		std::optional<util::FileAssetManager::PreloadResult> GetCachedResult(size_t hash) const;
+		void ClearCachedResult(size_t hash);
 		std::function<std::optional<std::string>(const std::string&,const std::string&)> m_externalSourceFileImportHandler = nullptr;
 		std::unordered_map<size_t,std::vector<std::function<void(util::Asset*,AssetLoadResult)>>> m_callOnLoad;
 		std::unique_ptr<AssetFileHandler> m_fileHandler;
