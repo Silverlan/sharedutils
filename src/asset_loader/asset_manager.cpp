@@ -183,6 +183,7 @@ util::AssetIndex util::IAssetManager::AddToIndex(const std::shared_ptr<Asset> &a
 	assetInfo.identifier = "";
 	assetInfo.index = index;
 	assetInfo.anonymous = true;
+	asset->index = index;
 	return index;
 }
 util::AssetIndex util::IAssetManager::AddToCache(const std::string &assetName,const std::shared_ptr<Asset> &asset)
@@ -197,6 +198,8 @@ util::AssetIndex util::IAssetManager::AddToCache(const std::string &assetName,co
 	if(it != m_cache.end())
 	{
 		index = it->second;
+		if(m_assets[index].asset)
+			throw std::runtime_error{"Attempted to add asset '" +assetName +"' to cache, but asset already exists in cache!"};
 		m_cache[hash] = index;
 		m_cacheMutex.unlock();
 	}
@@ -220,6 +223,7 @@ util::AssetIndex util::IAssetManager::AddToCache(const std::string &assetName,co
 	assetInfo.identifier = identifier;
 	assetInfo.index = index;
 	assetInfo.anonymous = false;
+	asset->index = index;
 	return index;
 }
 bool util::IAssetManager::RemoveFromCache(const std::string &assetName)
@@ -231,7 +235,7 @@ bool util::IAssetManager::RemoveFromCache(const std::string &assetName)
 	auto it = m_cache.find(hash);
 	if(it == m_cache.end())
 		return false;
-	m_cache.erase(it);
+	m_assets[it->second].asset = nullptr;
 	return true;
 }
 void util::IAssetManager::RegisterFileExtension(const std::string &ext,AssetFormatType formatType,FormatExtensionInfo::Type type)
@@ -268,17 +272,10 @@ bool util::IAssetManager::ClearAsset(AssetIndex idx)
 		m_freeIndices.push(idx);
 	else
 	{
-		m_cacheMutex.lock();
-		auto itCache = m_cache.find(hash);
-		if(itCache != m_cache.end())
-			m_cache.erase(itCache);
-		m_cacheMutex.unlock();
-
 		auto itFlag = m_flaggedForDeletion.find(hash);
 		if(itFlag != m_flaggedForDeletion.end())
 			m_flaggedForDeletion.erase(itFlag);
 	}
-
 	assetInfo.asset = nullptr;
 	return true;
 }

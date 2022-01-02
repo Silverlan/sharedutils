@@ -316,7 +316,7 @@ util::AssetObject util::FileAssetManager::Poll(std::optional<util::AssetLoadJobI
 			
 				auto &loadInfo = *processor.loadInfo;
 				if(!umath::is_flag_set(loadInfo.flags,AssetLoadFlags::DontCache) && !umath::is_flag_set(loadInfo.flags,AssetLoadFlags::IgnoreCache))
-					asset->index = AddToCache(job.identifier,asset);
+					AddToCache(job.identifier,asset);
 				auto assetObject = InitializeAsset(*asset,job);
 				asset->assetObject = assetObject;
 				if(untilJob.has_value() && job.jobId == *untilJob)
