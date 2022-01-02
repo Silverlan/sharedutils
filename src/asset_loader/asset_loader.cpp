@@ -196,7 +196,6 @@ void util::IAssetLoader::Poll(
 		if(valid)
 		{
 			m_assetIdToJobId.erase(it);
-			m_assetIdToJobIdMutex.unlock();
 			if(job.state == AssetLoadJob::State::Succeeded && job.processor->Finalize())
 			{
 				success = true;
@@ -204,11 +203,14 @@ void util::IAssetLoader::Poll(
 			}
 			else
 				onComplete(job,AssetLoadResult::Failed);
+			// Note: m_assetIdToJobIdMutex must stay locked for the duration of the onComplete call
+			// (At least until caching of the asset is complete).
+			m_assetIdToJobIdMutex.unlock();
 		}
 		else
 		{
-			m_assetIdToJobIdMutex.unlock();
 			onComplete(job,AssetLoadResult::Cancelled);
+			m_assetIdToJobIdMutex.unlock();
 		}
 		completeQueue.pop();
 	}

@@ -155,6 +155,13 @@ util::FileAssetManager::PreloadResult util::FileAssetManager::PreloadAsset(
 	const std::string &strPath,util::AssetLoadJobPriority priority,std::unique_ptr<util::AssetLoadInfo> &&loadInfo
 )
 {
+	// Note: The job guard mutex has to stay locked, otherwise a completed job
+	// could add the asset to the cache *after* we've already checked the cache below, but *before*
+	// we've added the new job. This could cause issues with the same asset being loaded and cached
+	// multiple times.
+	// TODO: Check how much time is wasted waiting here.
+	std::scoped_lock lock {m_loader->GetJobGuardMutex()};
+
 	if(!loadInfo || !umath::is_flag_set(loadInfo->flags,AssetLoadFlags::IgnoreCache))
 	{
 		auto *asset = FindCachedAsset(strPath);

@@ -62,6 +62,8 @@ namespace util
 
 		void SetMultiThreadingEnabled(bool enabled);
 		bool IsMultiThreadingEnabled() const;
+
+		std::recursive_mutex &GetJobGuardMutex() {return m_assetIdToJobIdMutex;}
 	private:
 		std::atomic<bool> m_multiThreadingEnabled = true;
 		ctpl::thread_pool m_pool;
@@ -86,7 +88,7 @@ namespace util
 			AssetLoadJobPriority priority;
 			State state = State::Pending;
 		};
-		mutable std::mutex m_assetIdToJobIdMutex;
+		mutable std::recursive_mutex m_assetIdToJobIdMutex;
 		std::unordered_map<std::string,QueuedJobInfo> m_assetIdToJobId;
 		AssetLoadJobId m_nextJobId = 0;
 	};
