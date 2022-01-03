@@ -253,9 +253,13 @@ std::string util::IAssetManager::ToCacheIdentifier(const std::string &assetName)
 {
 	auto path = util::Path::CreateFile(assetName);
 	path.Canonicalize();
-	std::string_view v {path.GetString()};
+	auto canonPath = path.Move();
+	for(auto &c : canonPath)
+		c = std::tolower(c);
+	std::string_view v {canonPath};
 	StripFileExtension(v);
-	return std::string{v};
+	canonPath.resize(v.length());
+	return std::move(canonPath);
 }
 
 bool util::IAssetManager::ClearAsset(AssetIndex idx)
@@ -392,5 +396,21 @@ util::Asset *util::IAssetManager::FindCachedAsset(const std::string &assetName)
 	}
 	auto idx = it->second;
 	m_cacheMutex.unlock();
+	return GetAsset(idx);
+}
+util::Asset *util::IAssetManager::FindCachedAsset(const std::string &assetName,bool lockMutex)
+{
+	if(lockMutex)
+		m_cacheMutex.lock();
+	auto it = m_cache.find(GetIdentifierHash(assetName));
+	if(it == m_cache.end())
+	{
+		if(lockMutex)
+			m_cacheMutex.unlock();
+		return nullptr;
+	}
+	auto idx = it->second;
+	if(lockMutex)
+		m_cacheMutex.unlock();
 	return GetAsset(idx);
 }

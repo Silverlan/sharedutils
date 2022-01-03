@@ -80,6 +80,7 @@ namespace util
 		const std::vector<FormatExtensionInfo> &GetSupportedFormatExtensions() const {return m_extensions;}
 	protected:
 		virtual void Reset();
+		Asset *FindCachedAsset(const std::string &assetName,bool lockMutex);
 		void ValidateMainThread();
 		bool ClearAsset(AssetIndex idx);
 		bool RemoveFromCache(const std::string &assetName);

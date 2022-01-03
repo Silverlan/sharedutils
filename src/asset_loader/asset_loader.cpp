@@ -49,10 +49,10 @@ std::optional<util::AssetLoadJobId> util::IAssetLoader::AddJob(
 	const std::string &identifier,std::unique_ptr<IAssetProcessor> &&processor,AssetLoadJobPriority priority
 )
 {
+	std::scoped_lock lock {m_assetIdToJobIdMutex};
 	std::unique_lock jobLock {m_jobMutex};
 	if(!identifier.empty())
 	{
-		std::scoped_lock lock {m_assetIdToJobIdMutex};
 		auto itJob = m_assetIdToJobId.find(identifier);
 		if(itJob != m_assetIdToJobId.end())
 		{
@@ -73,17 +73,13 @@ std::optional<util::AssetLoadJobId> util::IAssetLoader::AddJob(
 	if(!identifier.empty())
 	{
 		job.identifier = identifier;
-		m_assetIdToJobIdMutex.lock();
-			m_assetIdToJobId[identifier] = {jobId,priority};
-		m_assetIdToJobIdMutex.unlock();
+		m_assetIdToJobId[identifier] = {jobId,priority};
 	}
 	else
 	{
 		std::string identifier = "#anonymous_" +std::to_string(jobId);
 		job.identifier = identifier;
-		m_assetIdToJobIdMutex.lock();
-			m_assetIdToJobId[identifier] = {jobId,priority};
-		m_assetIdToJobIdMutex.unlock();
+		m_assetIdToJobId[identifier] = {jobId,priority};
 	}
 
 	m_queueMutex.lock();
@@ -193,23 +189,26 @@ void util::IAssetLoader::Poll(
 		// If an asset is queued up multiple times, we only care about the latest job
 		// and disregard previous ones.
 		auto valid = (it != m_assetIdToJobId.end() && it->second.jobId == job.jobId);
+		m_assetIdToJobIdMutex.unlock();
+
 		if(valid)
 		{
-			m_assetIdToJobId.erase(it);
 			if(job.state == AssetLoadJob::State::Succeeded && job.processor->Finalize())
 			{
 				success = true;
 				onComplete(job,AssetLoadResult::Succeeded);
+
 			}
 			else
 				onComplete(job,AssetLoadResult::Failed);
-			// Note: m_assetIdToJobIdMutex must stay locked for the duration of the onComplete call
-			// (At least until caching of the asset is complete).
-			m_assetIdToJobIdMutex.unlock();
 		}
 		else
-		{
 			onComplete(job,AssetLoadResult::Cancelled);
+		{
+			m_assetIdToJobIdMutex.lock();
+				auto it = m_assetIdToJobId.find(job.identifier);
+				if(it != m_assetIdToJobId.end())
+					m_assetIdToJobId.erase(it);
 			m_assetIdToJobIdMutex.unlock();
 		}
 		completeQueue.pop();

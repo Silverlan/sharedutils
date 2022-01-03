@@ -160,6 +160,7 @@ namespace util
 		std::unique_ptr<AssetFileHandler> m_fileHandler;
 		util::Path m_rootDir;
 		util::Path m_importRootDir;
+		std::mutex m_preloadMutex;
 
 		std::unordered_map<size_t,util::FileAssetManager::PreloadResult::Result> m_errorCache;
 		mutable std::mutex m_errorCacheMutex;

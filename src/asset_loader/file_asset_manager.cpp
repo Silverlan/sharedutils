@@ -155,13 +155,6 @@ util::FileAssetManager::PreloadResult util::FileAssetManager::PreloadAsset(
 	const std::string &strPath,util::AssetLoadJobPriority priority,std::unique_ptr<util::AssetLoadInfo> &&loadInfo
 )
 {
-	// Note: The job guard mutex has to stay locked, otherwise a completed job
-	// could add the asset to the cache *after* we've already checked the cache below, but *before*
-	// we've added the new job. This could cause issues with the same asset being loaded and cached
-	// multiple times.
-	// TODO: Check how much time is wasted waiting here.
-	std::scoped_lock lock {m_loader->GetJobGuardMutex()};
-
 	if(!loadInfo || !umath::is_flag_set(loadInfo->flags,AssetLoadFlags::IgnoreCache))
 	{
 		auto *asset = FindCachedAsset(strPath);
@@ -177,7 +170,7 @@ util::FileAssetManager::PreloadResult util::FileAssetManager::PreloadAsset(
 	if(!loadInfo || !umath::is_flag_set(loadInfo->flags,AssetLoadFlags::AbsolutePath))
 		path = m_rootDir +path;
 	auto ext = path.GetFileExtension();
-	AssetFormatType formatType;
+	AssetFormatType formatType = AssetFormatType::Binary;
 	auto hadExtension = ext.has_value();
 	if(hadExtension)
 	{
@@ -219,6 +212,18 @@ util::FileAssetManager::PreloadResult util::FileAssetManager::PreloadAsset(
 	auto f = m_fileHandler->open(path.GetString(),formatType);
 	if(!f)
 		return PreloadResult{{},PreloadResult::Result::UnableToOpenFile};
+
+	// m_preloadMutex mutex ensures that the code below is only called from one thread at a time.
+	// The other two mutexes are required because we need to ensure that the asset is not already in the
+	// cache AND it is not already being loaded
+	std::scoped_lock lock {m_preloadMutex,m_loader->GetJobGuardMutex(),m_cacheMutex};
+	if(!loadInfo || !umath::is_flag_set(loadInfo->flags,AssetLoadFlags::IgnoreCache))
+	{
+		auto *asset = FindCachedAsset(strPath,false);
+		if(asset)
+			return PreloadResult{{},PreloadResult::Result::AlreadyLoaded};
+	}
+	// This call will add the job, but only if no job for the asset is already queued (or if the new priority is higher)
 	return PreloadAsset(strPath,std::move(f),*ext,priority,std::move(loadInfo));
 }
 util::AssetObject util::FileAssetManager::LoadAsset(
