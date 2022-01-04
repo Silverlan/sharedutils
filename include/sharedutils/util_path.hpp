@@ -67,9 +67,9 @@ namespace util
 		bool operator!=(const Path &other) const;
 		bool operator!=(const std::string &other) const;
 
-		Path operator+(const Path &other);
+		Path operator+(const Path &other) const;
 		Path &operator+=(const Path &other);
-		Path operator+(const char *other);
+		Path operator+(const char *other) const;
 		Path &operator+=(const char *other);
 
 		std::string_view GetPath() const;

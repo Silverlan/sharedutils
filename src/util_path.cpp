@@ -157,7 +157,7 @@ bool util::Path::operator==(const std::string &other) const
 bool util::Path::operator!=(const Path &other) const {return !operator==(other);}
 bool util::Path::operator!=(const std::string &other) const {return !operator==(other);}
 
-util::Path util::Path::operator+(const Path &other)
+util::Path util::Path::operator+(const Path &other) const
 {
 	auto cpy = *this;
 	cpy += other;
@@ -175,7 +175,7 @@ util::Path &util::Path::operator+=(const Path &other)
 	m_path += other.m_path;
 	return *this;
 }
-util::Path util::Path::operator+(const char *other) {return operator+(std::string{other});}
+util::Path util::Path::operator+(const char *other) const {return operator+(std::string{other});}
 util::Path &util::Path::operator+=(const char *other) {return operator+=(std::string{other});}
 
 std::string_view util::Path::GetPath() const
