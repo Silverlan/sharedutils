@@ -24,6 +24,7 @@ namespace util
 		ScopeGuard(const ScopeGuard&)=delete;
 		template<class Callable>
 			ScopeGuard &operator=(Callable &&undo_func);
+		ScopeGuard &operator=(ScopeGuard &&other);
 	};
 };
 

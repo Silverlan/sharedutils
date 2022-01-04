@@ -16,6 +16,15 @@ ScopeGuard::ScopeGuard(ScopeGuard &&other)
 	other.f = nullptr;
 }
 
+ScopeGuard &ScopeGuard::operator=(ScopeGuard &&other)
+{
+	if(f)
+		f();
+	f = std::move(other.f);
+	other.f = nullptr;
+	return *this;
+}
+
 ScopeGuard::~ScopeGuard()
 {
 	if(f)
