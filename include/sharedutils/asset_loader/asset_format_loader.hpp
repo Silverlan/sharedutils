@@ -19,7 +19,7 @@ namespace util
 		: public util::IAssetLoader
 	{
 	public:
-		AssetFormatLoader(util::IAssetManager &assetManager);
+		AssetFormatLoader(util::IAssetManager &assetManager,std::string name="");
 		// Registering a format handler is *not* MT-safe, all format handlers
 		// should therefore be registered before any jobs are added.
 		void RegisterFormatHandler(const std::string &ext,const std::function<std::unique_ptr<IAssetFormatHandler>(util::IAssetManager&)> &factory);
@@ -40,8 +40,8 @@ namespace util
 			: public AssetFormatLoader
 	{
 	public:
-		TAssetFormatLoader(util::IAssetManager &assetManager)
-			: AssetFormatLoader{assetManager}
+		TAssetFormatLoader(util::IAssetManager &assetManager,std::string name="")
+			: AssetFormatLoader{assetManager,std::move(name)}
 		{}
 	protected:
 		virtual std::unique_ptr<util::IAssetProcessor> CreateAssetProcessor(

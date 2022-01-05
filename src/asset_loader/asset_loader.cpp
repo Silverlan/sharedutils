@@ -4,12 +4,22 @@
 
 #include "sharedutils/asset_loader/asset_loader.hpp"
 #include "sharedutils/asset_loader/asset_processor.hpp"
+#include <sharedutils/util.h>
 #include <iostream>
 #include <cassert>
 
-util::IAssetLoader::IAssetLoader()
-	: m_pool{10}
-{}
+#undef AddJob
+
+util::IAssetLoader::IAssetLoader(std::string name)
+	: m_pool{10},m_name{std::move(name)}
+{
+	auto n = m_pool.size();
+	std::string threadName = "asset_loader";
+	if(!m_name.empty())
+		threadName += '_' +m_name;
+	for(auto i=decltype(n){0u};i<n;++i)
+		util::set_thread_name(m_pool.get_thread(i),threadName);
+}
 
 util::IAssetLoader::~IAssetLoader()
 {

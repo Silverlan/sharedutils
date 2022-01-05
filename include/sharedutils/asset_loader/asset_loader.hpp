@@ -46,7 +46,7 @@ namespace util
 	class DLLSHUTIL IAssetLoader
 	{
 	public:
-		IAssetLoader();
+		IAssetLoader(std::string name="");
 		virtual ~IAssetLoader();
 		void Poll(
 			const std::function<void(const AssetLoadJob&,AssetLoadResult)> &onComplete,
@@ -63,9 +63,11 @@ namespace util
 		void SetMultiThreadingEnabled(bool enabled);
 		bool IsMultiThreadingEnabled() const;
 
+		const std::string &GetName() const {return m_name;}
 		std::recursive_mutex &GetJobGuardMutex() {return m_assetIdToJobIdMutex;}
 	private:
 		std::atomic<bool> m_multiThreadingEnabled = true;
+		std::string m_name;
 		ctpl::thread_pool m_pool;
 		std::mutex m_jobMutex;
 		std::mutex m_queueMutex;

@@ -7,8 +7,8 @@
 
 #undef AddJob
 
-util::AssetFormatLoader::AssetFormatLoader(util::IAssetManager &assetManager)
-	: m_assetManager{assetManager}
+util::AssetFormatLoader::AssetFormatLoader(util::IAssetManager &assetManager,std::string name)
+	: IAssetLoader{std::move(name)},m_assetManager{assetManager}
 {}
 void util::AssetFormatLoader::RegisterFormatHandler(const std::string &ext,const std::function<std::unique_ptr<IAssetFormatHandler>(util::IAssetManager&)> &factory)
 {
