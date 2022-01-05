@@ -28,6 +28,7 @@
 	#include <unistd.h>
 	#include <linux/reboot.h>
 	#include <sys/reboot.h>
+	#include <sys/prctl.h>
 #else
 	#include "Shlwapi.h"
 	#include <vector>
@@ -857,6 +858,80 @@ void util::set_thread_priority(std::thread &thread,ThreadPriority priority)
 			pthread_setschedprio(threadHandle,maxPriority);
 			break;
 	}
+#endif
+}
+
+#ifdef _WIN32
+static bool set_thread_name(HANDLE hThread,const std::string &name)
+{
+	std::wstring wname(name.begin(),name.end());
+	HRESULT hr = SetThreadDescription(hThread,wname.c_str());
+	if(FAILED(hr))
+		return false;
+	return true;
+}
+static std::string utf8_encode(const std::wstring &wstr)
+{
+	// See https://stackoverflow.com/a/3999597/2482983
+    if( wstr.empty() ) return std::string();
+    int size_needed = WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), NULL, 0, NULL, NULL);
+    std::string strTo( size_needed, 0 );
+    WideCharToMultiByte                  (CP_UTF8, 0, &wstr[0], (int)wstr.size(), &strTo[0], size_needed, NULL, NULL);
+    return strTo;
+}
+static std::optional<std::string> get_thread_name(HANDLE hThread)
+{
+	PWSTR name = nullptr;
+	HRESULT hr = GetThreadDescription(hThread,&name);
+	if(FAILED(hr))
+		return {};
+	auto strName = utf8_encode(name);
+	LocalFree(name);
+	return strName;
+}
+#endif
+
+bool util::set_thread_name(std::thread &thread,const std::string &name)
+{
+#ifdef _WIN32
+	return ::set_thread_name(thread.native_handle(),name);
+#else
+	auto handle = thread.native_handle();
+	return pthread_setname_np(handle,name.c_str()) == 0;
+#endif
+}
+bool util::set_thread_name(const std::string &name)
+{
+#ifdef _WIN32
+	return ::set_thread_name(GetCurrentThread(),name);
+#else
+	return prctl(PR_SET_NAME,name.c_str(),0,0,0) == 0;
+#endif
+}
+
+std::optional<std::string> util::get_thread_name(std::thread &thread)
+{
+#ifdef _WIN32
+	return ::get_thread_name(thread.native_handle());
+#else
+	auto handle = thread.native_handle();
+	std::array<char,16> name;
+	auto res = pthread_getname_np(handle,name.data(),name.size());
+	if(res != 0)
+		return {};
+	return std::string{name.data()};
+#endif
+}
+std::optional<std::string> util::get_thread_name()
+{
+#ifdef _WIN32
+	return ::get_thread_name(GetCurrentThread());
+#else
+	std::array<char,16> name;
+	auto result = prctl(PR_GET_NAME,name.data());
+	if(result != 0)
+		return {};
+	return std::string{name.data()};
 #endif
 }
 

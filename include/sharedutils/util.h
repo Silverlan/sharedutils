@@ -129,6 +129,10 @@ namespace util
 		Highest
 	};
 	DLLSHUTIL void set_thread_priority(std::thread &thread,ThreadPriority priority);
+	DLLSHUTIL bool set_thread_name(std::thread &thread,const std::string &name);
+	DLLSHUTIL bool set_thread_name(const std::string &name);
+	DLLSHUTIL std::optional<std::string> get_thread_name(std::thread &thread);
+	DLLSHUTIL std::optional<std::string> get_thread_name();
 
 	DLLSHUTIL void flash_window();
 	DLLSHUTIL void minimize_window_to_tray();
