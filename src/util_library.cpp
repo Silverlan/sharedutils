@@ -102,6 +102,8 @@ Library::~Library()
 #endif
 }
 
+void Library::SetDontFreeLibraryOnDestruct() {m_freeOnDestruct = false;}
+
 void *Library::FindSymbolAddress(const std::string &name) const
 {
 #ifdef _WIN32

@@ -33,6 +33,7 @@ namespace util
 		void *FindSymbolAddress(const std::string &name) const;
 		template<typename TFunc>
 			inline TFunc FindSymbolAddress(const std::string &name) const;
+		void SetDontFreeLibraryOnDestruct();
 		Library(const Library&)=delete;
 		Library &operator=(const Library&)=delete;
 		~Library();
