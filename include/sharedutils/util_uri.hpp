@@ -9,6 +9,8 @@ struct UriPathSegmentStructA;
 struct UriUriStructA;
 namespace uriparser
 {
+	DLLSHUTIL std::string escape(const std::string_view &str);
+	DLLSHUTIL std::string unescape(const std::string_view &str);
 	class DLLSHUTIL Uri
 	{
 		public:

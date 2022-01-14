@@ -1,10 +1,28 @@
 #include "sharedutils/util_uri.hpp"
+#include "sharedutils/util_string.h"
 #include <uriparser/Uri.h>
 #include <limits>
 
-uriparser::Uri::Uri(std::string uri)
-	: uri_(uri)
+std::string uriparser::escape(const std::string_view &str)
 {
+	std::string escaped;
+	escaped.resize(str.length() *3);
+	auto *p = uriEscapeA(str.data(),escaped.data(),false,false);
+	escaped.resize(p -escaped.data());
+	return escaped;
+}
+std::string uriparser::unescape(const std::string_view &str)
+{
+	std::string escaped {str};
+	auto *p = uriUnescapeInPlaceA(escaped.data());
+	escaped.resize(p -escaped.data());
+	return escaped;
+}
+
+uriparser::Uri::Uri(std::string uri)
+	: uri_{std::move(uri)}
+{
+	ustring::replace(uri_," ","%20");
 	UriParserStateA state_;
 	state_.uri = &GetUriParse();
 	isValid_   = uriParseUriA(&state_, uri_.c_str()) == URI_SUCCESS;
