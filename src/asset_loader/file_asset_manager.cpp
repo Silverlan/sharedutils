@@ -86,9 +86,12 @@ util::FileAssetManager::PreloadResult util::FileAssetManager::PreloadAsset(
 )
 {
 	auto hash = GetIdentifierHash(cacheName);
-	auto cachedResult = GetCachedResult(hash);
-	if(cachedResult.has_value())
-		return *cachedResult;
+	if(!loadInfo || !umath::is_flag_set(loadInfo->flags,util::AssetLoadFlags::IgnoreCache))
+	{
+		auto cachedResult = GetCachedResult(hash);
+		if(cachedResult.has_value())
+			return *cachedResult;
+	}
 	auto jobId = m_loader->AddJob(ToCacheIdentifier(cacheName),ext,std::move(file),priority,[this,&loadInfo,hash](util::IAssetProcessor &processor) {
 		auto &faProcessor = static_cast<FileAssetProcessor&>(processor);
 		faProcessor.loadInfo = std::move(loadInfo);
