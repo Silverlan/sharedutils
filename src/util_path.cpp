@@ -253,7 +253,10 @@ void util::Path::PopBack()
 		}
 	}
 	if(br == std::string::npos)
+	{
+		m_path = "";
 		return;
+	}
 	m_path = m_path.substr(0,br +1);
 }
 bool util::Path::MakeRelative(const Path &relativeTo)
