@@ -84,6 +84,9 @@ namespace util
 	DLLSHUTIL bool get_registry_key_value(HKey key,const std::string &path,const std::string &strValueName,uint64_t &intValue);
 	DLLSHUTIL bool get_registry_key_value(HKey key,const std::string &path,const std::string &strValueName,bool &val);
 #endif
+	DLLSHUTIL bool set_env_variable(const std::string &varName,const std::string &value);
+	DLLSHUTIL bool unset_env_variable(const std::string &varName);
+	DLLSHUTIL std::optional<std::string> get_env_variable(const std::string &varName);
 	DLLSHUTIL std::string get_date_time(const std::string &format="%Y-%m-%d %X");
 	template<typename T, typename C>
 		constexpr T declvalue(T C::* ptr);

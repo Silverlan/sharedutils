@@ -418,6 +418,32 @@ bool util::start_process(const char *program,const std::vector<std::string> &arg
 	}
 	return start_process(program,ss.str(),bGlobalPath);
 }
+
+bool util::set_env_variable(const std::string &varName,const std::string &value)
+{
+#ifdef _WIN32
+	return SetEnvironmentVariable(varName.c_str(),value.c_str()) != 0;
+#else
+	return setenv(varName.c_str(),value.c_str()) == 0;
+#endif
+}
+bool util::unset_env_variable(const std::string &varName)
+{
+#ifdef _WIN32
+	return _putenv((varName +"=").c_str()) == 0;
+#else
+	return unsetenv(varName.c_str()) == 0;
+#endif
+}
+std::optional<std::string> util::get_env_variable(const std::string &varName)
+{
+	auto *val = getenv(varName.c_str());
+	if(!val)
+		return {};
+	return val;
+}
+	
+
 #ifdef _WIN32
 static bool start_and_wait_for_command(const char *program,const char *cmd,const char *cwd,unsigned int *exitCode,bool bGlobalPath,std::string *optOutput)
 {
