@@ -420,23 +420,25 @@ util::AssetObject util::FileAssetManager::LoadAsset(const std::string &path,std:
 			*optOutResult = r;
 		return nullptr;
 	}
+	auto assetPath = path;
 	if(loadInfo) // loadInfo should always still be valid if PreloadAsset failed
 	{
 		if(r.result == PreloadResult::Result::UnsupportedFormat)
 		{
 			// File was found, but format is not a native format. Try to import it.
 			std::string ext;
-			auto hasExt = ufile::get_extension(path,&ext);
+			auto hasExt = ufile::get_extension(assetPath,&ext);
 			assert(hasExt);
 			if(hasExt) // This should always be true
 			{
-				if(Import(path,ext))
+				if(Import(assetPath,ext))
 				{
 					// Import was successful, attempt to preload again
 					if(loadInfo)
 					{
-						ClearCachedResult(GetIdentifierHash(path));
-						r = PreloadAsset(path,IMMEDIATE_PRIORITY,std::move(loadInfo));
+						ufile::remove_extension_from_filename(assetPath,std::vector<std::string>{ext});
+						ClearCachedResult(GetIdentifierHash(assetPath));
+						r = PreloadAsset(assetPath,IMMEDIATE_PRIORITY,std::move(loadInfo));
 					}
 				}
 			}
@@ -444,16 +446,16 @@ util::AssetObject util::FileAssetManager::LoadAsset(const std::string &path,std:
 		else if(r.result == PreloadResult::Result::FileNotFound)
 		{
 			// Could not find asset at all, try all our known import formats.
-			auto normPath = ToCacheIdentifier(path);
-			auto importFormat = [this,&normPath,&r,&path,&loadInfo](const FormatExtensionInfo &extInfo) {
+			auto normPath = ToCacheIdentifier(assetPath);
+			auto importFormat = [this,&normPath,&r,&assetPath,&loadInfo](const FormatExtensionInfo &extInfo) {
 				if(extInfo.type != FormatExtensionInfo::Type::Import || !loadInfo)
 					return false;
 				auto extPath = normPath +'.' +extInfo.extension;
 				if(Import(extPath,extInfo.extension))
 				{
 					// Import was successful, attempt to preload again
-					ClearCachedResult(GetIdentifierHash(path));
-					r = PreloadAsset(path,IMMEDIATE_PRIORITY,std::move(loadInfo));
+					ClearCachedResult(GetIdentifierHash(assetPath));
+					r = PreloadAsset(assetPath,IMMEDIATE_PRIORITY,std::move(loadInfo));
 					return true;
 				}
 				return false;
@@ -482,8 +484,8 @@ util::AssetObject util::FileAssetManager::LoadAsset(const std::string &path,std:
 						auto &extInfo = *it;
 						if(extInfo.type == FormatExtensionInfo::Type::Import)
 							importFormat(*it); // Not a native format, still need to import
-						ClearCachedResult(GetIdentifierHash(path));
-						r = PreloadAsset(path,IMMEDIATE_PRIORITY,std::move(loadInfo)); // Native format, load directly
+						ClearCachedResult(GetIdentifierHash(assetPath));
+						r = PreloadAsset(assetPath,IMMEDIATE_PRIORITY,std::move(loadInfo)); // Native format, load directly
 					}
 				}
 			}
@@ -494,8 +496,8 @@ util::AssetObject util::FileAssetManager::LoadAsset(const std::string &path,std:
 	if(!r)
 	{
 		if(!loadInfo || (loadInfo->flags &util::AssetLoadFlags::DontCache) == util::AssetLoadFlags::None)
-			CacheResult(path,r.result);
+			CacheResult(assetPath,r.result);
 		return nullptr;
 	}
-	return LoadAsset(path,r,onLoaded,onFailure);
+	return LoadAsset(assetPath,r,onLoaded,onFailure);
 }
