@@ -13,6 +13,7 @@ bool ufile::get_extension(const std::string &f,std::string *ext)
 	if(epos != std::string::npos && (epos > dpos +1 || dpos == std::string::npos))
 	{
 		*ext = f.substr(epos +1);
+		ustring::to_lower(*ext);
 		return true;
 	}
 	return false;
