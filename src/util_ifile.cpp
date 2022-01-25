@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "sharedutils/util_ifile.hpp"
+#include "sharedutils/magic_enum.hpp"
 #include <cstring>
 
 #define IsEOF(c) (c == EOF || Eof())
@@ -123,3 +124,106 @@ ufile::VectorFile &ufile::VectorFile::operator=(std::vector<uint8_t> &&data)
 	return *this;
 }
 void ufile::VectorFile::Move(std::vector<uint8_t> &data) {data = std::move(m_data);}
+
+////////
+
+ufile::BaseStreamFile::BaseStreamFile(std::ios_base::openmode openMode)
+	: m_stream{openMode}
+{}
+ufile::BaseStreamFile::BaseStreamFile(std::stringstream &&stream)
+	: m_stream{std::move(stream)}
+{}
+std::stringstream ufile::BaseStreamFile::MoveStream() {return std::move(m_stream);}
+
+////////
+
+ufile::InStreamFile::InStreamFile()
+	: BaseStreamFile{std::stringstream::in | std::stringstream::binary}
+{}
+ufile::InStreamFile::InStreamFile(std::stringstream &&stream)
+	: BaseStreamFile{std::move(stream)}
+{}
+size_t ufile::InStreamFile::Read(void *data,size_t size)
+{
+	m_stream.read(static_cast<char*>(data),size);
+	return size;
+}
+size_t ufile::InStreamFile::Write(const void *data,size_t size) {return 0;}
+size_t ufile::InStreamFile::Tell() {return m_stream.tellg();}
+void ufile::InStreamFile::Seek(size_t offset,Whence whence)
+{
+	std::ios_base::seekdir seekdir;
+	switch(whence)
+	{
+	case Whence::Set:
+		seekdir = std::ios_base::beg;
+		break;
+	case Whence::Cur:
+		seekdir = std::ios_base::cur;
+		break;
+	case Whence::End:
+		seekdir = std::ios_base::end;
+		break;
+	default:
+		throw std::runtime_error{"Unknown whence enum " +std::string{magic_enum::enum_name(whence)}};
+	}
+	m_stream.seekg(offset,seekdir);
+}
+int32_t ufile::InStreamFile::ReadChar()
+{
+	char c = '\0';
+	m_stream.read(&c,1);
+	return c;
+}
+size_t ufile::InStreamFile::GetSize()
+{
+	auto oldPos = Tell();
+	Seek(0,Whence::End);
+	auto size = Tell();
+	Seek(oldPos);
+	return size;
+}
+
+////////
+
+ufile::OutStreamFile::OutStreamFile()
+	: BaseStreamFile{std::stringstream::out | std::stringstream::binary}
+{}
+ufile::OutStreamFile::OutStreamFile(std::stringstream &&stream)
+	: BaseStreamFile{std::move(stream)}
+{}
+size_t ufile::OutStreamFile::Read(void *data,size_t size) {return 0;}
+size_t ufile::OutStreamFile::Write(const void *data,size_t size)
+{
+	m_stream.write(static_cast<const char*>(data),size);
+	return size;
+}
+size_t ufile::OutStreamFile::Tell() {return m_stream.tellp();}
+void ufile::OutStreamFile::Seek(size_t offset,Whence whence)
+{
+	std::ios_base::seekdir seekdir;
+	switch(whence)
+	{
+	case Whence::Set:
+		seekdir = std::ios_base::beg;
+		break;
+	case Whence::Cur:
+		seekdir = std::ios_base::cur;
+		break;
+	case Whence::End:
+		seekdir = std::ios_base::end;
+		break;
+	default:
+		throw std::runtime_error{"Unknown whence enum " +std::string{magic_enum::enum_name(whence)}};
+	}
+	m_stream.seekp(offset,seekdir);
+}
+int32_t ufile::OutStreamFile::ReadChar() {return 0;}
+size_t ufile::OutStreamFile::GetSize()
+{
+	auto oldPos = Tell();
+	Seek(0,Whence::End);
+	auto size = Tell();
+	Seek(oldPos);
+	return size;
+}

@@ -102,6 +102,42 @@ namespace ufile
 	private:
 		std::vector<uint8_t> m_data;
 	};
+	
+	struct DLLSHUTIL BaseStreamFile
+		: public ufile::IFile
+	{
+		std::stringstream MoveStream();
+	protected:
+		BaseStreamFile(std::ios_base::openmode openMode);
+		BaseStreamFile(std::stringstream &&stream);
+		std::stringstream m_stream;
+	};
+
+	struct DLLSHUTIL InStreamFile
+		: public BaseStreamFile
+	{
+		InStreamFile();
+		InStreamFile(std::stringstream &&stream);
+		virtual size_t Read(void *data,size_t size) override;
+		virtual size_t Write(const void *data,size_t size) override;
+		virtual size_t Tell() override;
+		virtual void Seek(size_t offset,Whence whence=Whence::Set) override;
+		virtual int32_t ReadChar() override;
+		virtual size_t GetSize() override;
+	};
+
+	struct DLLSHUTIL OutStreamFile
+		: public BaseStreamFile
+	{
+		OutStreamFile();
+		OutStreamFile(std::stringstream &&stream);
+		virtual size_t Read(void *data,size_t size) override;
+		virtual size_t Write(const void *data,size_t size) override;
+		virtual size_t Tell() override;
+		virtual void Seek(size_t offset,Whence whence=Whence::Set) override;
+		virtual int32_t ReadChar() override;
+		virtual size_t GetSize() override;
+	};
 };
 
 #endif
