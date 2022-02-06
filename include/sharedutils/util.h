@@ -114,6 +114,7 @@ namespace util
 	DLLSHUTIL std::string uuid_to_string(const Uuid &uuid);
 	DLLSHUTIL Uuid uuid_string_to_bytes(const std::string &uuid);
 	DLLSHUTIL bool is_uuid(const std::string &uuid);
+	DLLSHUTIL size_t get_uuid_hash(const Uuid &uuid);
 
 	template<typename T>
 		constexpr size_t size_of_container(const T &t)

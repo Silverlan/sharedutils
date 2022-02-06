@@ -8,6 +8,7 @@
 #include "sharedutils/util_file.h"
 #include "sharedutils/uuid.h"
 #include "sharedutils/scope_guard.h"
+#include "sharedutils/util_hash.hpp"
 #include "sharedutils/util_string_hash.hpp"
 #include <sstream>
 #include <iomanip>
@@ -1103,4 +1104,11 @@ util::Uuid util::uuid_string_to_bytes(const std::string &uuid)
 	return uuid_to_bytes(*str);
 }
 bool util::is_uuid(const std::string &uuid) {return uuids::uuid::from_string(uuid).has_value();}
+size_t util::get_uuid_hash(const Uuid &uuid)
+{
+	size_t hash = 0;
+	hash = util::hash_combine<size_t>(hash,uuid[0]);
+	hash = util::hash_combine<size_t>(hash,uuid[1]);
+	return hash;
+}
 //
