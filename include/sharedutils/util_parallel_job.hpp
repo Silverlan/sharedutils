@@ -37,7 +37,7 @@ namespace util
 		virtual ~BaseParallelWorker();
 		BaseParallelWorker &operator=(const BaseParallelWorker&)=default;
 		void Cancel();
-		void Cancel(const std::string &resultMsg);
+		void Cancel(const std::string &resultMsg,std::optional<int32_t> resultCode={});
 		virtual void Wait();
 		virtual void Start();
 		virtual bool IsValid() const;
@@ -47,6 +47,7 @@ namespace util
 		bool IsSuccessful() const;
 		float GetProgress() const;
 		std::string GetResultMessage() const;
+		std::optional<int32_t> GetResultCode() const;
 		JobStatus GetStatus() const;
 		void SetProgressCallback(const std::function<void(float)> &progressCallback);
 		const std::function<void(float)> &GetProgressCallback() const;
@@ -55,11 +56,11 @@ namespace util
 
 		// Note: In general the worker should assign its status on its own, but in some cases
 		// it may be useful to be able to change it from outside.
-		void SetStatus(JobStatus jobStatus,const std::optional<std::string> &resultMsg={});
+		void SetStatus(JobStatus jobStatus,const std::optional<std::string> &resultMsg={},std::optional<int32_t> resultCode={});
 	protected:
 		friend BaseParallelJob;
-		virtual void DoCancel(const std::string &resultMsg);
-		void SetResultMessage(const std::string &resultMsg);
+		virtual void DoCancel(const std::string &resultMsg,std::optional<int32_t> resultCode);
+		void SetResultMessage(const std::string &resultMsg,std::optional<int32_t> resultCode={});
 		void AddThread(const std::function<void()> &fThread);
 		void UpdateProgress(float progress);
 		virtual void CallCompletionHandler()=0;
@@ -74,6 +75,7 @@ namespace util
 			std::thread thread;
 		};
 		std::string m_resultMessage = "";
+		std::optional<int32_t> m_resultCode {};
 		std::function<void(float)> m_progressCallback = nullptr;
 		std::atomic<JobStatus> m_status = JobStatus::Initial;
 		std::atomic<bool> m_bHasActiveThreads = false;
@@ -127,6 +129,7 @@ namespace util
 		float GetProgress() const;
 		JobStatus GetStatus() const;
 		std::string GetResultMessage() const;
+		std::optional<int32_t> GetResultCode() const;
 		void SetProgressCallback(const std::function<void(float)> &progressCallback);
 		const std::function<void(float)> &GetProgressCallback() const;
 

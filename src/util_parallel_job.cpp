@@ -19,42 +19,50 @@ std::string util::BaseParallelWorker::GetResultMessage() const
 	m_msgMutex.unlock();
 	return msg;
 }
+std::optional<int32_t> util::BaseParallelWorker::GetResultCode() const
+{
+	m_msgMutex.lock();
+	auto code = m_resultCode;
+	m_msgMutex.unlock();
+	return code;
+}
 void util::BaseParallelWorker::SetProgressCallback(const std::function<void(float)> &progressCallback) {m_progressCallback = progressCallback;}
 const std::function<void(float)> &util::BaseParallelWorker::GetProgressCallback() const {return m_progressCallback;}
 bool util::BaseParallelWorker::IsPending() const {return IsComplete() == false;}
-void util::BaseParallelWorker::SetResultMessage(const std::string &resultMsg)
+void util::BaseParallelWorker::SetResultMessage(const std::string &resultMsg,std::optional<int32_t> resultCode)
 {
 	m_msgMutex.lock();
 		m_resultMessage = resultMsg;
+		m_resultCode = resultCode;
 	m_msgMutex.unlock();
 }
 void util::BaseParallelWorker::AddThread(const std::function<void()> &fThread) {m_pendingThreads.push_back(fThread);}
-void util::BaseParallelWorker::SetStatus(JobStatus jobStatus,const std::optional<std::string> &resultMsg)
+void util::BaseParallelWorker::SetStatus(JobStatus jobStatus,const std::optional<std::string> &resultMsg,std::optional<int32_t> resultCode)
 {
 	m_status = jobStatus;
 	if(resultMsg.has_value())
-		SetResultMessage(*resultMsg);
+		SetResultMessage(*resultMsg,resultCode);
 	else
 	{
 		switch(m_status)
 		{
 		case JobStatus::Failed:
-			SetResultMessage("Failed");
+			SetResultMessage("Failed",resultCode);
 			return;
 		case JobStatus::Successful:
-			SetResultMessage("Successful");
+			SetResultMessage("Successful",resultCode);
 			return;
 		case JobStatus::Initial:
-			SetResultMessage("Initial");
+			SetResultMessage("Initial",resultCode);
 			return;
 		case JobStatus::Cancelled:
-			SetResultMessage("Cancelled");
+			SetResultMessage("Cancelled",resultCode);
 			return;
 		case JobStatus::Pending:
-			SetResultMessage("Pending");
+			SetResultMessage("Pending",resultCode);
 			return;
 		case JobStatus::Invalid:
-			SetResultMessage("Invalid");
+			SetResultMessage("Invalid",resultCode);
 			return;
 		}
 	}
@@ -74,14 +82,14 @@ void util::BaseParallelWorker::UpdateProgress(float progress)
 	m_progressCallback(progress);
 }
 void util::BaseParallelWorker::Cancel() {Cancel("Job has been cancelled!");}
-void util::BaseParallelWorker::Cancel(const std::string &resultMsg)
+void util::BaseParallelWorker::Cancel(const std::string &resultMsg,std::optional<int32_t> resultCode)
 {
 	if(IsValid() == false || IsComplete() || IsCancelled())
 		return;
-	SetStatus(JobStatus::Cancelled,resultMsg);
-	DoCancel(resultMsg);
+	SetStatus(JobStatus::Cancelled,resultMsg,resultCode);
+	DoCancel(resultMsg,resultCode);
 }
-void util::BaseParallelWorker::DoCancel(const std::string &resultMsg) {}
+void util::BaseParallelWorker::DoCancel(const std::string &resultMsg,std::optional<int32_t> resultCode) {}
 void util::BaseParallelWorker::Start()
 {
 	if(m_pendingThreads.empty())
@@ -151,6 +159,12 @@ std::string util::BaseParallelJob::GetResultMessage() const
 	if(IsValid() == false)
 		return "";
 	return m_worker->GetResultMessage();
+}
+std::optional<int32_t> util::BaseParallelJob::GetResultCode() const
+{
+	if(IsValid() == false)
+		return {};
+	return m_worker->GetResultCode();
 }
 void util::BaseParallelJob::SetProgressCallback(const std::function<void(float)> &progressCallback)
 {
