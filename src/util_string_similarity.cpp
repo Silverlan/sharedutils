@@ -106,30 +106,18 @@ void ustring::gather_similar_elements(const std::string_view &baseElement,const 
 		auto &curEl = *it;
 		auto sim = ustring::calc_similarity(baseElement,curEl);
 		auto insertAsFirst = true;
-		for(auto i=inOutSimilarities->size() -1;i!=static_cast<decltype(inOutSimilarities->size())>(-1);--i)
+		auto itSim = std::upper_bound(inOutSimilarities->begin(),inOutSimilarities->end(),sim);
+		if(itSim != inOutSimilarities->end() || inOutSimilarities->size() < limit)
 		{
-			auto simOther = inOutSimilarities->at(i);
-			if(sim > simOther)
-			{
-				insertAsFirst = false;
-				if(i == inOutSimilarities->size() -1 && inOutSimilarities->size() >= limit)
-					break; // This is the most common case, so we bail out early
-				inOutSimilarities->insert(inOutSimilarities->begin() +i +1,sim);
-				outElements.insert(outElements.begin() +i +1,it -elements.begin());
-				break;
-			}
-		}
-
-		if(insertAsFirst)
-		{
-			inOutSimilarities->insert(inOutSimilarities->begin(),sim);
-			outElements.insert(outElements.begin(),it -elements.begin());
+			auto idx = itSim -inOutSimilarities->begin();
+			inOutSimilarities->insert(inOutSimilarities->begin() +idx,sim);
+			outElements.insert(outElements.begin() +idx,it -elements.begin());
 		}
 
 		if(inOutSimilarities->size() > limit)
 		{
-			inOutSimilarities->erase(inOutSimilarities->end() -1);
-			outElements.erase(outElements.end() -1);
+			inOutSimilarities->pop_back();
+			outElements.pop_back();
 		}
 	}
 }
