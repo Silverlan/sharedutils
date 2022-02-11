@@ -425,7 +425,7 @@ bool util::set_env_variable(const std::string &varName,const std::string &value)
 #ifdef _WIN32
 	return SetEnvironmentVariable(varName.c_str(),value.c_str()) != 0;
 #else
-	return setenv(varName.c_str(),value.c_str()) == 0;
+	return setenv(varName.c_str(),value.c_str(),1) == 0;
 #endif
 }
 bool util::unset_env_variable(const std::string &varName)
