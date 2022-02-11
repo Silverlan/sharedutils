@@ -10,6 +10,7 @@
 #include "sharedutils/ctpl_stl.h"
 #include <string>
 #include <memory>
+#include <optional>
 #include <functional>
 #include <mutex>
 

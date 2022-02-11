@@ -13,6 +13,7 @@
 #include <vector>
 #include <mutex>
 #include <queue>
+#include <thread>
 #include <memory>
 
 namespace util
