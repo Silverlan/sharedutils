@@ -150,6 +150,19 @@ namespace util
 	using MurmurHash3 = std::array<uint8_t,sizeof(uint32_t) *4>;
 	DLLSHUTIL MurmurHash3 murmur_hash3(const void *data,int32_t len,uint32_t seed);
 
+	template<class T, std::size_t N>
+	auto make_vector( std::array<T,N>&& a )
+		-> std::vector<T>
+	{
+		return { std::make_move_iterator(std::begin(a)), std::make_move_iterator(std::end(a)) };
+	}
+
+	template<class... T>
+	auto make_vector( T&& ... t )
+	{
+		return make_vector( std::to_array({ std::forward<T>(t)... }) );
+	}
+
 	template<typename T>
 		using unique_ptr_c = std::unique_ptr<T,std::function<void(T*)>>;
 	template<typename T>
