@@ -80,6 +80,18 @@ namespace ustring
 	DLLSHUTIL std::string wstring_to_string(const std::wstring &str);
 #endif
 	DLLSHUTIL void replace(std::string &str,const std::string &from,const std::string &to);
+	template<typename TString>
+		void replace(TString &str,const TString &from,const TString &to)
+	{
+		if(from.empty())
+			return;
+		size_t start_pos = 0;
+		while((start_pos=str.find(from,start_pos)) != TString::npos)
+		{
+			str.replace(start_pos, from.length(), to);
+			start_pos += to.length(); // Handles case where 'to' is a substring of 'from'
+		}
+	}
 	DLLSHUTIL std::string get_lower(const std::string &str);
 	DLLSHUTIL std::string get_upper(const std::string &str);
 	DLLSHUTIL int32_t to_int(const std::string &str);
