@@ -22,6 +22,7 @@ namespace util
 		virtual ~IAssetProcessor()=default;
 		virtual bool Load()=0;
 		virtual bool Finalize()=0;
+		virtual void Close() {};
 	};
 };
 

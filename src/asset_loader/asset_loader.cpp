@@ -140,7 +140,11 @@ std::optional<util::AssetLoadJobId> util::IAssetLoader::AddJob(
 				m_assetIdToJobIdMutex.lock();
 					auto it = m_assetIdToJobId.find(job.identifier);
 					if(it != m_assetIdToJobId.end() && it->second.jobId == job.jobId)
+					{
 						it->second.state = QueuedJobInfo::State::Complete;
+						if(job.processor)
+							job.processor->Close();
+					}
 				m_assetIdToJobIdMutex.unlock();
 			}
 		m_completeQueueMutex.unlock();

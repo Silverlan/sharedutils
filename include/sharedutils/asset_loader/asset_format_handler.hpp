@@ -17,6 +17,7 @@ namespace util
 		virtual ~IAssetFormatHandler()=default;
 		void SetFile(std::unique_ptr<ufile::IFile> &&file) {m_file = std::move(file);}
 		std::unique_ptr<ufile::IFile> GetFile() {return std::move(m_file);}
+		void Close() {m_file = nullptr;}
 		util::IAssetManager &GetAssetManager() {return m_assetManager;}
 		const util::IAssetManager &GetAssetManager() const {return const_cast<IAssetFormatHandler*>(this)->GetAssetManager();}
 	protected:
