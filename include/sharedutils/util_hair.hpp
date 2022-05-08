@@ -39,14 +39,22 @@ namespace util
 			virtual uint32_t GetTriangleCount() const=0;
 			virtual uint32_t GetVertexCount() const=0;
 			virtual std::array<uint32_t,3> GetTriangle(uint32_t triIdx) const=0;
-			virtual const Vector3 &GetVertexPosition(uint32_t vertIdx) const=0;
-			virtual const Vector3 &GetVertexNormal(uint32_t vertIdx) const=0;
-			virtual const Vector2 &GetVertexUv(uint32_t vertIdx) const=0;
+			virtual const Vector3 GetVertexPosition(uint32_t vertIdx) const=0;
+			virtual const Vector3 GetVertexNormal(uint32_t vertIdx) const=0;
+			virtual const Vector2 GetVertexUv(uint32_t vertIdx) const=0;
 		};
 		void SetMeshDataInterface(std::unique_ptr<MeshInterface> &&meshInterface) {m_meshData = std::move(meshInterface);}
 		HairData Generate(float hairPerArea);
 	private:
 		std::unique_ptr<MeshInterface> m_meshData = nullptr;
+	};
+
+	struct DLLSHUTIL HairStrandData
+	{
+		std::vector<uint32_t> hairSegments;
+		std::vector<Vector3> points;
+		std::vector<Vector2> uvs;
+		std::vector<float> thicknessData;
 	};
 };
 
