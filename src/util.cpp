@@ -1018,6 +1018,31 @@ void util::flash_window()
 #endif
 }
 
+std::optional<std::string> util::get_system_language()
+{
+#ifdef _WIN32
+	// See https://github.com/boostorg/locale/blob/develop/src/win32/lcid.cpp#L44
+	unsigned lcid = 0;
+	char iso_639_lang[16];
+	char iso_3166_country[16];
+	if(GetLocaleInfoA(lcid,LOCALE_SISO639LANGNAME,iso_639_lang,sizeof(iso_639_lang))==0)
+		return {};
+	/*std::string lc_name = iso_639_lang;
+	if(GetLocaleInfoA(lcid,LOCALE_SISO3166CTRYNAME,iso_3166_country,sizeof(iso_3166_country))!=0) {
+		lc_name += "_";
+		lc_name += iso_3166_country;
+	}*/
+	return iso_639_lang;
+#else
+    setlocale(LC_ALL, "");
+    std::string lan = setlocale(LC_ALL, NULL);
+    auto pos = lan.find('_');
+    if(pos != std::string::npos)
+        lan = lan.substr(0,pos);
+	return lan;
+#endif
+}
+
 bool util::shutdown_os()
 {
 #ifdef _WIN32

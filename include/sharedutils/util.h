@@ -145,6 +145,7 @@ namespace util
 	DLLSHUTIL HWND get_window_handle();
 #endif
 	DLLSHUTIL bool shutdown_os();
+	DLLSHUTIL std::optional<std::string> get_system_language();
 
 	DLLSHUTIL void flip_item_sequence(void *sequence,size_t sequenceSize,uint32_t numItems,uint32_t itemStride);
 	using MurmurHash3 = std::array<uint8_t,sizeof(uint32_t) *4>;
