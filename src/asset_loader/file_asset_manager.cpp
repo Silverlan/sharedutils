@@ -42,7 +42,7 @@ void util::FileAssetManager::RemoveFromCache(const std::string &path)
 	ClearCachedResult(GetIdentifierHash(path));
 	auto removed = IAssetManager::RemoveFromCache(path);
 	auto invalidated = m_loader->InvalidateLoadJob(path);
-	if(m_callbacks.onAssetRemoved && removed || invalidated)
+	if(m_callbacks.onAssetRemoved && (removed || invalidated))
 		m_callbacks.onAssetRemoved(path);
 }
 void util::FileAssetManager::OnAssetReloaded(const std::string &assetName)
