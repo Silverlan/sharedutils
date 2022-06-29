@@ -4,6 +4,7 @@
 
 #include "sharedutils/util_parallel_job.hpp"
 #include "sharedutils/magic_enum.hpp"
+#include "sharedutils/util.h"
 #include <algorithm>
 
 util::BaseParallelWorker::~BaseParallelWorker()
@@ -108,6 +109,7 @@ void util::BaseParallelWorker::Start()
 			if(++m_threadCompleteCount == m_threads.size() && m_status == JobStatus::Pending)
 				SetStatus(JobStatus::Successful); // Status hasn't been set internally, so we'll assume it was successful.
 		}});
+		util::set_thread_name(m_threads.back().thread,"ParallelJob");
 	}
 	m_pendingThreads.clear();
 	m_threadMutex.unlock();
