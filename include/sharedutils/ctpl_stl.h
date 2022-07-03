@@ -197,6 +197,15 @@ namespace ctpl {
             return pck->get_future();
         }
 
+		void barrier()
+		{
+			push([this](int id) {
+				std::unique_lock<std::mutex> lock(this->mutex);
+				++waitForBarrier;
+				barrierReachedCount = 0;
+				cv.notify_all();
+			});
+		}
 
     private:
 
@@ -211,6 +220,7 @@ namespace ctpl {
             auto f = [this, i, flag/* a copy of the shared ptr to the flag */]() {
                 std::atomic<bool> & _flag = *flag;
                 std::function<void(int id)> * _f;
+				std::atomic<uint8_t> curBarrier = 0;
                 bool isPop = this->q.pop(_f);
                 while (true) {
                     while (isPop) {  // if there is anything in the queue
@@ -224,8 +234,17 @@ namespace ctpl {
                     // the queue is empty here, wait for the next command
                     std::unique_lock<std::mutex> lock(this->mutex);
                     ++this->nWaiting;
-                    this->cv.wait(lock, [this, &_f, &isPop, &_flag](){ isPop = this->q.pop(_f); return isPop || this->isDone || _flag; });
+                    this->cv.wait(lock, [this, &_f, &isPop, &_flag, &curBarrier](){ isPop = this->q.pop(_f); return isPop || this->isDone || curBarrier != waitForBarrier || _flag; });
                     --this->nWaiting;
+					if(curBarrier != waitForBarrier)
+					{
+						curBarrier.store(waitForBarrier.load());
+						if(++barrierReachedCount == threads.size())
+							barrierCv.notify_all();
+						else
+							barrierCv.wait(lock, [this](){ return barrierReachedCount == threads.size(); });
+						continue;
+					}
                     if (!isPop)
                         return;  // if the queue is empty and this->isDone == true or *flag then return
                 }
@@ -240,6 +259,9 @@ namespace ctpl {
         detail::Queue<std::function<void(int id)> *> q;
         std::atomic<bool> isDone;
         std::atomic<bool> isStop;
+		std::atomic<uint8_t> waitForBarrier = 0;
+		std::atomic<uint32_t> barrierReachedCount = 0;
+		std::condition_variable barrierCv;
         std::atomic<int> nWaiting;  // how many threads are waiting
 
         std::mutex mutex;
