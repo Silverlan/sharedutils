@@ -12,6 +12,7 @@
 #include <memory>
 #include <optional>
 #include <functional>
+#include <unordered_set>
 #include <mutex>
 
 #undef AddJob
@@ -64,8 +65,17 @@ namespace util
 		void SetMultiThreadingEnabled(bool enabled);
 		bool IsMultiThreadingEnabled() const;
 
+		void SetVerbose(bool verbose);
+		bool IsVerbose() const;
+
 		const std::string &GetName() const {return m_name;}
 		std::recursive_mutex &GetJobGuardMutex() {return m_assetIdToJobIdMutex;}
+		bool IsJobPending(AssetLoadJobId jobId) const;
+
+		// For debugging purposes only
+		bool HasPendingJobs() const;
+		bool HasCompletedJobs() const;
+		//
 	private:
 		std::atomic<bool> m_multiThreadingEnabled = true;
 		std::string m_name;
@@ -74,10 +84,11 @@ namespace util
 		std::mutex m_queueMutex;
 		std::priority_queue<AssetLoadJob,std::vector<AssetLoadJob>,CompareTextureLoadJob> m_jobs;
 
-		std::mutex m_completeQueueMutex;
+		mutable std::mutex m_completeQueueMutex;
 		std::queue<AssetLoadJob> m_completeQueue;
 		std::atomic<bool> m_hasCompletedJobs = false;
 		std::condition_variable m_completeCondition;
+		bool m_verbose = false;
 
 		struct QueuedJobInfo
 		{
@@ -93,6 +104,7 @@ namespace util
 		};
 		mutable std::recursive_mutex m_assetIdToJobIdMutex;
 		std::unordered_map<std::string,QueuedJobInfo> m_assetIdToJobId;
+		std::unordered_set<AssetLoadJobId> m_pendingAssetJobs;
 		AssetLoadJobId m_nextJobId = 0;
 	};
 };

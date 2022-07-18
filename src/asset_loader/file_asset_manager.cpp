@@ -250,18 +250,30 @@ util::AssetObject util::FileAssetManager::LoadAsset(
 			onLoaded(*asset);
 		return asset->assetObject;
 	}
+
 	auto identifier = ToCacheIdentifier(path);
 	auto jobId = *r.jobId;
+#ifdef ENABLE_VERBOSE_OUTPUT
+	if(m_verbose)
+		std::cout<<"LoadAsset '"<<identifier<<"': Job Id: "<<jobId<<std::endl;
+#endif
 
 #ifdef ENABLE_VERBOSE_OUTPUT
 	auto t = std::chrono::high_resolution_clock::now();
 #endif
 	auto o = Poll(jobId,util::AssetLoaderWaitMode::None);
+	if(!o)
+	{
+		auto cached = FindCachedAsset(identifier);
+		if(cached)
+			o = cached->assetObject;
+	}
 #ifdef ENABLE_VERBOSE_OUTPUT
 	if(o)
 	{
 		auto dt = std::chrono::high_resolution_clock::now() -t;
-		std::cout<<"Waited "<<(dt.count() /1'000'000'000.0)<<" seconds for asset '"<<identifier<<"'!"<<std::endl;
+		if(m_verbose)
+			std::cout<<"Waited "<<(dt.count() /1'000'000'000.0)<<" seconds for asset '"<<identifier<<"'!"<<std::endl;
 	}
 #endif
 	return o;
@@ -306,14 +318,35 @@ std::optional<std::string> util::FileAssetManager::FindAssetFilePath(const std::
 	return {};
 }
 
+void util::FileAssetManager::SetVerbose(bool verbose)
+{
+	m_verbose = verbose;
+	m_loader->SetVerbose(verbose);
+}
+bool util::FileAssetManager::IsVerbose() const {return m_verbose;}
+
 util::AssetObject util::FileAssetManager::Poll(std::optional<util::AssetLoadJobId> untilJob,util::AssetLoaderWaitMode wait)
 {
+#ifdef ENABLE_VERBOSE_OUTPUT
+	if(m_verbose)
+		std::cout<<"Poll: Waiting for job "<<(untilJob.has_value() ? std::to_string(*untilJob) : std::string{"n/a"})<<"!"<<std::endl;
+#endif
 	if(untilJob.has_value() && wait == util::AssetLoaderWaitMode::None)
 		wait = util::AssetLoaderWaitMode::Single;
 	util::AssetObject targetAsset = nullptr;
 	do
 	{
+#ifdef ENABLE_VERBOSE_OUTPUT
+		if(m_verbose)
+			std::cout<<"Pre-poll loader state: "<<m_loader->HasCompletedJobs()<<","<<m_loader->HasPendingJobs()<<std::endl;
+#endif
+		if(untilJob.has_value() && !m_loader->IsJobPending(*untilJob)) // TODO: What conditions cause this?
+			return nullptr;
 		m_loader->Poll([this,&untilJob,&targetAsset](const util::AssetLoadJob &job,AssetLoadResult result) {
+#ifdef ENABLE_VERBOSE_OUTPUT
+			if(m_verbose)
+				std::cout<<"Poll: Job "<<(untilJob.has_value() ? std::to_string(*untilJob) : std::string{"n/a"})<<" state: "<<umath::to_integral(result)<<"!"<<std::endl;
+#endif
 			auto &processor = *static_cast<FileAssetProcessor*>(job.processor.get());
 			util::Asset *passet = nullptr;
 			switch(result)
@@ -323,9 +356,12 @@ util::AssetObject util::FileAssetManager::Poll(std::optional<util::AssetLoadJobI
 #ifdef ENABLE_VERBOSE_OUTPUT
 				auto dtQueue = job.completionTime -job.queueStartTime;
 				auto dtTask = job.completionTime -job.taskStartTime;
-				std::cout<<job.identifier<<" has been loaded!"<<std::endl;
-				std::cout<<"Time since job has been queued to completion: "<<(dtQueue.count() /1'000'000'000.0)<<std::endl;
-				std::cout<<"Time since task has been started to completion: "<<(dtTask.count() /1'000'000'000.0)<<std::endl;
+				if(m_verbose)
+				{
+					std::cout<<job.identifier<<" has been loaded!"<<std::endl;
+					std::cout<<"Time since job has been queued to completion: "<<(dtQueue.count() /1'000'000'000.0)<<std::endl;
+					std::cout<<"Time since task has been started to completion: "<<(dtTask.count() /1'000'000'000.0)<<std::endl;
+				}
 #endif
 				auto asset = std::make_shared<util::Asset>();
 			
@@ -345,7 +381,8 @@ util::AssetObject util::FileAssetManager::Poll(std::optional<util::AssetLoadJobI
 			default:
 			{
 #ifdef ENABLE_VERBOSE_OUTPUT
-				std::cout<<job.identifier<<" has failed!"<<std::endl;
+				if(m_verbose)
+					std::cout<<job.identifier<<" has failed!"<<std::endl;
 #endif
 
 				if(untilJob.has_value() && job.jobId == *untilJob)

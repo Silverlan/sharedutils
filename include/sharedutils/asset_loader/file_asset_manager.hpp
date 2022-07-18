@@ -89,6 +89,9 @@ namespace util
 		void SetImportDirectory(const std::string &dir);
 		const util::Path &GetImportDirectory() const;
 
+		void SetVerbose(bool verbose);
+		bool IsVerbose() const;
+
 		void WaitForAllPendingCompleted();
 
 		AssetFormatLoader &GetLoader() {return *m_loader;}
@@ -161,6 +164,7 @@ namespace util
 		util::Path m_rootDir;
 		util::Path m_importRootDir;
 		std::mutex m_preloadMutex;
+		bool m_verbose = false;
 
 		std::unordered_map<size_t,util::FileAssetManager::PreloadResult::Result> m_errorCache;
 		mutable std::mutex m_errorCacheMutex;
