@@ -1,4 +1,6 @@
 #include "sharedutils/util_baking.hpp"
+#include <cmath>
+#include <cfloat>
 
 static void bake_differentials(
 	util::baking::BakeDataView &bd,
