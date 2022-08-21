@@ -35,7 +35,7 @@ namespace util
 		TSharedHandle(const TSharedHandle<T>&)=default;
 		TSharedHandle(const std::shared_ptr<PtrSharedHandleData> &data,T *typedDataPtr);
 		TSharedHandle();
-		TSharedHandle(nullptr_t);
+        TSharedHandle(std::nullptr_t);
 		TSharedHandle(T *data,const std::function<void(T*)> &customDeleter=nullptr);
 		TSharedHandle(const TWeakSharedHandle<T>&)=delete;
 		operator TWeakSharedHandle<T>() const;

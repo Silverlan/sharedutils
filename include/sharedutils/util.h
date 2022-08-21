@@ -193,11 +193,23 @@ namespace util
 	template<typename T>
 		uint64_t get_size_in_bytes(const T &container);
 
-	// See https://stackoverflow.com/a/28796458/2482983
-	template<typename Test, template<typename...> class Ref>
-		struct is_specialization : std::false_type {};
-	template<template<typename...> class Ref, typename... Args>
-		struct is_specialization<Ref<Args...>, Ref>: std::true_type {};
+        // See https://stackoverflow.com/a/28796458/2482983
+        template<typename Test, template<typename...> class Ref>
+            struct is_specialization : std::false_type {};
+        template<template<typename...> class Ref, typename... Args>
+            struct is_specialization<Ref<Args...>, Ref>: std::true_type {};
+
+        // See https://stackoverflow.com/a/40941060/2482983
+        template<class T>
+            struct is_specialization_array:std::is_array<T>{};
+        template<class T, std::size_t N>
+            struct is_specialization_array<std::array<T,N>>:std::true_type{};
+        template<class T>
+            struct is_specialization_array<T const>:std::is_array<T>{};
+        template<class T>
+            struct is_specialization_array<T volatile>:std::is_array<T>{};
+        template<class T>
+            struct is_specialization_array<T volatile const>:std::is_array<T>{};
 
 	template<typename T, std::size_t N>
 		constexpr bool is_c_string_p(T(&)[N]) 
