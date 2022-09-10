@@ -7,6 +7,7 @@
 
 #include "utildefinitions.h"
 #include <memory>
+#include <vector>
 #include <optional>
 #include <functional>
 #include <thread>
@@ -79,8 +80,8 @@ namespace util
 		std::function<void(float)> m_progressCallback = nullptr;
 		std::atomic<JobStatus> m_status = JobStatus::Initial;
 		std::atomic<bool> m_bHasActiveThreads = false;
-		std::vector<std::function<void()>> m_pendingThreads = {};
-		std::vector<ThreadInfo> m_threads = {};
+        std::vector<std::function<void()>> m_pendingThreads;
+        std::vector<ThreadInfo> m_threads;
 		ThreadId m_threadId = 0u;
 		mutable std::mutex m_threadMutex = {};
 		mutable std::mutex m_msgMutex = {};

@@ -39,8 +39,8 @@ namespace util
 		TSharedHandle(T *data,const std::function<void(T*)> &customDeleter=nullptr);
 		TSharedHandle(const TWeakSharedHandle<T>&)=delete;
 		operator TWeakSharedHandle<T>() const;
-		bool operator==(nullptr_t) const;
-		bool operator!=(nullptr_t) const;
+        bool operator==(std::nullptr_t) const;
+        bool operator!=(std::nullptr_t) const;
 		T *operator->();
 		const T *operator->() const;
 		T &operator*();
@@ -131,7 +131,7 @@ template<typename T>
 {}
 
 template<typename T>
-	util::TSharedHandle<T>::TSharedHandle(nullptr_t)
+    util::TSharedHandle<T>::TSharedHandle(std::nullptr_t)
 		: m_data{nullptr},m_typedPtr{nullptr}
 {}
 
@@ -148,9 +148,9 @@ template<typename T>
 template<typename T>
 	util::TSharedHandle<T>::operator util::TWeakSharedHandle<T>() const {return TWeakSharedHandle{*this};}
 template<typename T>
-	bool util::TSharedHandle<T>::operator==(nullptr_t) const {return !operator!=(nullptr);}
+    bool util::TSharedHandle<T>::operator==(std::nullptr_t) const {return !operator!=(nullptr);}
 template<typename T>
-	bool util::TSharedHandle<T>::operator!=(nullptr_t) const {return IsValid();}
+    bool util::TSharedHandle<T>::operator!=(std::nullptr_t) const {return IsValid();}
 template<typename T>
 	T *util::TSharedHandle<T>::operator->() {return Get();}
 template<typename T>

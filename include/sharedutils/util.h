@@ -11,6 +11,7 @@
 #include <array>
 #include <unordered_map>
 #include <memory>
+#include <thread>
 #include <functional>
 #include <optional>
 #include <charconv>
@@ -23,7 +24,8 @@
 #endif
 #include <sstream>
 
-namespace std {class thread;};
+//namespace std {class thread;}; //scricter compiler options prevent such thing.
+using std::thread;
 namespace util
 {
 	using GUID = std::array<uint8_t,16>;
@@ -242,13 +244,19 @@ uint32_t util::to_uint(const std::string_view &str)
 }
 
 template<class T>
-	T util::to_number(const std::string_view &str)
+    T util::to_number(const std::string_view &str)
 {
-	T result = 0;
-	auto res = std::from_chars(str.data(),str.data() +str.size(),result);
-	return result;
+#if defined(_LIBCPP_VERSION) //checking if we use clang's stl
+    if constexpr(std::is_integral_v<T>)
+        return atoi(str.data());
+    else
+        return atof(str.data());
+#else
+    T result = 0;
+    auto res = std::from_chars(str.data(),str.data() +str.size(),result);
+    return result;
+#endif
 }
-
 template<class T>
 	T util::to_float(const std::string_view &str)
 {
