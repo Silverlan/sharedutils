@@ -21,7 +21,7 @@ public:
 	long double GetTime() const;
 	void Reset(ChronoTimePoint &t);
 	void Reset(double t);
-	void Reset(long long t);
+    void Reset(std::int64_t t);
 	void Reset();
 	void Update(double timeScale=1.0);
 	void UpdateByDelta(long double dt);

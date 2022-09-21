@@ -22,7 +22,7 @@ void ChronoTime::Reset(double t)
 	m_time = static_cast<long double>(static_cast<long double>(t) *1000000000.0);
 }
 
-void ChronoTime::Reset(long long t)
+void ChronoTime::Reset(std::int64_t t)
 {
 	m_lastUpdate = std::chrono::steady_clock::now();
 	//m_time = static_cast<long double>(t) *1'000'000; // C++14
