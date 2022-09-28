@@ -20,12 +20,12 @@ std::shared_ptr<Library> Library::Get(const std::string &name,std::string *outEr
 	if(hModule == nullptr)
 		return nullptr;
 #else
-	auto hModule = dlopen(name.c_str(),RTLD_LAZY | RTLD_GLOBAL);
-	if(hModule == nullptr)
-	{
-		if(outErr != nullptr)
-			*outErr = dlerror();
-		return nullptr;
+    auto hModule = dlopen(name.c_str(),RTLD_LAZY | RTLD_GLOBAL);
+    if(hModule == nullptr)
+    {
+        if(outErr != nullptr)
+            *outErr = dlerror();
+        return nullptr;
 	}
 #endif
 	auto lib = std::shared_ptr<Library>(new Library(hModule));
@@ -75,14 +75,17 @@ std::shared_ptr<Library> Library::Load(const std::string &name,const std::vector
 		return nullptr;
 	}
 #else
-	// TODO: Take additionalSearchDirectories into account
-	auto hModule = dlopen(name.c_str(),RTLD_LAZY | RTLD_GLOBAL);
-	if(hModule == nullptr)
-	{
-		if(outErr != nullptr)
-			*outErr = dlerror();
-		return nullptr;
-	}
+    // TODO: Take additionalSearchDirectories into account
+      std::string soName = name;
+      ufile::remove_extension_from_filename(soName,std::vector<std::string>{"so"});
+      soName += ".so";
+      auto hModule = dlopen(soName.c_str(),RTLD_LAZY | RTLD_GLOBAL);
+      if(hModule == nullptr)
+      {
+          if(outErr != nullptr)
+              *outErr = dlerror();
+          return nullptr;
+      }
 #endif
 	return std::shared_ptr<Library>(new Library(hModule));
 }

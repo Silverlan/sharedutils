@@ -307,9 +307,11 @@ void util::Path::RemoveFileExtension() {ufile::remove_extension_from_filename(m_
 
 void util::Path::UpdatePath()
 {
-	std::replace(m_path.begin(),m_path.end(),'\\','/');
-	if(m_path.empty() == false && m_path.front() == '/')
-		m_path.erase(m_path.begin());
+    std::replace(m_path.begin(),m_path.end(),'\\','/');
+#ifdef _WIN32
+    if(m_path.empty() == false && m_path.front() == '/')
+        m_path.erase(m_path.begin());
+#endif
 }
 void util::Path::SetPath(std::string &&path)
 {

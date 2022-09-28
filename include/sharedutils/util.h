@@ -11,6 +11,7 @@
 #include <array>
 #include <unordered_map>
 #include <memory>
+#include <thread>
 #include <functional>
 #include <optional>
 #include <charconv>
@@ -23,7 +24,8 @@
 #endif
 #include <sstream>
 
-namespace std {class thread;};
+//namespace std {class thread;}; //scricter compiler options prevent such thing.
+using std::thread;
 namespace util
 {
 	using GUID = std::array<uint8_t,16>;
@@ -193,11 +195,23 @@ namespace util
 	template<typename T>
 		uint64_t get_size_in_bytes(const T &container);
 
-	// See https://stackoverflow.com/a/28796458/2482983
-	template<typename Test, template<typename...> class Ref>
-		struct is_specialization : std::false_type {};
-	template<template<typename...> class Ref, typename... Args>
-		struct is_specialization<Ref<Args...>, Ref>: std::true_type {};
+        // See https://stackoverflow.com/a/28796458/2482983
+        template<typename Test, template<typename...> class Ref>
+            struct is_specialization : std::false_type {};
+        template<template<typename...> class Ref, typename... Args>
+            struct is_specialization<Ref<Args...>, Ref>: std::true_type {};
+
+        // See https://stackoverflow.com/a/40941060/2482983
+        template<class T>
+            struct is_specialization_array:std::is_array<T>{};
+        template<class T, std::size_t N>
+            struct is_specialization_array<std::array<T,N>>:std::true_type{};
+        template<class T>
+            struct is_specialization_array<T const>:std::is_array<T>{};
+        template<class T>
+            struct is_specialization_array<T volatile>:std::is_array<T>{};
+        template<class T>
+            struct is_specialization_array<T volatile const>:std::is_array<T>{};
 
 	template<typename T, std::size_t N>
 		constexpr bool is_c_string_p(T(&)[N]) 
@@ -230,13 +244,19 @@ uint32_t util::to_uint(const std::string_view &str)
 }
 
 template<class T>
-	T util::to_number(const std::string_view &str)
+    T util::to_number(const std::string_view &str)
 {
-	T result = 0;
-	auto res = std::from_chars(str.data(),str.data() +str.size(),result);
-	return result;
+#if defined(_LIBCPP_VERSION) //checking if we use clang's stl
+    if constexpr(std::is_integral_v<T>)
+        return atoi(str.data());
+    else
+        return atof(str.data());
+#else
+    T result = 0;
+    auto res = std::from_chars(str.data(),str.data() +str.size(),result);
+    return result;
+#endif
 }
-
 template<class T>
 	T util::to_float(const std::string_view &str)
 {

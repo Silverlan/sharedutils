@@ -14,6 +14,7 @@
 #include <functional>
 #include <unordered_set>
 #include <mutex>
+#include <unordered_map>
 
 #undef AddJob
 

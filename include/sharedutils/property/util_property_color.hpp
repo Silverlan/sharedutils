@@ -25,8 +25,9 @@ namespace util
 		ColorProperty &operator/=(float f);
 		ColorProperty &operator*=(float f);
 		ColorProperty &operator+=(const Color &other);
-		ColorProperty &operator-=(const Color &other);
-		using SimpleProperty<ColorProperty,Color>::operator=;
+        ColorProperty &operator-=(const Color &other);
+        using SimpleProperty<ColorProperty,Color>::operator=;
+
 	};
 	using PColorProperty = std::shared_ptr<ColorProperty>;
 };
