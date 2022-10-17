@@ -1,9 +1,13 @@
 name: Build Linux
 on:
   push:
-    branches: [ master, actions ]
+    branches: [ master ]
   pull_request:
-    branches: [ master, actions ]
+    branches: [ master ]
+
+concurrency:
+  group: environment-lin-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -42,14 +46,15 @@ jobs:
           root_dir: "${{ env.GA_ROOT_DIR }}"
           should_checkout: "0"
           dir: '.'
-      
+          
       - name: Create Release Files
         shell: bash
         run: |
           mkdir release
           mkdir release/lib
-          cp build/libsharedutils.so release/lib/libsharedutils.so
-          
+          rsync build/libsharedutils.so release/lib/
+          rsync build/external_libs/mathutil/libmathutil.so release/lib/libmathutil.so
+
       - name: Release Binaries
         uses: Silverlan/common_actions/release_nightly_binaries@main
         with:

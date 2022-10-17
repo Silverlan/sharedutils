@@ -1,9 +1,13 @@
 name: Build Windows
 on:
   push:
-    branches: [ master, actions ]
+    branches: [ master ]
   pull_request:
-    branches: [ master, actions ]
+    branches: [ master ]
+    
+concurrency:
+  group: environment-win-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -51,9 +55,11 @@ jobs:
           mkdir release/lib
           cp build/${{ matrix.config.build_type }}/sharedutils.dll release/lib/sharedutils.dll
           cp build/${{ matrix.config.build_type }}/sharedutils.lib release/lib/sharedutils.lib
+          cp build/external_libs/mathutil/${{ matrix.config.build_type }}/mathutil.lib release/lib/mathutil.lib
+          cp build/external_libs/mathutil/${{ matrix.config.build_type }}/mathutil.dll release/lib/mathutil.dll
 
       - name: Release Binaries
         uses: Silverlan/common_actions/release_nightly_binaries@main
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit: master
+          commit: ${{ github.ref_name }}
