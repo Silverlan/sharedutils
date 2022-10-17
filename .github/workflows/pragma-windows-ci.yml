@@ -44,5 +44,16 @@ jobs:
           should_checkout: "0"
           dir: '.'
           
-      - name: Upload binaries
-        uses: Silverlan/common_actions/upload_build_binaries@main
+      - name: Create Release Files
+        shell: bash
+        run: |
+          mkdir release
+          mkdir release/lib
+          cp build/${{ matrix.config.build_type }}/sharedutils.dll release/lib/sharedutils.dll
+          cp build/${{ matrix.config.build_type }}/sharedutils.lib release/lib/sharedutils.lib
+
+      - name: Release Binaries
+        uses: Silverlan/common_actions/release_nightly_binaries@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit: master

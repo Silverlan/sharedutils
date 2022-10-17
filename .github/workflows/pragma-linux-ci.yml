@@ -13,12 +13,12 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - os: ubuntu-latest
+          - os: ubuntu-22.04
             name: "Ubuntu GCC-11"
             artifact: "ubuntu_gcc.7z"
             build_type: "RelWithDebInfo"
-            cc: "gcc-11"
-            cxx: "g++-11"
+            cc: "clang-14"
+            cxx: "clang++-14"
             archiver: "7z a"
             generators: "Unix Makefiles"
             build_dir: 'build'
@@ -42,6 +42,17 @@ jobs:
           root_dir: "${{ env.GA_ROOT_DIR }}"
           should_checkout: "0"
           dir: '.'
+      
+      - name: Create Release Files
+        shell: bash
+        run: |
+          mkdir release
+          mkdir release/lib
+          cp build/libsharedutils.so release/lib/libsharedutils.so
           
-      - name: Upload binaries
-        uses: Silverlan/common_actions/upload_build_binaries@main
+      - name: Release Binaries
+        uses: Silverlan/common_actions/release_nightly_binaries@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit: ${{ github.ref_name }}
+
