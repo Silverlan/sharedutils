@@ -574,9 +574,9 @@ Bool ustring::get_key_value(const std::string &str,std::string &rkey,std::string
 	return true;
 }
 
-#ifdef _WIN32
 std::wstring ustring::string_to_wstring(const std::string &str)
 {
+#ifdef _WIN32
 	// Source: https://stackoverflow.com/a/27296/2482983
 	int len;
 	int slength = (int)str.length() + 1;
@@ -586,13 +586,16 @@ std::wstring ustring::string_to_wstring(const std::string &str)
 	std::wstring r(buf);
 	delete[] buf;
 	return r;
+#else
+	std::wstring ws(str.size(), L' '); // Overestimate number of code points.
+	ws.resize(std::mbstowcs(&ws[0], str.c_str(), str.size())); // Shrink to fit.
+#endif
 }
 std::string ustring::wstring_to_string(const std::wstring &str)
 {
 	// TODO: What about non-ASCII strings?
 	return std::string(str.begin(),str.end());
 }
-#endif
 
 void ustring::replace(std::string &str,const std::string &from,const std::string &to)
 {
