@@ -83,6 +83,8 @@ std::shared_ptr<Library> Library::Load(const std::string &name,const std::vector
     if(curLibPath.has_value())
     {
         auto newLibPath = *curLibPath +":" +ustring::implode(additionalSearchDirectories,":"); //Those are loaded LAST.
+        if (newLibPath.at(newLibPath.size()==':'))
+            newLibPath.substr(0,newLibPath.size()-1);
         set_env_variable("LD_LIBRARY_PATH",newLibPath);
     }
 
