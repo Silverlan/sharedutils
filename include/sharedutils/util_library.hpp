@@ -15,6 +15,7 @@
 #include <Windows.h>
 #else
 #include <dlfcn.h>
+#include <ltdl.h>
 #endif
 
 namespace util
@@ -22,7 +23,7 @@ namespace util
 #ifdef _WIN32
 	using LibraryModule = HMODULE;
 #else
-	using LibraryModule = void*;
+    using LibraryModule = lt_dlhandle; //The "smart" handle similar to shared_ptr
 #endif
 	class DLLSHUTIL Library
 	{

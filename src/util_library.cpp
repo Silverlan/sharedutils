@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "sharedutils/util.h"
+#include <cstring>
 #if defined(_WIN32) || defined(__linux__)
 #include "sharedutils/util_library.hpp"
 #include "sharedutils/util_string.h"
@@ -23,11 +24,17 @@ std::shared_ptr<Library> Library::Get(const std::string &name,std::string *outEr
 	if(hModule == nullptr)
 		return nullptr;
 #else
-    auto hModule = dlopen(name.c_str(),RTLD_LAZY | RTLD_GLOBAL);
+//auto hModule = lt_dlopen(name.c_str(),RTLD_LAZY | RTLD_GLOBAL);
+    lt_dlinit();
+    lt_dladvise libSettings;
+    lt_dladvise_init(&libSettings);
+    lt_dladvise_global(&libSettings);
+    auto hModule = lt_dlopenadvise(name.c_str(),libSettings);
+    lt_dladvise_destroy(&libSettings);
     if(hModule == nullptr)
     {
         if(outErr != nullptr)
-            *outErr = dlerror();
+            *outErr = lt_dlerror();
         return nullptr;
 	}
 #endif
@@ -78,29 +85,35 @@ std::shared_ptr<Library> Library::Load(const std::string &name,const std::vector
 		return nullptr;
 	}
 #else
-
-    auto curLibPath = get_env_variable("LD_LIBRARY_PATH");
-    if(curLibPath.has_value())
+    lt_dlinit();
+    auto curLibPath = lt_dlgetsearchpath();
+    if(std::strcmp(curLibPath,"")!=0)
     {
-        auto newLibPath = *curLibPath +":" +ustring::implode(additionalSearchDirectories,":"); //Those are loaded LAST.
+        auto newLibPath = std::string(curLibPath) +":" +ustring::implode(additionalSearchDirectories,":"); //Those are loaded LAST.
         if (newLibPath.at(newLibPath.size()==':'))
             newLibPath.substr(0,newLibPath.size()-1);
-        set_env_variable("LD_LIBRARY_PATH",newLibPath);
+        lt_dlsetsearchpath(newLibPath.c_str());
     }
 
     util::ScopeGuard sgResetLibPath {[curLibPath=std::move(curLibPath)]() {
-        if(curLibPath.has_value())
-            set_env_variable("LD_LIBRARY_PATH",*curLibPath);
+        if(std::strcmp(curLibPath,"")!=0)
+               lt_dlsetsearchpath(curLibPath);
     }};
 
     std::string soName = name;
     ufile::remove_extension_from_filename(soName,std::vector<std::string>{"so"});
     soName += ".so";
-    auto hModule = dlopen(soName.c_str(),RTLD_LAZY | RTLD_GLOBAL);
+    //auto hModule = lt_dlopen(soName.c_str(),RTLD_LAZY | RTLD_GLOBAL);
+    lt_dlinit();
+    lt_dladvise libSettings;
+    lt_dladvise_init(&libSettings);
+    lt_dladvise_global(&libSettings);
+    auto hModule = lt_dlopenadvise(name.c_str(),libSettings);
+    lt_dladvise_destroy(&libSettings);
     if(hModule == nullptr)
     {
         if(outErr != nullptr)
-            *outErr = dlerror();
+            *outErr = lt_dlerror();
         return nullptr;
     }
 #endif
@@ -118,7 +131,8 @@ Library::~Library()
 #ifdef _WIN32
 	FreeLibrary(m_module);
 #else
-	dlclose(m_module);
+    lt_dlclose(m_module);
+    lt_dlexit();
 #endif
 }
 
@@ -129,7 +143,7 @@ void *Library::FindSymbolAddress(const std::string &name) const
 #ifdef _WIN32
 	return GetProcAddress(m_module,name.c_str());
 #else
-	return dlsym(m_module,name.c_str());
+    return lt_dlsym(m_module,name.c_str());
 #endif
 }
 
