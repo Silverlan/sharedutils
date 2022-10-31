@@ -86,29 +86,32 @@ std::shared_ptr<Library> Library::Load(const std::string &name,const std::vector
 	}
 #else
     lt_dlinit();
-    auto curLibPath = lt_dlgetsearchpath();
-    if(std::strcmp(curLibPath,"")!=0)
+    const char* curLibPathRaw = lt_dlgetsearchpath();
+    std::string curLibPath = curLibPathRaw!=nullptr ? curLibPathRaw:"";
+    std::string newLibPath;
+    if(curLibPath.size()!=0)
     {
-        auto newLibPath = std::string(curLibPath) +":" +ustring::implode(additionalSearchDirectories,":"); //Those are loaded LAST.
-        if (newLibPath.at(newLibPath.size()==':'))
-            newLibPath.substr(0,newLibPath.size()-1);
-        lt_dlsetsearchpath(newLibPath.c_str());
+        newLibPath = curLibPath+":";
     }
+    newLibPath = newLibPath + ustring::implode(additionalSearchDirectories,":"); //Those are loaded LAST.
+
+    lt_dlsetsearchpath(newLibPath.c_str());
+
 
     util::ScopeGuard sgResetLibPath {[curLibPath=std::move(curLibPath)]() {
-        if(std::strcmp(curLibPath,"")!=0)
-               lt_dlsetsearchpath(curLibPath);
+        if(curLibPath.size()!=0)
+               lt_dlsetsearchpath(curLibPath.c_str());
     }};
 
     std::string soName = name;
     ufile::remove_extension_from_filename(soName,std::vector<std::string>{"so"});
     soName += ".so";
     //auto hModule = lt_dlopen(soName.c_str(),RTLD_LAZY | RTLD_GLOBAL);
-    lt_dlinit();
+    //lt_dlinit();
     lt_dladvise libSettings;
     lt_dladvise_init(&libSettings);
     lt_dladvise_global(&libSettings);
-    auto hModule = lt_dlopenadvise(name.c_str(),libSettings);
+    auto hModule = lt_dlopenadvise(soName.c_str(),libSettings);
     lt_dladvise_destroy(&libSettings);
     if(hModule == nullptr)
     {
@@ -127,6 +130,7 @@ Library::Library(LibraryModule hModule)
 Library::~Library()
 {
 	if(m_freeOnDestruct == false)
+        lt_dlexit();
 		return;
 #ifdef _WIN32
 	FreeLibrary(m_module);
@@ -136,7 +140,24 @@ Library::~Library()
 #endif
 }
 
-void Library::SetDontFreeLibraryOnDestruct() {m_freeOnDestruct = false;}
+void Library::SetDontFreeLibraryOnDestruct() {
+ #ifdef __linux__
+    const lt_dlinfo* libData = lt_dlgetinfo(m_module); //This is a copy not a ref to module data.
+    std::string libPath = libData->filename;
+    lt_dladvise libSettings;
+    lt_dladvise_init(&libSettings);
+    lt_dladvise_global(&libSettings);
+    lt_dladvise_resident(&libSettings);
+    m_module = lt_dlopenadvise(libPath.c_str(),libSettings);
+    lt_dladvise_destroy(&libSettings);
+
+#if 1
+
+    const lt_dlinfo* libData_postResidence = lt_dlgetinfo(m_module); //This is a copy not a ref to module data.
+#endif
+#endif
+    m_freeOnDestruct = false;
+}
 
 void *Library::FindSymbolAddress(const std::string &name) const
 {
