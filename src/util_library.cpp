@@ -9,8 +9,10 @@
 #include "sharedutils/util_string.h"
 #include "sharedutils/util_file.h"
 #include "sharedutils/scope_guard.h"
-
-
+#ifdef __linux__
+#include <dlfcn.h>
+#include <ltdl.h>
+#endif
 
 using namespace util;
 std::shared_ptr<Library> Library::Get(const std::string &name,std::string *outErr)

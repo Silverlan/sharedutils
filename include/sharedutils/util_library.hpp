@@ -13,17 +13,16 @@
 
 #ifdef _WIN32
 #include <Windows.h>
-#else
-#include <dlfcn.h>
-#include <ltdl.h>
 #endif
 
+struct lt__handle;
+typedef	struct lt__handle *lt_dlhandle;
 namespace util
 {
 #ifdef _WIN32
 	using LibraryModule = HMODULE;
 #else
-    using LibraryModule = lt_dlhandle; //The "smart" handle similar to shared_ptr
+    using LibraryModule = lt_dlhandle;
 #endif
 	class DLLSHUTIL Library
 	{
