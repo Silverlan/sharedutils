@@ -35,6 +35,11 @@ jobs:
         id: setup
         uses: Silverlan/common_actions/setup@main
           
+      - name: Install libltdl prerequisites
+        shell: bash
+        run:   |
+          sudo apt-get install help2man
+          
       - name: Download binaries
         uses: Silverlan/common_actions/download_build_binaries@main
         continue-on-error: true
@@ -53,7 +58,10 @@ jobs:
           mkdir release
           mkdir release/lib
           rsync build/libsharedutils.so release/lib/
-          rsync build/external_libs/mathutil/libmathutil.so release/lib/libmathutil.so
+          rsync build/external_libs/mathutil/libmathutil.so release/lib/
+          cp build/third_party_libs/libtool/src/libltdl-build/libltdl/.libs/libltdl.so.7.3.2 release/lib/
+          cp build/third_party_libs/libtool/src/libltdl-build/libltdl/.libs/libltdl.so.7 release/lib/
+          cp build/third_party_libs/libtool/src/libltdl-build/libltdl/.libs/libltdl.so release/lib/
 
       - name: Release Binaries
         uses: Silverlan/common_actions/release_nightly_binaries@main
