@@ -75,10 +75,8 @@ namespace ustring
 		void string_to_array(const std::string &str,type *a,rtype(*atot)(const Char*),UInt32 count);
 	template<class type>
 		void string_to_array(const std::string &str,type *a,type(*atot)(const Char*),UInt32 count);
-#ifdef _WIN32
 	DLLSHUTIL std::wstring string_to_wstring(const std::string &str);
 	DLLSHUTIL std::string wstring_to_string(const std::wstring &str);
-#endif
 	DLLSHUTIL void replace(std::string &str,const std::string &from,const std::string &to);
 	template<typename TString>
 		void replace(TString &str,const TString &from,const TString &to)

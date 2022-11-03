@@ -101,11 +101,13 @@ std::shared_ptr<Library> Library::Load(const std::string &name,const std::vector
     util::ScopeGuard sgResetLibPath {[curLibPath=std::move(curLibPath)]() {
         if(curLibPath.size()!=0)
                lt_dlsetsearchpath(curLibPath.c_str());
+
     }};
 
     std::string soName = name;
     ufile::remove_extension_from_filename(soName,std::vector<std::string>{"so"});
     soName += ".so";
+
     //auto hModule = lt_dlopen(soName.c_str(),RTLD_LAZY | RTLD_GLOBAL);
     //lt_dlinit();
     lt_dladvise libSettings;
@@ -117,6 +119,7 @@ std::shared_ptr<Library> Library::Load(const std::string &name,const std::vector
     {
         if(outErr != nullptr)
             *outErr = lt_dlerror();
+
         return nullptr;
     }
 #endif
@@ -130,7 +133,9 @@ Library::Library(LibraryModule hModule)
 Library::~Library()
 {
 	if(m_freeOnDestruct == false)
+#ifdef __linux__
         lt_dlexit();
+#endif
 		return;
 #ifdef _WIN32
 	FreeLibrary(m_module);
@@ -151,7 +156,7 @@ void Library::SetDontFreeLibraryOnDestruct() {
     m_module = lt_dlopenadvise(libPath.c_str(),libSettings);
     lt_dladvise_destroy(&libSettings);
 
-#if 1
+#if 0
 
     const lt_dlinfo* libData_postResidence = lt_dlgetinfo(m_module); //This is a copy not a ref to module data.
 #endif

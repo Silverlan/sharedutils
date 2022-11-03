@@ -138,6 +138,23 @@ namespace ufile
 		virtual int32_t ReadChar() override;
 		virtual size_t GetSize() override;
 	};
+
+	struct DLLSHUTIL FileWrapper
+		: public ufile::IFile
+	{
+		FileWrapper();
+		FileWrapper(const std::shared_ptr<IFile> &f);
+		virtual size_t Read(void *data,size_t size) override;
+		virtual size_t Write(const void *data,size_t size) override;
+		virtual size_t Tell() override;
+		virtual void Seek(size_t offset,Whence whence=Whence::Set) override;
+		virtual int32_t ReadChar() override;
+		virtual size_t GetSize() override;
+		virtual bool Eof() override;
+		virtual std::optional<std::string> GetFileName() const override;
+	private:
+		std::shared_ptr<IFile> m_file;
+	};
 };
 
 #endif

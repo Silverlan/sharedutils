@@ -85,9 +85,9 @@ namespace util
 			}
 			friend Overridable<T>;
 		private:
-			OverridableImpl<T>() : OverridableImpl<T>(T()) {}
-			OverridableImpl<T>(const T &v) : m_default(v) {}
-			OverridableImpl<T>(const Overridable<T> &parentDefault) : m_parentDefault(parentDefault.m_impl) {}
+			OverridableImpl() : OverridableImpl<T>(T()) {}
+			OverridableImpl(const T &v) : m_default(v) {}
+			OverridableImpl(const Overridable<T> &parentDefault) : m_parentDefault(parentDefault.m_impl) {}
 			void CallChangeCallbacks(const T &oldVal,const T &newVal,bool bApplyToChildren=true)
 			{
 				for(auto it=m_changeCallbacks.begin();it!=m_changeCallbacks.end();)
@@ -133,9 +133,9 @@ namespace util
 		class Overridable
 	{
 	public:
-		Overridable<T>() : Overridable<T>(T()) {}
-		Overridable<T>(const T &v) : m_impl(_impl::OverridableImpl<T>::Create(v)) {}
-		Overridable<T>(const Overridable<T> &parentDefault) : m_impl(_impl::OverridableImpl<T>::Create(parentDefault)) {}
+		Overridable() : Overridable<T>(T()) {}
+		Overridable(const T &v) : m_impl(_impl::OverridableImpl<T>::Create(v)) {}
+		Overridable(const Overridable<T> &parentDefault) : m_impl(_impl::OverridableImpl<T>::Create(parentDefault)) {}
 		Overridable<T> &operator=(const T &v)
 		{
 			*m_impl = v;

@@ -227,3 +227,19 @@ size_t ufile::OutStreamFile::GetSize()
 	Seek(oldPos);
 	return size;
 }
+
+////////
+
+ufile::FileWrapper::FileWrapper()
+{}
+ufile::FileWrapper::FileWrapper(const std::shared_ptr<IFile> &f)
+	: m_file{f}
+{}
+size_t ufile::FileWrapper::Read(void *data,size_t size) {return m_file->Read(data,size);}
+size_t ufile::FileWrapper::Write(const void *data,size_t size) {return m_file->Write(data,size);}
+size_t ufile::FileWrapper::Tell() {return m_file->Tell();}
+void ufile::FileWrapper::Seek(size_t offset,Whence whence) {return m_file->Seek(offset,whence);}
+int32_t ufile::FileWrapper::ReadChar() {return m_file->ReadChar();}
+size_t ufile::FileWrapper::GetSize() {return m_file->GetSize();}
+bool ufile::FileWrapper::Eof() {return m_file->Eof();}
+std::optional<std::string> ufile::FileWrapper::GetFileName() const {return m_file->GetFileName();}
