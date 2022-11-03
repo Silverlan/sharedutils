@@ -130,7 +130,9 @@ Library::Library(LibraryModule hModule)
 Library::~Library()
 {
 	if(m_freeOnDestruct == false)
+#ifdef __linux__
         lt_dlexit();
+#endif
 		return;
 #ifdef _WIN32
 	FreeLibrary(m_module);
@@ -151,7 +153,7 @@ void Library::SetDontFreeLibraryOnDestruct() {
     m_module = lt_dlopenadvise(libPath.c_str(),libSettings);
     lt_dladvise_destroy(&libSettings);
 
-#if 1
+#if 0
 
     const lt_dlinfo* libData_postResidence = lt_dlgetinfo(m_module); //This is a copy not a ref to module data.
 #endif
