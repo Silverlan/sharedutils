@@ -46,7 +46,7 @@ namespace util
 		void SetMeshDataInterface(std::unique_ptr<MeshInterface> &&meshInterface) {m_meshData = std::move(meshInterface);}
 		HairData Generate(float hairPerArea);
 	private:
-		std::unique_ptr<MeshInterface> m_meshData = nullptr;
+		std::unique_ptr<MeshInterface> m_meshData {};
 	};
 
 	struct DLLSHUTIL HairStrandData
