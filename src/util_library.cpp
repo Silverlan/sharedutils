@@ -3,11 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "sharedutils/util.h"
+#include <cstring>
 #if defined(_WIN32) || defined(__linux__)
 #include "sharedutils/util_library.hpp"
 #include "sharedutils/util_string.h"
 #include "sharedutils/util_file.h"
 #include "sharedutils/scope_guard.h"
+#ifdef __linux__
+#include <dlfcn.h>
+#include <ltdl.h>
+#endif
 
 
 
@@ -23,11 +28,17 @@ std::shared_ptr<Library> Library::Get(const std::string &name,std::string *outEr
 	if(hModule == nullptr)
 		return nullptr;
 #else
-    auto hModule = dlopen(name.c_str(),RTLD_LAZY | RTLD_GLOBAL);
+//auto hModule = lt_dlopen(name.c_str(),RTLD_LAZY | RTLD_GLOBAL);
+    lt_dlinit();
+    lt_dladvise libSettings;
+    lt_dladvise_init(&libSettings);
+    lt_dladvise_global(&libSettings);
+    auto hModule = lt_dlopenadvise(name.c_str(),libSettings);
+    lt_dladvise_destroy(&libSettings);
     if(hModule == nullptr)
     {
         if(outErr != nullptr)
-            *outErr = dlerror();
+            *outErr = lt_dlerror();
         return nullptr;
 	}
 #endif
@@ -78,29 +89,39 @@ std::shared_ptr<Library> Library::Load(const std::string &name,const std::vector
 		return nullptr;
 	}
 #else
-
-    auto curLibPath = get_env_variable("LD_LIBRARY_PATH");
-    if(curLibPath.has_value())
+    lt_dlinit();
+    const char* curLibPathRaw = lt_dlgetsearchpath();
+    std::string curLibPath = curLibPathRaw!=nullptr ? curLibPathRaw:"";
+    std::string newLibPath;
+    if(curLibPath.size()!=0)
     {
-        auto newLibPath = *curLibPath +":" +ustring::implode(additionalSearchDirectories,":"); //Those are loaded LAST.
-        if (newLibPath.at(newLibPath.size()==':'))
-            newLibPath.substr(0,newLibPath.size()-1);
-        set_env_variable("LD_LIBRARY_PATH",newLibPath);
+        newLibPath = curLibPath+":";
     }
+    newLibPath = newLibPath + ustring::implode(additionalSearchDirectories,":"); //Those are loaded LAST.
+
+    lt_dlsetsearchpath(newLibPath.c_str());
+
 
     util::ScopeGuard sgResetLibPath {[curLibPath=std::move(curLibPath)]() {
-        if(curLibPath.has_value())
-            set_env_variable("LD_LIBRARY_PATH",*curLibPath);
+        if(curLibPath.size()!=0)
+               lt_dlsetsearchpath(curLibPath.c_str());
     }};
 
     std::string soName = name;
     ufile::remove_extension_from_filename(soName,std::vector<std::string>{"so"});
     soName += ".so";
-    auto hModule = dlopen(soName.c_str(),RTLD_LAZY | RTLD_GLOBAL);
+
+    //auto hModule = lt_dlopen(soName.c_str(),RTLD_LAZY | RTLD_GLOBAL);
+    //lt_dlinit();
+    lt_dladvise libSettings;
+    lt_dladvise_init(&libSettings);
+    lt_dladvise_global(&libSettings);
+    auto hModule = lt_dlopenadvise(soName.c_str(),libSettings);
+    lt_dladvise_destroy(&libSettings);
     if(hModule == nullptr)
     {
         if(outErr != nullptr)
-            *outErr = dlerror();
+            *outErr = lt_dlerror();
         return nullptr;
     }
 #endif
@@ -114,22 +135,43 @@ Library::Library(LibraryModule hModule)
 Library::~Library()
 {
 	if(m_freeOnDestruct == false)
+#ifdef __linux__
+        lt_dlexit();
+#endif
 		return;
 #ifdef _WIN32
 	FreeLibrary(m_module);
 #else
-	dlclose(m_module);
+    lt_dlclose(m_module);
+    lt_dlexit();
 #endif
 }
 
-void Library::SetDontFreeLibraryOnDestruct() {m_freeOnDestruct = false;}
+void Library::SetDontFreeLibraryOnDestruct() {
+ #ifdef __linux__
+    const lt_dlinfo* libData = lt_dlgetinfo(m_module); //This is a copy not a ref to module data.
+    std::string libPath = libData->filename;
+    lt_dladvise libSettings;
+    lt_dladvise_init(&libSettings);
+    lt_dladvise_global(&libSettings);
+    lt_dladvise_resident(&libSettings);
+    m_module = lt_dlopenadvise(libPath.c_str(),libSettings);
+    lt_dladvise_destroy(&libSettings);
+
+#if 0
+
+    const lt_dlinfo* libData_postResidence = lt_dlgetinfo(m_module); //This is a copy not a ref to module data.
+#endif
+#endif
+    m_freeOnDestruct = false;
+}
 
 void *Library::FindSymbolAddress(const std::string &name) const
 {
 #ifdef _WIN32
 	return GetProcAddress(m_module,name.c_str());
 #else
-	return dlsym(m_module,name.c_str());
+    return lt_dlsym(m_module,name.c_str());
 #endif
 }
 
