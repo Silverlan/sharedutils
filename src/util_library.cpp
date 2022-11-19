@@ -4,11 +4,14 @@
 
 #include "sharedutils/util.h"
 #include <cstring>
-#if defined(_WIN32) || defined(__linux__)
 #include "sharedutils/util_library.hpp"
 #include "sharedutils/util_string.h"
 #include "sharedutils/util_file.h"
 #include "sharedutils/scope_guard.h"
+
+#ifdef __linux
+#include <dlfcn.h>
+#endif
 
 using namespace util;
 std::shared_ptr<Library> Library::Get(const std::string &name,std::string *outErr)
@@ -128,5 +131,3 @@ void *Library::FindSymbolAddress(const std::string &name) const
 	return dlsym(m_module,name.c_str());
 #endif
 }
-
-#endif
