@@ -8,7 +8,7 @@ inputs:
   working-directory:
     description: 'Working Directory'
     required: true
-    default: '.'
+    default: '${{ github.workspace }}'
 runs:
   using: "composite"
   steps:
@@ -46,7 +46,8 @@ runs:
         build_generator: ${{ matrix.config.generators }}
         cmake_var: 'DEPENDENCY_SHAREDUTILS_LIBRARY'
         build_target: sharedutils
-        build_dir: '${{inputs.working-directory}}/build'
-        cmake_script_location: '${{inputs.working-directory}}'
+        build_dir: './build'
+        cmake_script_location: '.'
+        working-directory: ${{inputs.working-directory}}
         
     - uses: Silverlan/common_actions/action_end@main

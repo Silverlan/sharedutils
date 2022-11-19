@@ -44,7 +44,7 @@ jobs:
         id: build
         uses: Silverlan/sharedutils/github_actions/build@master
         with:
-          repo-directory: '.'
+          repo-directory: '${{ github.workspace }}'
           
       - name: Create Release Files
         shell: bash
@@ -52,7 +52,7 @@ jobs:
           mkdir release
           mkdir release/lib
           rsync build/libsharedutils.so release/lib/
-          rsync build/external_libs/mathutil/libmathutil.so release/lib/libmathutil.so
+          rsync mathutil/build/libmathutil.so release/lib/
 
       - name: Release Binaries
         uses: Silverlan/common_actions/release_nightly_binaries@main
