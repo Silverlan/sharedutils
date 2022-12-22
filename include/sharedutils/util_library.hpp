@@ -15,14 +15,12 @@
 #include <Windows.h>
 #endif
 
-struct lt__handle;
-typedef	struct lt__handle *lt_dlhandle;
 namespace util
 {
 #ifdef _WIN32
 	using LibraryModule = HMODULE;
 #else
-    using LibraryModule = lt_dlhandle;
+	using LibraryModule = void*;
 #endif
 	class DLLSHUTIL Library
 	{
