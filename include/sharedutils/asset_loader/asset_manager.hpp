@@ -6,6 +6,7 @@
 #define __ASSET_MANAGER_HPP__
 
 #include "sharedutils/utildefinitions.h"
+#include "sharedutils/util_log.hpp"
 #include <unordered_map>
 #include <unordered_set>
 #include <optional>
@@ -68,6 +69,9 @@ namespace util
 		void FlagForRemoval(const std::string &assetName,bool flag=true);
 		void FlagAllForRemoval();
 
+		virtual void SetLogHandler(const util::LogHandler &logHandler);
+		bool ShouldLog() const;
+
 		Asset *GetAsset(AssetIndex index);
 		const Asset *GetAsset(AssetIndex index) const {return const_cast<IAssetManager*>(this)->GetAsset(index);}
 		std::optional<AssetIndex> GetAssetIndex(const std::string &assetName) const;
@@ -103,6 +107,7 @@ namespace util
 		std::unordered_set<AssetIndex> m_flaggedForDeletion;
 		std::vector<FormatExtensionInfo> m_extensions;
 		std::thread::id m_mainThreadId;
+		util::LogHandler m_logHandler;
 		bool m_reset = false;
 	};
 };

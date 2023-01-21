@@ -363,6 +363,9 @@ void util::IAssetManager::FlagAllForRemoval()
 	}
 }
 
+void util::IAssetManager::SetLogHandler(const util::LogHandler &logHandler) {m_logHandler = logHandler;}
+bool util::IAssetManager::ShouldLog() const {return m_logHandler != nullptr;}
+
 util::Asset *util::IAssetManager::GetAsset(AssetIndex index)
 {
 	// ValidateMainThread();

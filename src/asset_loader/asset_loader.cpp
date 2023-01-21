@@ -10,8 +10,6 @@
 
 #undef AddJob
 
-// #define ENABLE_VERBOSE_OUTPUT
-
 util::IAssetLoader::IAssetLoader(std::string name)
 	: m_pool{10},m_name{std::move(name)}
 {
@@ -60,8 +58,8 @@ util::AssetLoadState util::IAssetLoader::GetLoadState(const std::string &identif
 	return (jobInfo.state == QueuedJobInfo::State::Complete) ? AssetLoadState::LoadedAndPendingForCompletion : AssetLoadState::Loading;
 }
 
-void util::IAssetLoader::SetVerbose(bool verbose) {m_verbose = verbose;}
-bool util::IAssetLoader::IsVerbose() const {return m_verbose;}
+void util::IAssetLoader::SetLogHandler(const util::LogHandler &logHandler) {m_logHandler = logHandler;}
+bool util::IAssetLoader::ShouldLog() const {return m_logHandler != nullptr;}
 
 std::optional<util::AssetLoadJobId> util::IAssetLoader::AddJob(
 	const std::string &identifier,std::unique_ptr<IAssetProcessor> &&processor,AssetLoadJobPriority priority
@@ -119,10 +117,10 @@ std::optional<util::AssetLoadJobId> util::IAssetLoader::AddJob(
 				it->second.state = QueuedJobInfo::State::InProgress;
 		m_assetIdToJobIdMutex.unlock();
 		job.taskStartTime = std::chrono::high_resolution_clock::now();
-#ifdef ENABLE_VERBOSE_OUTPUT
-		if(m_verbose)
-			std::cout<<"Running job "<<job.jobId<<"...!"<<std::endl;
-#endif
+
+		if(ShouldLog())
+			m_logHandler("Running job " +std::to_string(job.jobId) +"...!",util::LogSeverity::Debug);
+
 		if(!isValid)
 			job.state = AssetLoadJob::State::Cancelled;
 		else
@@ -147,10 +145,10 @@ std::optional<util::AssetLoadJobId> util::IAssetLoader::AddJob(
 		job.completionTime = std::chrono::high_resolution_clock::now();
 
 		m_completeQueueMutex.lock();
-#ifdef ENABLE_VERBOSE_OUTPUT
-			if(m_verbose)
-				std::cout<<"Job "<<job.jobId<<" has completed with result: "<<+umath::to_integral(job.state)<<"!"<<std::endl;
-#endif
+
+			if(ShouldLog())
+				m_logHandler("Job " +std::to_string(job.jobId) +" has completed with result: " +std::to_string(+umath::to_integral(job.state)) +"!",util::LogSeverity::Debug);
+
 			m_completeQueue.push(job);
 			m_hasCompletedJobs = true;
 			if(isValid)
@@ -218,10 +216,10 @@ void util::IAssetLoader::Poll(
 	if(wait == AssetLoaderWaitMode::Single)
 	{
 		std::unique_lock<std::mutex> lock {m_completeQueueMutex};
-#ifdef ENABLE_VERBOSE_OUTPUT
-		if(m_verbose)
-			std::cout<<"Poll: Waiting until completed jobs are available!"<<std::endl;
-#endif
+
+		if(ShouldLog())
+			m_logHandler("Poll: Waiting until completed jobs are available!",util::LogSeverity::Debug);
+
 		m_completeCondition.wait(lock,[this]() {
 			return m_hasCompletedJobs == true;
 		});
@@ -240,19 +238,19 @@ void util::IAssetLoader::Poll(
 				m_completeQueueMutex.unlock();
 				break;
 			}
-#ifdef ENABLE_VERBOSE_OUTPUT
-			if(m_verbose)
-				std::cout<<"Poll: Popping available job!"<<std::endl;
-#endif
+
+			if(ShouldLog())
+				m_logHandler("Poll: Popping available job!",util::LogSeverity::Debug);
+
 			auto job = std::move(m_completeQueue.front());
 			m_completeQueue.pop();
 
 			m_hasCompletedJobs = !m_completeQueue.empty();
 			hasJobsRemaining = m_hasCompletedJobs;
-#ifdef ENABLE_VERBOSE_OUTPUT
-			if(m_verbose)
-				std::cout<<"Poll: Jobs remaining: "<<hasJobsRemaining<<std::endl;
-#endif
+
+			if(ShouldLog())
+				m_logHandler("Poll: Jobs remaining: " +std::to_string(hasJobsRemaining),util::LogSeverity::Debug);
+
 		m_completeQueueMutex.unlock();
 
 		job.completionTime = std::chrono::high_resolution_clock::now();
@@ -282,10 +280,10 @@ void util::IAssetLoader::Poll(
 			onComplete(job,AssetLoadResult::Cancelled);
 		{
 			m_assetIdToJobIdMutex.lock();
-#ifdef ENABLE_VERBOSE_OUTPUT
-			if(m_verbose)
-				std::cout<<"Poll: Erasing job '"<<job.identifier<<"'..."<<std::endl;
-#endif
+
+			if(ShouldLog())
+				m_logHandler("Poll: Erasing job '" +job.identifier +"'...",util::LogSeverity::Debug);
+
 				auto it = m_assetIdToJobId.find(job.identifier);
 				if(it != m_assetIdToJobId.end())
 				{

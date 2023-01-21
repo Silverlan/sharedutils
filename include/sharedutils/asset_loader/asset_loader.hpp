@@ -8,6 +8,7 @@
 #include "sharedutils/utildefinitions.h"
 #include "sharedutils/asset_loader/asset_load_job.hpp"
 #include "sharedutils/ctpl_stl.h"
+#include "sharedutils/util_log.hpp"
 #include <string>
 #include <memory>
 #include <optional>
@@ -66,8 +67,8 @@ namespace util
 		void SetMultiThreadingEnabled(bool enabled);
 		bool IsMultiThreadingEnabled() const;
 
-		void SetVerbose(bool verbose);
-		bool IsVerbose() const;
+		void SetLogHandler(const util::LogHandler &logHandler);
+		bool ShouldLog() const;
 
 		const std::string &GetName() const {return m_name;}
 		std::recursive_mutex &GetJobGuardMutex() {return m_assetIdToJobIdMutex;}
@@ -89,7 +90,6 @@ namespace util
 		std::queue<AssetLoadJob> m_completeQueue;
 		std::atomic<bool> m_hasCompletedJobs = false;
 		std::condition_variable m_completeCondition;
-		bool m_verbose = false;
 
 		struct QueuedJobInfo
 		{
@@ -107,6 +107,7 @@ namespace util
 		std::unordered_map<std::string,QueuedJobInfo> m_assetIdToJobId;
 		std::unordered_set<AssetLoadJobId> m_pendingAssetJobs;
 		AssetLoadJobId m_nextJobId = 0;
+		util::LogHandler m_logHandler;
 	};
 };
 

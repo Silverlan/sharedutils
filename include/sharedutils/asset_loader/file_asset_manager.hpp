@@ -64,6 +64,7 @@ namespace util
 		virtual ~FileAssetManager() override;
 		AssetState GetAssetState(const std::string &assetName) const;
 		std::optional<std::string> FindAssetFilePath(const std::string &assetName,bool includeImportTypes=false) const;
+		virtual void SetLogHandler(const util::LogHandler &logHandler) override;
 		
 		// MT-safe
 		PreloadResult PreloadAsset(const std::string &path,std::unique_ptr<AssetLoadInfo> &&loadInfo=nullptr);
@@ -88,9 +89,6 @@ namespace util
 		const util::Path &GetRootDirectory() const;
 		void SetImportDirectory(const std::string &dir);
 		const util::Path &GetImportDirectory() const;
-
-		void SetVerbose(bool verbose);
-		bool IsVerbose() const;
 
 		void WaitForAllPendingCompleted();
 
@@ -164,7 +162,6 @@ namespace util
 		util::Path m_rootDir;
 		util::Path m_importRootDir;
 		std::mutex m_preloadMutex;
-		bool m_verbose = false;
 
 		std::unordered_map<size_t,util::FileAssetManager::PreloadResult::Result> m_errorCache;
 		mutable std::mutex m_errorCacheMutex;
