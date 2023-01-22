@@ -255,7 +255,7 @@ util::AssetObject util::FileAssetManager::LoadAsset(
 	if(ShouldLog())
 	{
 		m_logHandler("LoadAsset '" +identifier +"': Job Id: " +std::to_string(jobId),util::LogSeverity::Info);
-		t = std::chrono::high_resolution_clock::now();
+		t = std::chrono::steady_clock::now();
 	}
 
 	auto o = Poll(jobId,util::AssetLoaderWaitMode::None);
@@ -268,7 +268,7 @@ util::AssetObject util::FileAssetManager::LoadAsset(
 
 	if(ShouldLog() && o)
 	{
-		auto dt = std::chrono::high_resolution_clock::now() -t;
+		auto dt = std::chrono::steady_clock::now() -t;
 		m_logHandler("Waited " +std::to_string(dt.count() /1'000'000'000.0) +" seconds for asset '" +identifier +"'!",util::LogSeverity::Debug);
 	}
 	return o;
