@@ -9,10 +9,8 @@
 #include <functional>
 #include <string>
 
-namespace util
-{
-	enum class LogSeverity : uint32_t
-	{
+namespace util {
+	enum class LogSeverity : uint32_t {
 		Trace,
 		Debug,
 		Info,
@@ -24,7 +22,7 @@ namespace util
 		Count
 	};
 
-	using LogHandler = std::function<void(const std::string&,util::LogSeverity)>;
+	using LogHandler = std::function<void(const std::string &, util::LogSeverity)>;
 };
 
 #endif

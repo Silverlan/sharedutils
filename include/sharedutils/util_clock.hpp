@@ -9,11 +9,9 @@
 #include <chrono>
 #include <cinttypes>
 
-namespace util
-{
+namespace util {
 	using Clock = std::chrono::steady_clock;
-	namespace clock
-	{
+	namespace clock {
 		DLLSHUTIL void set_start_time(Clock::time_point t);
 		DLLSHUTIL Clock::time_point get_start_time();
 		DLLSHUTIL Clock::duration get_duration_since_start();

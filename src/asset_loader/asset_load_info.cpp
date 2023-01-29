@@ -4,6 +4,4 @@
 
 #include "sharedutils/asset_loader/asset_load_info.hpp"
 
-util::AssetLoadInfo::AssetLoadInfo(AssetLoadFlags flags)
-	: flags{flags}
-{}
+util::AssetLoadInfo::AssetLoadInfo(AssetLoadFlags flags) : flags {flags} {}

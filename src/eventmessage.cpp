@@ -17,18 +17,13 @@ DataStreamBase *EventMessage::operator->()
 	return ptr->get();
 }
 
-DataStreamBase &EventMessage::operator<<(const std::string &str)
-	{return (*this->get())<<str;}
-DataStreamBase &EventMessage::operator<<(const char *str)
-	{return (*this->get())<<str;}
-DataStreamBase &EventMessage::operator>>(std::string &str)
-	{return (*this->get())<<str;}
+DataStreamBase &EventMessage::operator<<(const std::string &str) { return (*this->get()) << str; }
+DataStreamBase &EventMessage::operator<<(const char *str) { return (*this->get()) << str; }
+DataStreamBase &EventMessage::operator>>(std::string &str) { return (*this->get()) << str; }
 
 ///////////////////////
 
-BaseEvent::BaseEvent()
-	: DataStream()
-{}
+BaseEvent::BaseEvent() : DataStream() {}
 
 std::string BaseEvent::GetMessage() const
 {

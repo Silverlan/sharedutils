@@ -9,15 +9,12 @@
 #include <unordered_map>
 #include <string>
 
-namespace util
-{
-	struct DLLSHUTIL CaseInsensitiveStringComparator
-	{
-		bool operator()(const std::string &lhs,const std::string &rhs) const;
+namespace util {
+	struct DLLSHUTIL CaseInsensitiveStringComparator {
+		bool operator()(const std::string &lhs, const std::string &rhs) const;
 	};
-	struct DLLSHUTIL CaseInsensitiveHashingFunc
-	{
-		unsigned long operator()(const std::string& key) const;
+	struct DLLSHUTIL CaseInsensitiveHashingFunc {
+		unsigned long operator()(const std::string &key) const;
 	};
 	// Does not work correctly? Find out why
 	// using KeyValueMap = std::unordered_map<std::string,std::string,util::CaseInsensitiveHashingFunc,util::CaseInsensitiveStringComparator>;

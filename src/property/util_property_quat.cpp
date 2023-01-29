@@ -6,14 +6,8 @@
 
 using namespace util;
 
-QuatProperty::QuatProperty(const Quat &v)
-	: SimpleVectorProperty<QuatProperty,Quat>::SimpleVectorProperty(v)
-{}
-QuatProperty::QuatProperty(float w,float x,float y,float z)
-	: SimpleVectorProperty<QuatProperty,Quat>::SimpleVectorProperty()
-{
-	m_value = {w,x,y,z};
-}
+QuatProperty::QuatProperty(const Quat &v) : SimpleVectorProperty<QuatProperty, Quat>::SimpleVectorProperty(v) {}
+QuatProperty::QuatProperty(float w, float x, float y, float z) : SimpleVectorProperty<QuatProperty, Quat>::SimpleVectorProperty() { m_value = {w, x, y, z}; }
 
 QuatProperty &QuatProperty::operator/=(float f)
 {

@@ -6,22 +6,22 @@
 #define __UTILDEFINITIONS_H__
 
 #ifdef SHUTIL_STATIC
-	#define DLLSHUTIL
+#define DLLSHUTIL
 #elif SHUTIL_DLL
-	#ifdef __linux__
-		#define DLLSHUTIL __attribute__((visibility("default")))
-	#else
-		#define DLLSHUTIL __declspec(dllexport)
-	#endif
+#ifdef __linux__
+#define DLLSHUTIL __attribute__((visibility("default")))
 #else
-	#ifdef __linux__
-		#define DLLSHUTIL
-	#else
-		#define DLLSHUTIL __declspec(dllimport)
-	#endif
+#define DLLSHUTIL __declspec(dllexport)
+#endif
+#else
+#ifdef __linux__
+#define DLLSHUTIL
+#else
+#define DLLSHUTIL __declspec(dllimport)
+#endif
 #endif
 #ifndef UNUSED
-	#define UNUSED(x) x
+#define UNUSED(x) x
 #endif
 
 #endif

@@ -9,23 +9,19 @@
 #include "utildefinitions.h"
 
 #ifdef _WIN32
-namespace _impl
-{
-	DLLSHUTIL bool util_assert(const std::string &file,uint32_t line,const std::string &message="",bool bAllowExit=true);
+namespace _impl {
+	DLLSHUTIL bool util_assert(const std::string &file, uint32_t line, const std::string &message = "", bool bAllowExit = true);
 };
-#define UTIL_ASSERT(f, ...) (void) ((f) || !_impl::util_assert(__FILE__,__LINE__, ##__VA_ARGS__))
+#define UTIL_ASSERT(f, ...) (void)((f) || !_impl::util_assert(__FILE__, __LINE__, ##__VA_ARGS__))
 
 #include <memory>
 #include <Windows.h>
 #include <DbgHelp.h>
 #include <vector>
 
-namespace util
-{
-	struct DLLSHUTIL Symbol
-	{
-		struct DLLSHUTIL LineInfo
-		{
+namespace util {
+	struct DLLSHUTIL Symbol {
+		struct DLLSHUTIL LineInfo {
 			LineInfo();
 			std::string path;
 			uint32_t line;
@@ -34,8 +30,8 @@ namespace util
 		std::shared_ptr<SYMBOL_INFO> info;
 		LineInfo lineInfo;
 	};
-	DLLSHUTIL std::vector<Symbol> get_stack_backtrace(uint32_t maxIterations=100);
-	DLLSHUTIL std::string get_formatted_stack_backtrace_string(uint32_t maxIterations=100);
+	DLLSHUTIL std::vector<Symbol> get_stack_backtrace(uint32_t maxIterations = 100);
+	DLLSHUTIL std::string get_formatted_stack_backtrace_string(uint32_t maxIterations = 100);
 };
 
 #else

@@ -8,21 +8,21 @@
 #include <cstring>
 #include <cctype>
 #ifdef _WIN32
-	#include <winsock.h>
-	#pragma comment(lib,"Ws2_32.lib") // Required for inet_addr / inet_ntoa
+#include <winsock.h>
+#pragma comment(lib, "Ws2_32.lib") // Required for inet_addr / inet_ntoa
 #else
-	#include <sys/socket.h>
-	#include <netinet/in.h>
-	#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #endif
 
 const std::string ustring::WHITESPACE = " \t\f\v\n\r";
 const UInt ustring::NOT_FOUND = std::string::npos;
 
 #if defined(_UNICODE)
-	#define _T(x) L ##x
+#define _T(x) L##x
 #else
-	#define _T(x) x
+#define _T(x) x
 #endif
 /*
 #ifdef __linux__
@@ -40,80 +40,72 @@ const UInt ustring::NOT_FOUND = std::string::npos;
 #endif
 */
 Bool ustring::match(PCTSTR pszText, PCTSTR pszMatch, Bool bMatchCase)
-{ 
-    // Loop over the string 
-    while (*pszText && *pszMatch!=_T('*')) 
-    { 
-        // Found a match on a next normal character 
-        if ((bMatchCase ? (*pszText!=*pszMatch) : (toupper(*pszText)!=toupper(*pszMatch))) && 
-            *pszMatch!=_T('?')) 
-            return false; // TODO: toupper doesn't account for unicode
-  
-        // still a match 
-        pszMatch++; 
-        pszText++; 
-    } 
-  
-    // Either we have a wildcard or or we are at end of the string to test 
-    if (!*pszText) 
-    { 
-        // There is a special case were there is only a wildcard char left 
-        // on the match string, so we just skip it 
-        while (*pszMatch==_T('*')) 
-            ++pszMatch; 
-        // it would be a match if both strings reached the end of the string 
-        return !*pszText && !*pszMatch; 
-    } 
-    else 
-    { 
-        // We found a wildcard '*'. We have some chances now: 
-        // 1. we just ignore the wildcard and continue 
-        // 2. we just skip 1 character in the source and reuse the wildcard 
-        if (match(pszText,pszMatch+1,bMatchCase)) 
-            return true; 
-        else 
-            return match(pszText+1,pszMatch,bMatchCase); 
-    } 
-}
-Bool ustring::match(const std::string_view &text,const std::string_view &strMatch,Bool bMatchCase)
 {
-    // Loop over the string 
+	// Loop over the string
+	while(*pszText && *pszMatch != _T('*')) {
+		// Found a match on a next normal character
+		if((bMatchCase ? (*pszText != *pszMatch) : (toupper(*pszText) != toupper(*pszMatch))) && *pszMatch != _T('?'))
+			return false; // TODO: toupper doesn't account for unicode
+
+		// still a match
+		pszMatch++;
+		pszText++;
+	}
+
+	// Either we have a wildcard or or we are at end of the string to test
+	if(!*pszText) {
+		// There is a special case were there is only a wildcard char left
+		// on the match string, so we just skip it
+		while(*pszMatch == _T('*'))
+			++pszMatch;
+		// it would be a match if both strings reached the end of the string
+		return !*pszText && !*pszMatch;
+	}
+	else {
+		// We found a wildcard '*'. We have some chances now:
+		// 1. we just ignore the wildcard and continue
+		// 2. we just skip 1 character in the source and reuse the wildcard
+		if(match(pszText, pszMatch + 1, bMatchCase))
+			return true;
+		else
+			return match(pszText + 1, pszMatch, bMatchCase);
+	}
+}
+Bool ustring::match(const std::string_view &text, const std::string_view &strMatch, Bool bMatchCase)
+{
+	// Loop over the string
 	auto *pszText = text.data();
-	auto *pszTextLast = text.data() +text.length();
+	auto *pszTextLast = text.data() + text.length();
 	auto *pszMatch = strMatch.data();
-	auto *pszMatchLast = strMatch.data() +strMatch.length();
-    while (pszText != pszTextLast && *pszMatch!=_T('*')) 
-    { 
-        // Found a match on a next normal character 
-        if ((bMatchCase ? (*pszText!=*pszMatch) : (toupper(*pszText)!=toupper(*pszMatch))) && 
-            *pszMatch!=_T('?')) 
-            return false; // TODO: toupper doesn't account for unicode
-  
-        // still a match 
-        pszMatch++; 
-        pszText++; 
-    } 
-  
-    // Either we have a wildcard or or we are at end of the string to test 
-    if (pszText == pszTextLast) 
-    { 
-        // There is a special case were there is only a wildcard char left 
-        // on the match string, so we just skip it 
-        while (*pszMatch==_T('*')) 
-            ++pszMatch; 
-        // it would be a match if both strings reached the end of the string 
-        return pszText == pszTextLast && pszMatch == pszMatchLast; 
-    } 
-    else 
-    { 
-        // We found a wildcard '*'. We have some chances now: 
-        // 1. we just ignore the wildcard and continue 
-        // 2. we just skip 1 character in the source and reuse the wildcard 
-        if (match(text.substr(pszText -text.data()),strMatch.substr((pszMatch +1) -strMatch.data()),bMatchCase)) 
-            return true; 
-        else 
-            return match(text.substr((pszText +1) -text.data()),strMatch.substr(pszMatch -strMatch.data()),bMatchCase); 
-    } 
+	auto *pszMatchLast = strMatch.data() + strMatch.length();
+	while(pszText != pszTextLast && *pszMatch != _T('*')) {
+		// Found a match on a next normal character
+		if((bMatchCase ? (*pszText != *pszMatch) : (toupper(*pszText) != toupper(*pszMatch))) && *pszMatch != _T('?'))
+			return false; // TODO: toupper doesn't account for unicode
+
+		// still a match
+		pszMatch++;
+		pszText++;
+	}
+
+	// Either we have a wildcard or or we are at end of the string to test
+	if(pszText == pszTextLast) {
+		// There is a special case were there is only a wildcard char left
+		// on the match string, so we just skip it
+		while(*pszMatch == _T('*'))
+			++pszMatch;
+		// it would be a match if both strings reached the end of the string
+		return pszText == pszTextLast && pszMatch == pszMatchLast;
+	}
+	else {
+		// We found a wildcard '*'. We have some chances now:
+		// 1. we just ignore the wildcard and continue
+		// 2. we just skip 1 character in the source and reuse the wildcard
+		if(match(text.substr(pszText - text.data()), strMatch.substr((pszMatch + 1) - strMatch.data()), bMatchCase))
+			return true;
+		else
+			return match(text.substr((pszText + 1) - text.data()), strMatch.substr(pszMatch - strMatch.data()), bMatchCase);
+	}
 }
 void ustring::remove_whitespace(std::string_view &s)
 {
@@ -121,12 +113,11 @@ void ustring::remove_whitespace(std::string_view &s)
 		return;
 	UInt begin = s.find_first_not_of(WHITESPACE);
 	UInt end = s.find_last_not_of(WHITESPACE);
-	if(begin == UInt(-1) || end == UInt(-1))
-	{
+	if(begin == UInt(-1) || end == UInt(-1)) {
 		s = "";
 		return;
 	}
-	s = s.substr(begin,(end -begin) +1);
+	s = s.substr(begin, (end - begin) + 1);
 }
 void ustring::remove_whitespace(std::string &s)
 {
@@ -136,40 +127,41 @@ void ustring::remove_whitespace(std::string &s)
 		s = std::string(s.c_str());
 	UInt begin = s.find_first_not_of(WHITESPACE);
 	UInt end = s.find_last_not_of(WHITESPACE);
-	if(begin == UInt(-1) || end == UInt(-1))
-	{
+	if(begin == UInt(-1) || end == UInt(-1)) {
 		s = "";
 		return;
 	}
-	s = s.substr(begin,(end -begin) +1);
+	s = s.substr(begin, (end - begin) + 1);
 }
 
 void ustring::remove_whitespace(std::vector<std::string> &ss)
 {
-	for(int i=0;i<ss.size();i++)
+	for(int i = 0; i < ss.size(); i++)
 		remove_whitespace(ss[i]);
 }
 
 void ustring::remove_quotes(std::string &s)
 {
-	if(s.empty() || s.front() != '\"' || s.back() != '\"') return;
-	s = s.substr(1,s.length() -2);
+	if(s.empty() || s.front() != '\"' || s.back() != '\"')
+		return;
+	s = s.substr(1, s.length() - 2);
 }
 
 void ustring::remove_quotes(std::vector<std::string> &ss)
 {
-	for(int i=0;i<ss.size();i++)
+	for(int i = 0; i < ss.size(); i++)
 		remove_quotes(ss[i]);
 }
 
 void ustring::remove_comment(std::string &s)
 {
 	UInt cSt = s.find("//");
-	if(cSt == NOT_FOUND) return;
-	s = s.substr(0,cSt -1);
+	if(cSt == NOT_FOUND)
+		return;
+	s = s.substr(0, cSt - 1);
 }
 
-void ustring::split(const std::string &str,std::vector<std::string> &substrings)
+void ustring::split(const std::string &str, std::vector<std::string> &substrings)
 {
 	std::string buf;
 	std::stringstream ss(str);
@@ -177,12 +169,11 @@ void ustring::split(const std::string &str,std::vector<std::string> &substrings)
 		substrings.push_back(buf);
 }
 
-std::string ustring::implode(const std::vector<std::string> &strs,const std::string &separator)
+std::string ustring::implode(const std::vector<std::string> &strs, const std::string &separator)
 {
 	std::string result {};
 	auto first = true;
-	for(auto &str : strs)
-	{
+	for(auto &str : strs) {
 		if(first)
 			first = false;
 		else
@@ -192,17 +183,16 @@ std::string ustring::implode(const std::vector<std::string> &strs,const std::str
 	return result;
 }
 
-void ustring::explode(std::string str,const Char *sep,std::vector<std::string> &substrings)
+void ustring::explode(std::string str, const Char *sep, std::vector<std::string> &substrings)
 {
-	UInt st = find_first_of_outside_quotes(str,sep);
+	UInt st = find_first_of_outside_quotes(str, sep);
 	auto foundAtLeastOne = (st != NOT_FOUND);
-	while(st != NOT_FOUND)
-	{
-		std::string sub = str.substr(0,st);
-		str = str.substr(st +1);
+	while(st != NOT_FOUND) {
+		std::string sub = str.substr(0, st);
+		str = str.substr(st + 1);
 		remove_whitespace(sub);
 		substrings.push_back(sub);
-		st = find_first_of_outside_quotes(str,sep);
+		st = find_first_of_outside_quotes(str, sep);
 	}
 	remove_whitespace(str);
 	if(str.empty() == true && foundAtLeastOne == false)
@@ -210,22 +200,21 @@ void ustring::explode(std::string str,const Char *sep,std::vector<std::string> &
 	substrings.push_back(str);
 }
 
-void ustring::explode_whitespace(const std::string &str,std::vector<std::string> &substrings)
+void ustring::explode_whitespace(const std::string &str, std::vector<std::string> &substrings)
 {
 	auto estr = str;
 	auto st = estr.find_first_not_of(WHITESPACE);
-	st = find_first_of_outside_quotes(estr,WHITESPACE,st);
-	while(st != NOT_FOUND)
-	{
-		auto sub = estr.substr(0,st);
+	st = find_first_of_outside_quotes(estr, WHITESPACE, st);
+	while(st != NOT_FOUND) {
+		auto sub = estr.substr(0, st);
 		remove_whitespace(sub);
 		substrings.push_back(sub);
 
-		st = estr.find_first_not_of(WHITESPACE,st);
+		st = estr.find_first_not_of(WHITESPACE, st);
 		if(st == NOT_FOUND)
 			return;
 		estr = estr.substr(st);
-		st = find_first_of_outside_quotes(estr,WHITESPACE);
+		st = find_first_of_outside_quotes(estr, WHITESPACE);
 	}
 	remove_whitespace(estr);
 	if(estr.empty() == true)
@@ -234,33 +223,31 @@ void ustring::explode_whitespace(const std::string &str,std::vector<std::string>
 }
 
 // See https://en.wikibooks.org/wiki/Algorithm_Implementation/Strings/Levenshtein_distance
-uint32_t ustring::calc_levenshtein_distance(const std::string_view &s1,const std::string_view &s2)
+uint32_t ustring::calc_levenshtein_distance(const std::string_view &s1, const std::string_view &s2)
 {
 	const auto len1 = s1.size();
 	const auto len2 = s2.size();
-	std::vector<std::vector<uint32_t>> d(len1 +1,std::vector<uint32_t>(len2 +1));
+	std::vector<std::vector<uint32_t>> d(len1 + 1, std::vector<uint32_t>(len2 + 1));
 
 	d.at(0).at(0) = 0;
-	for(auto i=decltype(len1){1};i<=len1;++i)
+	for(auto i = decltype(len1) {1}; i <= len1; ++i)
 		d.at(i).at(0) = i;
-	for(auto i=decltype(len2){1};i<=len2;++i)
+	for(auto i = decltype(len2) {1}; i <= len2; ++i)
 		d.at(0).at(i) = i;
 
-	for(auto i=decltype(len1){1};i<=len1;++i)
-	{
-		for(auto j=decltype(len2){1};j<=len2;++j)
-			d.at(i).at(j) = std::min({d.at(i -1).at(j) +1,d.at(i).at(j -1) +1,d.at(i -1).at(j -1) +(s1.at(i -1) == s2.at(j -1) ? 0 : 1)});
+	for(auto i = decltype(len1) {1}; i <= len1; ++i) {
+		for(auto j = decltype(len2) {1}; j <= len2; ++j)
+			d.at(i).at(j) = std::min({d.at(i - 1).at(j) + 1, d.at(i).at(j - 1) + 1, d.at(i - 1).at(j - 1) + (s1.at(i - 1) == s2.at(j - 1) ? 0 : 1)});
 	}
 	return d.at(len1).at(len2);
 }
 
 // See http://stackoverflow.com/a/16018452/2482983
-double ustring::calc_levenshtein_similarity(const std::string_view &s1,const std::string_view &s2)
+double ustring::calc_levenshtein_similarity(const std::string_view &s1, const std::string_view &s2)
 {
 	auto *longer = &s1;
 	auto *shorter = &s2;
-	if(s1.length() < s2.length())
-	{
+	if(s1.length() < s2.length()) {
 		longer = &s2;
 		shorter = &s1;
 	}
@@ -268,11 +255,11 @@ double ustring::calc_levenshtein_similarity(const std::string_view &s1,const std
 	auto longerLength = longer->length();
 	if(longerLength == 0)
 		return 1.0;
-	return (longerLength -calc_levenshtein_distance(*longer,*shorter)) /static_cast<double>(longerLength);
+	return (longerLength - calc_levenshtein_distance(*longer, *shorter)) / static_cast<double>(longerLength);
 }
 
 // See https://en.wikibooks.org/wiki/Algorithm_Implementation/Strings/Longest_common_substring#C.2B.2B_2
-std::size_t ustring::longest_common_substring(const std::string &str1,const std::string &str2,std::size_t &startIdx1,std::size_t &startIdx2)
+std::size_t ustring::longest_common_substring(const std::string &str1, const std::string &str2, std::size_t &startIdx1, std::size_t &startIdx2)
 {
 	if(str1.empty() == true || str2.empty() == true)
 		return 0;
@@ -283,25 +270,21 @@ std::size_t ustring::longest_common_substring(const std::string &str1,const std:
 	decltype(vcurr) *curr = &vcurr;
 	decltype(vprev) *prev = &vprev;
 	decltype(vcurr) *swap = nullptr;
-	auto maxSubstr = decltype(str1.size()){0};
+	auto maxSubstr = decltype(str1.size()) {0};
 
-	for(auto i=decltype(str1.size()){0};i<str1.size();++i)
-	{
-		for(auto j=decltype(str2.size()){0};j<str2.size();++j)
-		{
+	for(auto i = decltype(str1.size()) {0}; i < str1.size(); ++i) {
+		for(auto j = decltype(str2.size()) {0}; j < str2.size(); ++j) {
 			if(str1.at(i) != str2.at(j))
 				curr->at(j) = 0;
-			else
-			{
+			else {
 				if(i == 0 || j == 0)
 					curr->at(j) = 1;
 				else
-					curr->at(j) = 1 + prev->at(j-1);
-				if(maxSubstr < curr->at(j))
-				{
+					curr->at(j) = 1 + prev->at(j - 1);
+				if(maxSubstr < curr->at(j)) {
 					maxSubstr = curr->at(j);
-					startIdx1 = i -maxSubstr +1;
-					startIdx2 = j -maxSubstr +1;
+					startIdx1 = i - maxSubstr + 1;
+					startIdx2 = j - maxSubstr + 1;
 				}
 			}
 		}
@@ -312,105 +295,95 @@ std::size_t ustring::longest_common_substring(const std::string &str1,const std:
 	return maxSubstr;
 }
 
-std::size_t ustring::longest_common_substring(const std::string &str1,const std::string &str2,std::size_t &startIdx1)
+std::size_t ustring::longest_common_substring(const std::string &str1, const std::string &str2, std::size_t &startIdx1)
 {
 	std::size_t startIdx2 = 0;
-	return longest_common_substring(str1,str2,startIdx1,startIdx2);
+	return longest_common_substring(str1, str2, startIdx1, startIdx2);
 }
-std::size_t ustring::longest_common_substring(const std::string &str1,const std::string &str2,std::string &subStr)
+std::size_t ustring::longest_common_substring(const std::string &str1, const std::string &str2, std::string &subStr)
 {
 	std::size_t startIdx1 = 0;
-	auto len = longest_common_substring(str1,str2,startIdx1);
-	if(len == 0)
-	{
+	auto len = longest_common_substring(str1, str2, startIdx1);
+	if(len == 0) {
 		subStr.clear();
 		return len;
 	}
-	subStr = str1.substr(startIdx1,len);
+	subStr = str1.substr(startIdx1, len);
 	return len;
 }
-std::size_t ustring::longest_common_substring(const std::string &str1,const std::string &str2)
+std::size_t ustring::longest_common_substring(const std::string &str1, const std::string &str2)
 {
 	std::size_t startIdx = 0;
-	return longest_common_substring(str1,str2,startIdx);
+	return longest_common_substring(str1, str2, startIdx);
 }
-std::string ustring::substr(const std::string &str,std::size_t start,size_t len) {return (start < str.length()) ? str.substr(start,len) : "";}
-std::string_view ustring::substr(const std::string_view &str,std::size_t start,size_t len)
-{
-	return (start < str.length()) ? str.substr(start,len) : std::string_view{};
-}
-template<typename T> requires(std::is_same_v<T,std::string> || std::is_same_v<T,std::string_view>)
-bool ustring::compare(const T &a,const T &b,bool caseSensitive)
+std::string ustring::substr(const std::string &str, std::size_t start, size_t len) { return (start < str.length()) ? str.substr(start, len) : ""; }
+std::string_view ustring::substr(const std::string_view &str, std::size_t start, size_t len) { return (start < str.length()) ? str.substr(start, len) : std::string_view {}; }
+template<typename T>
+    requires(std::is_same_v<T, std::string> || std::is_same_v<T, std::string_view>) bool
+ustring::compare(const T &a, const T &b, bool caseSensitive)
 {
 	if(caseSensitive == true)
 		return a == b;
 	if(a.length() != b.length())
 		return false;
-	return std::equal(b.begin(),b.end(),a.begin(),[](unsigned char a,unsigned char b) {
-		return std::tolower(a) == std::tolower(b);
-	});
+	return std::equal(b.begin(), b.end(), a.begin(), [](unsigned char a, unsigned char b) { return std::tolower(a) == std::tolower(b); });
 }
-template DLLSHUTIL bool ustring::compare<std::string>(const std::string &a,const std::string &b,bool caseSensitive);
-template DLLSHUTIL bool ustring::compare<std::string_view>(const std::string_view &a,const std::string_view &b,bool caseSensitive);
-bool ustring::compare(const char *a,const char *b,bool caseSensitive,size_t len)
+template DLLSHUTIL bool ustring::compare<std::string>(const std::string &a, const std::string &b, bool caseSensitive);
+template DLLSHUTIL bool ustring::compare<std::string_view>(const std::string_view &a, const std::string_view &b, bool caseSensitive);
+bool ustring::compare(const char *a, const char *b, bool caseSensitive, size_t len)
 {
-	if(caseSensitive == true)
-	{
+	if(caseSensitive == true) {
 		if(len == std::string::npos)
-			return strcmp(a,b) == 0;
-		return strncmp(a,b,len) == 0;
+			return strcmp(a, b) == 0;
+		return strncmp(a, b, len) == 0;
 	}
-	if(len == std::string::npos)
-	{
+	if(len == std::string::npos) {
 		auto len0 = strlen(a);
 		auto len1 = strlen(b);
 		if(len0 != len1)
 			return false;
 		len = len0;
 	}
-	for(;len > 0;++a,++b,--len)
-	{
-		auto d = tolower(*a) -tolower(*b);
+	for(; len > 0; ++a, ++b, --len) {
+		auto d = tolower(*a) - tolower(*b);
 		if(d != 0 || !*a)
 			return false;
 	}
 	return true;
 }
 
-UInt ustring::get_parameters(const std::string &s,std::string &rname,std::vector<std::string> &args)
+UInt ustring::get_parameters(const std::string &s, std::string &rname, std::vector<std::string> &args)
 {
 	UInt arSt = s.find('(');
 	UInt arEn = s.find(')');
-	if(arSt == NOT_FOUND || arEn == NOT_FOUND) return arEn;
-	std::string name = s.substr(0,arSt);
+	if(arSt == NOT_FOUND || arEn == NOT_FOUND)
+		return arEn;
+	std::string name = s.substr(0, arSt);
 	rname = name;
 	UInt arNext = 0;
 	int it = 0;
-	do
-	{
-		arNext = s.find_first_of(",)",arNext +1);
-		std::string arg = s.substr(arSt +1,arNext -arSt -1);
+	do {
+		arNext = s.find_first_of(",)", arNext + 1);
+		std::string arg = s.substr(arSt + 1, arNext - arSt - 1);
 		remove_whitespace(arg);
 		if(arg.length() == 0 && it == 0)
 			return arEn;
 		args.push_back(arg);
 		arSt = arNext;
 		it++;
-	}
-	while(s[arNext] != ')');
+	} while(s[arNext] != ')');
 	return arEn;
 }
 
-UInt ustring::find_first_of_outside_quotes(const std::string &str,std::string tofind,UInt qPrev)
+UInt ustring::find_first_of_outside_quotes(const std::string &str, std::string tofind, UInt qPrev)
 {
 	UInt qStart = 0;
 	UInt qEnd;
 	qPrev--;
-	for(;;)
-	{
-		qStart = str.find_first_of('\"',qPrev +1);
-		qEnd = str.find_first_of('\"',qStart +1);
-		UInt f = str.find_first_of(tofind,qPrev +1);
+	for(;;) {
+		qStart = str.find_first_of('\"', qPrev + 1);
+		qEnd = str.find_first_of('\"', qStart + 1);
+		UInt f = str.find_first_of(tofind, qPrev + 1);
 		if(qStart == NOT_FOUND || qEnd == NOT_FOUND || f < qStart)
 			return f;
 		qPrev = qEnd;
@@ -418,16 +391,14 @@ UInt ustring::find_first_of_outside_quotes(const std::string &str,std::string to
 	//return NOT_FOUND;
 }
 
-UInt ustring::find_first_of(FILE *f,const std::string &tofind,std::string *line)
+UInt ustring::find_first_of(FILE *f, const std::string &tofind, std::string *line)
 {
 	Char buf[4096];
-	while(fgets(buf,4096,f))
-	{
+	while(fgets(buf, 4096, f)) {
 		std::string sbuf(buf);
 		remove_comment(sbuf);
 		UInt brSt = sbuf.find_first_of(tofind);
-		if(brSt != NOT_FOUND)
-		{
+		if(brSt != NOT_FOUND) {
 			if(line != NULL)
 				*line = sbuf;
 			return brSt;
@@ -436,44 +407,42 @@ UInt ustring::find_first_of(FILE *f,const std::string &tofind,std::string *line)
 	return NOT_FOUND;
 }
 
-std::string ustring::float_to_string(float f) {return std::to_string(f);}
-std::string ustring::int_to_string(int i) {return std::to_string(i);}
+std::string ustring::float_to_string(float f) { return std::to_string(f); }
+std::string ustring::int_to_string(int i) { return std::to_string(i); }
 
 bool ustring::is_integer(const std::string &str)
 {
 	char *p;
-	long converted = strtol(str.c_str(),&p,10);
+	long converted = strtol(str.c_str(), &p, 10);
 	return !*p;
 }
 bool ustring::is_number(const std::string &str)
 {
 	char *p;
-	long converted = strtod(str.c_str(),&p);
+	long converted = strtod(str.c_str(), &p);
 	return !*p;
 }
 
-UInt ustring::get_args(const std::string &line,std::vector<std::string> &argv)
+UInt ustring::get_args(const std::string &line, std::vector<std::string> &argv)
 {
 	UInt i = 0;
-	while(i != UInt(-1))
-	{
-		UInt n = line.find_first_not_of(WHITESPACE,i);
-		if(n == UInt(-1)) break;
+	while(i != UInt(-1)) {
+		UInt n = line.find_first_not_of(WHITESPACE, i);
+		if(n == UInt(-1))
+			break;
 		bool isstr = false;
-		if(line[n] == '\"')
-		{
-			i = line.find_first_of('\"',n +1);
+		if(line[n] == '\"') {
+			i = line.find_first_of('\"', n + 1);
 			if(i == UInt(-1))
-				i = line.find_first_of(WHITESPACE,n);
-			else
-			{
-				n = n +1;
+				i = line.find_first_of(WHITESPACE, n);
+			else {
+				n = n + 1;
 				isstr = true;
 			}
 		}
 		else
-			i = line.find_first_of(WHITESPACE,n);
-		argv.push_back(line.substr(n,i -n));
+			i = line.find_first_of(WHITESPACE, n);
+		argv.push_back(line.substr(n, i - n));
 		if(isstr)
 			i++;
 	}
@@ -482,86 +451,83 @@ UInt ustring::get_args(const std::string &line,std::vector<std::string> &argv)
 std::vector<std::string> ustring::get_args(const std::string &line)
 {
 	std::vector<std::string> argv;
-	get_args(line,argv);
+	get_args(line, argv);
 	return argv;
 }
 
-UInt ustring::get_command_args(const std::string &line,std::string &cmd,std::vector<std::string> &argv)
+UInt ustring::get_command_args(const std::string &line, std::string &cmd, std::vector<std::string> &argv)
 {
 	argv = get_args(line);
 	if(argv.empty())
 		cmd = "";
-	else
-	{
+	else {
 		cmd = argv.front();
 		to_lower(cmd);
 		argv.erase(argv.begin());
 	}
 	return argv.size();
 }
-std::vector<std::string> ustring::get_command_args(const std::string &line,std::string &cmd)
+std::vector<std::string> ustring::get_command_args(const std::string &line, std::string &cmd)
 {
 	std::vector<std::string> argv;
-	get_command_args(line,cmd,argv);
+	get_command_args(line, cmd, argv);
 	return argv;
 }
 
-void ustring::get_sequence_commands(const std::string &line,const std::function<void(std::string,std::vector<std::string>&)> &f)
+void ustring::get_sequence_commands(const std::string &line, const std::function<void(std::string, std::vector<std::string> &)> &f)
 {
 	std::string substr(line);
 	UInt st = substr.find_first_not_of(WHITESPACE);
 	if(st == NOT_FOUND)
 		return;
-	substr = substr.substr(st,substr.length());
-	UInt s = find_first_of_outside_quotes(substr,";");
+	substr = substr.substr(st, substr.length());
+	UInt s = find_first_of_outside_quotes(substr, ";");
 	std::string next;
 	bool bNext = false;
-	if(s != NOT_FOUND)
-	{
+	if(s != NOT_FOUND) {
 		bNext = true;
-		next = substr.substr(s +1,substr.length());
-		substr = substr.substr(0,s);
+		next = substr.substr(s + 1, substr.length());
+		substr = substr.substr(0, s);
 	}
 	std::string cmd;
-	std::vector<std::string> argv = get_command_args(substr,cmd);
-	f(cmd,argv);
+	std::vector<std::string> argv = get_command_args(substr, cmd);
+	f(cmd, argv);
 	if(bNext)
-		get_sequence_commands(next.c_str(),f);
+		get_sequence_commands(next.c_str(), f);
 }
 
-std::string ustring::read_until(const std::string &t,Char c)
+std::string ustring::read_until(const std::string &t, Char c)
 {
 	std::string str;
 	unsigned int i = 0;
-	while(t[i] != c)
-	{
+	while(t[i] != c) {
 		str += t[i];
 		i++;
 	}
 	return str;
 }
 
-std::string ustring::read_until_etx(const std::string &t) {return read_until(t,3);}
+std::string ustring::read_until_etx(const std::string &t) { return read_until(t, 3); }
 
-std::string ustring::fill_zeroes(const std::string &i,int numDigits)
+std::string ustring::fill_zeroes(const std::string &i, int numDigits)
 {
 	if(i.length() >= numDigits)
 		return i;
-	auto l = CUInt(numDigits) -i.length();
+	auto l = CUInt(numDigits) - i.length();
 	std::stringstream si;
-	for(int j=0;j<l;j++)
-		si<<"0";
-	si<<i;
+	for(int j = 0; j < l; j++)
+		si << "0";
+	si << i;
 	return si.str();
 }
 
-void ustring::to_lower(std::string &str) {StringToLower(str);}
-void ustring::to_upper(std::string &str) {StringToUpper(str);}
+void ustring::to_lower(std::string &str) { StringToLower(str); }
+void ustring::to_upper(std::string &str) { StringToUpper(str); }
 
-Bool ustring::get_key_value(const std::string &str,std::string &rkey,std::string &rval,const Char *sep)
+Bool ustring::get_key_value(const std::string &str, std::string &rkey, std::string &rval, const Char *sep)
 {
 	std::vector<std::string> sub;
-	ustring::explode(str,sep,sub);
+	ustring::explode(str, sep, sub);
 	if(sub.size() < 2)
 		return false;
 	rkey = sub[0];
@@ -580,27 +546,24 @@ std::wstring ustring::string_to_wstring(const std::string &str)
 	// Source: https://stackoverflow.com/a/27296/2482983
 	int len;
 	int slength = (int)str.length() + 1;
-	len = MultiByteToWideChar(CP_ACP, 0, str.c_str(), slength, 0, 0); 
-	wchar_t* buf = new wchar_t[len];
+	len = MultiByteToWideChar(CP_ACP, 0, str.c_str(), slength, 0, 0);
+	wchar_t *buf = new wchar_t[len];
 	MultiByteToWideChar(CP_ACP, 0, str.c_str(), slength, buf, len);
 	std::wstring r(buf);
 	delete[] buf;
 	return r;
 #else
-	std::wstring ws(str.size(), L' '); // Overestimate number of code points.
+	std::wstring ws(str.size(), L' ');                         // Overestimate number of code points.
 	ws.resize(std::mbstowcs(&ws[0], str.c_str(), str.size())); // Shrink to fit.
 #endif
 }
 std::string ustring::wstring_to_string(const std::wstring &str)
 {
 	// TODO: What about non-ASCII strings?
-	return std::string(str.begin(),str.end());
+	return std::string(str.begin(), str.end());
 }
 
-void ustring::replace(std::string &str,const std::string &from,const std::string &to)
-{
-	replace<std::string>(str,from,to);
-}
+void ustring::replace(std::string &str, const std::string &from, const std::string &to) { replace<std::string>(str, from, to); }
 
 std::string ustring::get_lower(const std::string &str)
 {
@@ -614,34 +577,21 @@ std::string ustring::get_upper(const std::string &str)
 	to_upper(out);
 	return out;
 }
-int32_t ustring::to_int(const std::string &str)
-{
-	return atoi(str.c_str());
-}
-float ustring::to_float(const std::string &str)
-{
-	return static_cast<float>(to_double(str));
-}
-double ustring::to_double(const std::string &str)
-{
-	return atof(str.c_str());
-}
+int32_t ustring::to_int(const std::string &str) { return atoi(str.c_str()); }
+float ustring::to_float(const std::string &str) { return static_cast<float>(to_double(str)); }
+double ustring::to_double(const std::string &str) { return atof(str.c_str()); }
 std::string ustring::name_to_identifier(const std::string &name)
 {
 	auto r = name;
 	to_lower(r);
-	for(auto &c : r)
-	{
+	for(auto &c : r) {
 		if(c <= 47 || (c >= 58 && c <= 64) || (c >= 91 && c <= 96) || c >= 123)
 			c = '_';
 	}
 	return r;
 }
 
-uint32_t ustring::ip_to_int(const std::string_view &ip)
-{
-	return inet_addr(ip.data());
-}
+uint32_t ustring::ip_to_int(const std::string_view &ip) { return inet_addr(ip.data()); }
 std::string ustring::int_to_ip(uint32_t ip)
 {
 	in_addr paddr;

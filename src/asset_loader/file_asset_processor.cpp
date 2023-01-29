@@ -4,9 +4,7 @@
 
 #include "sharedutils/asset_loader/file_asset_processor.hpp"
 
-util::FileAssetProcessor::FileAssetProcessor(util::AssetFormatLoader &loader,std::unique_ptr<util::IAssetFormatHandler> &&handler)
-	: handler{std::move(handler)},m_loader{loader}
-{}
+util::FileAssetProcessor::FileAssetProcessor(util::AssetFormatLoader &loader, std::unique_ptr<util::IAssetFormatHandler> &&handler) : handler {std::move(handler)}, m_loader {loader} {}
 
 void util::FileAssetProcessor::Close()
 {

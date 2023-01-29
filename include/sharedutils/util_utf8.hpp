@@ -10,20 +10,18 @@
 #include <unordered_map>
 #include <string>
 
-namespace util
-{
+namespace util {
 	using Utf8StringIterator = tiny_utf8::string::iterator;
 	using Utf8String = tiny_utf8::string;
-	
+
 	// This is currently a temporary wrapper over Utf8String until
 	// tiny_utf8 implements a string_view. This means that write-operations on this
 	// class currently won't work as expected and should not be used!
-	struct DLLSHUTIL Utf8StringView
-	{
-	public:
+	struct DLLSHUTIL Utf8StringView {
+	  public:
 		friend Utf8String;
 		static constexpr inline size_t npos = std::string::npos;
-		Utf8StringView()=default;
+		Utf8StringView() = default;
 		Utf8StringView(const Utf8String &str);
 		Utf8StringView(const std::string &str);
 		Utf8StringView(const char *str);
@@ -34,25 +32,25 @@ namespace util
 		bool operator==(const Utf8StringView &other) const;
 		bool operator!=(const Utf8StringView &other) const;
 		std::string cpp_str() const;
-		Utf8String &to_str() {return m_string;}
-		const Utf8String &to_str() const {return const_cast<Utf8StringView*>(this)->to_str();}
-		size_t find(const char *str,size_t startPos=0) const;
-		size_t find(const std::string &str,size_t startPos=0) const;
-		size_t find(const Utf8String &str,size_t startPos=0) const;
+		Utf8String &to_str() { return m_string; }
+		const Utf8String &to_str() const { return const_cast<Utf8StringView *>(this)->to_str(); }
+		size_t find(const char *str, size_t startPos = 0) const;
+		size_t find(const std::string &str, size_t startPos = 0) const;
+		size_t find(const Utf8String &str, size_t startPos = 0) const;
 		Utf8StringIterator begin() const;
 		Utf8StringIterator end() const;
 		const char *c_str() const;
 		size_t length() const;
-		bool empty() const {return length() == 0;}
+		bool empty() const { return length() == 0; }
 		uint16_t get(size_t idx) const;
-		Utf8StringView substr(size_t start,size_t count=std::numeric_limits<size_t>::max()) const;
-	private:
+		Utf8StringView substr(size_t start, size_t count = std::numeric_limits<size_t>::max()) const;
+	  private:
 		Utf8String m_string;
 	};
-	DLLSHUTIL bool utf8_strncmp(const char *t0,const char *t1,size_t num);
+	DLLSHUTIL bool utf8_strncmp(const char *t0, const char *t1, size_t num);
 };
-DLLSHUTIL util::Utf8String &operator+=(util::Utf8String &str,const util::Utf8StringView &view);
-DLLSHUTIL std::ostream &operator<<(std::ostream &out,const util::Utf8String &str);
-DLLSHUTIL std::ostream &operator<<(std::ostream &out,const util::Utf8StringView &str);
+DLLSHUTIL util::Utf8String &operator+=(util::Utf8String &str, const util::Utf8StringView &view);
+DLLSHUTIL std::ostream &operator<<(std::ostream &out, const util::Utf8String &str);
+DLLSHUTIL std::ostream &operator<<(std::ostream &out, const util::Utf8StringView &str);
 
 #endif

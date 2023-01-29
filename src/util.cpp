@@ -15,141 +15,124 @@
 #include <cstring>
 #include <random>
 #ifdef __linux__
-	#include <sys/types.h>
-	#include <sys/stat.h>
-	#include <unistd.h>
-	#include <dirent.h>
-	#include <signal.h>
-	#include <glob.h>
-	#include <stdlib.h>
-	#include <string.h>
-	#include <pthread.h>
-	#include <stdio.h>
-	#include <dlfcn.h>
-	#include <unistd.h>
-	#include <linux/reboot.h>
-	#include <sys/reboot.h>
-	#include <sys/prctl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <dirent.h>
+#include <signal.h>
+#include <glob.h>
+#include <stdlib.h>
+#include <string.h>
+#include <pthread.h>
+#include <stdio.h>
+#include <dlfcn.h>
+#include <unistd.h>
+#include <linux/reboot.h>
+#include <sys/reboot.h>
+#include <sys/prctl.h>
 #else
-	#include "Shlwapi.h"
-	#include <vector>
-	#include <Windows.h>
-	#include <TlHelp32.h>
-	#include <comutil.h>
-	#include <direct.h>
-	#include <Shlobj_core.h>
+#include "Shlwapi.h"
+#include <vector>
+#include <Windows.h>
+#include <TlHelp32.h>
+#include <comutil.h>
+#include <direct.h>
+#include <Shlobj_core.h>
 #endif
 #include <thread>
 
-#pragma comment(lib,"mathutil.lib")
+#pragma comment(lib, "mathutil.lib")
 
 std::string util::get_pretty_bytes(unsigned long long bytes)
 {
 	auto sz = static_cast<double>(bytes);
-    const char *suffixes[] = {
-        "Byte",
-        "KiB",
-        "MiB",
-        "GiB",
-        "TiB",
-        "PiB",
-        "EiB",
-        "ZiB",
-        "YiB"
-    };
-    char i = 0;
-    while(sz >= 1024.0 && i < 8)
-    {
-        sz /= 1024.0;
-        i++;
-    }
+	const char *suffixes[] = {"Byte", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"};
+	char i = 0;
+	while(sz >= 1024.0 && i < 8) {
+		sz /= 1024.0;
+		i++;
+	}
 	std::stringstream ss;
-	ss<<util::round_string(sz,2)<<" "<<suffixes[i];
-    return ss.str();
+	ss << util::round_string(sz, 2) << " " << suffixes[i];
+	return ss.str();
 }
 
-std::string util::get_pretty_duration(unsigned long long ms,int addSegments,bool bNoMs)
+std::string util::get_pretty_duration(unsigned long long ms, int addSegments, bool bNoMs)
 {
 	if(addSegments == -1)
 		addSegments = 100;
 	std::stringstream ss;
-	if(ms >= 1000 || bNoMs == true)
-	{
-		unsigned long long seconds = ms /1000;
+	if(ms >= 1000 || bNoMs == true) {
+		unsigned long long seconds = ms / 1000;
 		ms %= 1000;
 		if(bNoMs == true && ms > 0)
 			seconds++;
-		if(seconds >= 60)
-		{
-			unsigned long long minutes = seconds /60;
+		if(seconds >= 60) {
+			unsigned long long minutes = seconds / 60;
 			seconds %= 60;
-			if(minutes >= 60)
-			{
-				unsigned long long hours = minutes /60;
+			if(minutes >= 60) {
+				unsigned long long hours = minutes / 60;
 				minutes %= 60;
-				if(hours >= 24)
-				{
-					unsigned long long days = hours /24;
+				if(hours >= 24) {
+					unsigned long long days = hours / 24;
 					hours %= 60;
-					if(days > 7)
-					{
-						unsigned long long weeks = days /7;
+					if(days > 7) {
+						unsigned long long weeks = days / 7;
 						days %= 24;
-						ss<<weeks<<"wk";
+						ss << weeks << "wk";
 						if(addSegments-- <= 0)
 							return ss.str();
-						ss<<" ";
+						ss << " ";
 					}
-					ss<<days<<"d";
+					ss << days << "d";
 					if(addSegments-- <= 0)
 						return ss.str();
-					ss<<" ";
+					ss << " ";
 				}
-				ss<<hours<<"h";
+				ss << hours << "h";
 				if(addSegments-- <= 0)
 					return ss.str();
-				ss<<" ";
+				ss << " ";
 			}
-			ss<<minutes<<"m";
+			ss << minutes << "m";
 			if(addSegments-- <= 0)
 				return ss.str();
-			ss<<" ";
+			ss << " ";
 		}
-		ss<<seconds<<"s";
+		ss << seconds << "s";
 		if(bNoMs == true || addSegments-- <= 0)
 			return ss.str();
-		ss<<" ";
+		ss << " ";
 	}
-	ss<<ms<<"ms";
+	ss << ms << "ms";
 	return ss.str();
 }
 
-static std::string program_name(bool bPost=false)
+static std::string program_name(bool bPost = false)
 {
 	std::string programPath = "";
 #ifdef __linux__
 	pid_t pid = getpid();
 	char buf[20] = {0};
-	sprintf(buf,"%d",pid);
+	sprintf(buf, "%d", pid);
 	std::string _link = "/proc/";
 	_link.append(buf);
 	_link.append("/exe");
 	char proc[512];
-	int ch = readlink(_link.c_str(),proc,512);
-	if(ch != -1)
-	{
+	int ch = readlink(_link.c_str(), proc, 512);
+	if(ch != -1) {
 		proc[ch] = 0;
 		programPath = proc;
 		std::string::size_type t = programPath.find_last_of("/");
-		programPath = (bPost == false) ? programPath.substr(0,t) : programPath.substr(t +1,programPath.length());
+		programPath = (bPost == false) ? programPath.substr(0, t) : programPath.substr(t + 1, programPath.length());
 	}
 #else
-	char path[MAX_PATH +1];
-	GetModuleFileName(NULL,path,MAX_PATH +1);
+	char path[MAX_PATH + 1];
+	GetModuleFileName(NULL, path, MAX_PATH + 1);
 
 	programPath = path;
 	auto br = programPath.rfind("\\");
-	programPath = (bPost == false) ? programPath.substr(0,br) : programPath.substr(br +1,programPath.length());
+	programPath = (bPost == false) ? programPath.substr(0, br) : programPath.substr(br + 1, programPath.length());
 #endif
 	return programPath;
 }
@@ -162,10 +145,7 @@ std::string util::get_program_path()
 	return g_programPath;
 }
 
-void util::set_program_path(const std::string &path)
-{
-	g_programPath = path;
-}
+void util::set_program_path(const std::string &path) { g_programPath = path; }
 
 std::string util::get_program_name()
 {
@@ -182,14 +162,14 @@ std::optional<std::string> util::get_library_file_path(const void *ptrToAnyStati
 	char path[MAX_PATH];
 	HMODULE hm = NULL;
 
-	if(GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,(LPCSTR) ptrToAnyStaticLibFunc,&hm) == 0)
+	if(GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCSTR)ptrToAnyStaticLibFunc, &hm) == 0)
 		return {};
-	if (GetModuleFileName(hm,path,sizeof(path)) == 0)
+	if(GetModuleFileName(hm, path, sizeof(path)) == 0)
 		return {};
 	return path;
 #else
 	Dl_info dlInfo;
-	dladdr(const_cast<void*>(ptrToAnyStaticLibFunc),&dlInfo);
+	dladdr(const_cast<void *>(ptrToAnyStaticLibFunc), &dlInfo);
 	if(dlInfo.dli_sname == NULL || dlInfo.dli_saddr == NULL)
 		return {};
 	return dlInfo.dli_fname;
@@ -216,16 +196,16 @@ unsigned long long util::get_process_id()
 bool util::is_process_running(unsigned long long id)
 {
 #ifdef _WIN32
-	auto process = OpenProcess(PROCESS_QUERY_INFORMATION,FALSE,static_cast<DWORD>(id));
+	auto process = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, static_cast<DWORD>(id));
 	if(process == nullptr)
 		return false;
 	unsigned long exitCode = 0;
-	auto r = GetExitCodeProcess(process,&exitCode);
+	auto r = GetExitCodeProcess(process, &exitCode);
 	if(r == false || exitCode != STILL_ACTIVE)
 		return false;
 	return true;
 #else
-	return (kill(id,0) == 0) ? true : false;
+	return (kill(id, 0) == 0) ? true : false;
 #endif
 }
 
@@ -234,32 +214,31 @@ static pid_t find_process_id(const char *process_name)
 {
 	pid_t pid = -1;
 	glob_t pglob;
-	char *procname,*readbuf;
-	int buflen = strlen(process_name) +2;
+	char *procname, *readbuf;
+	int buflen = strlen(process_name) + 2;
 	unsigned i;
 
 	/* Get a list of all comm files. man 5 proc */
-	if(glob("/proc/*/comm",0,NULL,&pglob) != 0)
+	if(glob("/proc/*/comm", 0, NULL, &pglob) != 0)
 		return pid;
 
 	/* The comm files include trailing newlines, so... */
-	procname = (char*)malloc(buflen);
+	procname = (char *)malloc(buflen);
 	strcpy(procname, process_name);
-	procname[buflen -2] = '\n';
-	procname[buflen -1] = 0;
+	procname[buflen - 2] = '\n';
+	procname[buflen - 1] = 0;
 
 	/* readbuff will hold the contents of the comm files. */
-	readbuf = (char*)malloc(buflen);
+	readbuf = (char *)malloc(buflen);
 
-	for(i=0;i<pglob.gl_pathc;++i)
-	{
+	for(i = 0; i < pglob.gl_pathc; ++i) {
 		FILE *comm;
 		char *ret;
 
 		/* Read the contents of the file. */
-		if((comm = fopen(pglob.gl_pathv[i],"r")) == NULL)
+		if((comm = fopen(pglob.gl_pathv[i], "r")) == NULL)
 			continue;
-		ret = fgets(readbuf,buflen,comm);
+		ret = fgets(readbuf, buflen, comm);
 		fclose(comm);
 		if(ret == NULL)
 			continue;
@@ -269,7 +248,7 @@ static pid_t find_process_id(const char *process_name)
 		path, convert it to a pid_t, and return it.
 		*/
 		if(strcmp(readbuf, procname) == 0) {
-			pid = (pid_t)atoi(pglob.gl_pathv[i] +strlen("/proc/"));
+			pid = (pid_t)atoi(pglob.gl_pathv[i] + strlen("/proc/"));
 			break;
 		}
 	}
@@ -285,19 +264,17 @@ static pid_t find_process_id(const char *process_name)
 bool util::is_process_running(const char *name)
 {
 #ifdef _WIN32
-	HANDLE SnapShot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS,0);
+	HANDLE SnapShot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
 	if(SnapShot == INVALID_HANDLE_VALUE)
-	return false;
+		return false;
 	PROCESSENTRY32 procEntry;
 	procEntry.dwSize = sizeof(PROCESSENTRY32);
-	if(!Process32First(SnapShot,&procEntry))
+	if(!Process32First(SnapShot, &procEntry))
 		return false;
-	do
-	{
-		if(strcmp(procEntry.szExeFile,name) == 0)
-		return true;
-	}
-	while(Process32Next(SnapShot,&procEntry));
+	do {
+		if(strcmp(procEntry.szExeFile, name) == 0)
+			return true;
+	} while(Process32Next(SnapShot, &procEntry));
 	return false;
 #else
 	auto id = find_process_id(name);
@@ -311,10 +288,10 @@ bool util::get_current_working_directory(std::string &cwd)
 {
 	char cCurrentPath[FILENAME_MAX];
 #ifdef __linux__
-	if(!getcwd(cCurrentPath,sizeof(cCurrentPath)))
+	if(!getcwd(cCurrentPath, sizeof(cCurrentPath)))
 		return false;
 #else
-	if(!_getcwd(cCurrentPath,sizeof(cCurrentPath)))
+	if(!_getcwd(cCurrentPath, sizeof(cCurrentPath)))
 		return false;
 #endif
 	cwd = cCurrentPath;
@@ -337,19 +314,17 @@ bool util::set_current_working_directory(const std::string &path)
 #endif
 	return true;
 }
-bool util::start_process(const char *program,bool bGlobalPath) {return start_process(program,"",bGlobalPath);}
-bool util::start_process(const char *program,const std::string &args,bool bGlobalPath)
+bool util::start_process(const char *program, bool bGlobalPath) { return start_process(program, "", bGlobalPath); }
+bool util::start_process(const char *program, const std::string &args, bool bGlobalPath)
 {
 #ifdef __linux__
 	std::string path;
-	if(bGlobalPath == false)
-	{
+	if(bGlobalPath == false) {
 		path = get_program_path();
 		path += "/";
 	}
 	path += program;
-	if(access(path.c_str(),F_OK) == -1)
-	{
+	if(access(path.c_str(), F_OK) == -1) {
 		errno = ENOENT;
 		return false;
 	}
@@ -359,8 +334,7 @@ bool util::start_process(const char *program,const std::string &args,bool bGloba
 	cmd += args;
 	cmd += " &";
 	auto r = system(cmd.c_str());
-	if(r == -1)
-	{
+	if(r == -1) {
 		errno = ESRCH;
 		return false;
 	}
@@ -368,70 +342,66 @@ bool util::start_process(const char *program,const std::string &args,bool bGloba
 #else
 	std::string path;
 	std::string file;
-	if(bGlobalPath == false)
-	{
+	if(bGlobalPath == false) {
 		path = get_program_path();
 		file = program;
 	}
-	else
-	{
+	else {
 		path = ufile::get_path_from_filename(program);
 		if(path.empty() == false && (path.back() == '/' || path.back() == '\\'))
-			path = path.substr(0ull,path.length() -1ull);
+			path = path.substr(0ull, path.length() - 1ull);
 		file = ufile::get_file_from_filename(program);
 	}
-	std::string pArgs = '\"' +path +'\"';
+	std::string pArgs = '\"' + path + '\"';
 	if(!args.empty())
-		pArgs += " " +args;
+		pArgs += " " + args;
 
-    STARTUPINFO si;
-    PROCESS_INFORMATION pi;
-    ZeroMemory(&si,sizeof(si));
-    si.cb = sizeof(si);
-    ZeroMemory(&pi,sizeof(pi));
+	STARTUPINFO si;
+	PROCESS_INFORMATION pi;
+	ZeroMemory(&si, sizeof(si));
+	si.cb = sizeof(si);
+	ZeroMemory(&pi, sizeof(pi));
 	std::string programPath = path;
 	programPath += "\\";
 	programPath += file;
-	auto fullPath = programPath +' ' +args;
-	return (CreateProcess(nullptr,const_cast<char*>(fullPath.c_str()),nullptr,nullptr,TRUE,0,nullptr,nullptr,&si,&pi) != 0) ? true : false;
-    //return (CreateProcess(programPath.c_str(),const_cast<char*>(pArgs.c_str()),nullptr,nullptr,TRUE,0,nullptr,nullptr,&si,&pi) != 0) ? true : false; // Does not work in some cases (See ZeroBrane)
+	auto fullPath = programPath + ' ' + args;
+	return (CreateProcess(nullptr, const_cast<char *>(fullPath.c_str()), nullptr, nullptr, TRUE, 0, nullptr, nullptr, &si, &pi) != 0) ? true : false;
+	//return (CreateProcess(programPath.c_str(),const_cast<char*>(pArgs.c_str()),nullptr,nullptr,TRUE,0,nullptr,nullptr,&si,&pi) != 0) ? true : false; // Does not work in some cases (See ZeroBrane)
 #endif
 }
-bool util::start_process(const char *program,const std::vector<std::string> &args,bool bGlobalPath)
+bool util::start_process(const char *program, const std::vector<std::string> &args, bool bGlobalPath)
 {
 	std::stringstream ss;
 	bool bFirst = true;
-	for(auto i=0;i<args.size();i++)
-	{
-		if(!args.empty())
-		{
+	for(auto i = 0; i < args.size(); i++) {
+		if(!args.empty()) {
 			if(bFirst == false)
-				ss<<" ";
+				ss << " ";
 			else
 				bFirst = false;
 			std::string arg = args[i];
 			ustring::remove_whitespace(arg);
 			if(arg.size() > 1 && arg.front() == '"' && arg.back() == '"')
-				ss<<arg;
+				ss << arg;
 			else
-				ss<<'"'<<arg<<'"';
+				ss << '"' << arg << '"';
 		}
 	}
-	return start_process(program,ss.str(),bGlobalPath);
+	return start_process(program, ss.str(), bGlobalPath);
 }
 
-bool util::set_env_variable(const std::string &varName,const std::string &value)
+bool util::set_env_variable(const std::string &varName, const std::string &value)
 {
 #ifdef _WIN32
-	return SetEnvironmentVariable(varName.c_str(),value.c_str()) != 0;
+	return SetEnvironmentVariable(varName.c_str(), value.c_str()) != 0;
 #else
-	return setenv(varName.c_str(),value.c_str(),1) == 0;
+	return setenv(varName.c_str(), value.c_str(), 1) == 0;
 #endif
 }
 bool util::unset_env_variable(const std::string &varName)
 {
 #ifdef _WIN32
-	return _putenv((varName +"=").c_str()) == 0;
+	return _putenv((varName + "=").c_str()) == 0;
 #else
 	return unsetenv(varName.c_str()) == 0;
 #endif
@@ -443,32 +413,28 @@ std::optional<std::string> util::get_env_variable(const std::string &varName)
 		return {};
 	return val;
 }
-	
 
 #ifdef _WIN32
-static bool start_and_wait_for_command(const char *program,const char *cmd,const char *cwd,unsigned int *exitCode,bool bGlobalPath,std::string *optOutput)
+static bool start_and_wait_for_command(const char *program, const char *cmd, const char *cwd, unsigned int *exitCode, bool bGlobalPath, std::string *optOutput)
 {
 	std::string path;
-	if(program != nullptr)
-	{
+	if(program != nullptr) {
 		if(bGlobalPath == true)
 			path = program;
-		else
-		{
+		else {
 			path = util::get_program_path();
 			path += "\\";
 			path += program;
 		}
 	}
 	STARTUPINFO StartupInfo;
-	ZeroMemory(&StartupInfo,sizeof(StartupInfo));
+	ZeroMemory(&StartupInfo, sizeof(StartupInfo));
 
 	//
 	//util::ScopeGuard sgStdIn {};
 	//util::ScopeGuard sgStdOut {};
 	HANDLE g_hChildStd_OUT_Rd;
-	if(optOutput)
-	{
+	if(optOutput) {
 		// See https://stackoverflow.com/a/54689395/2482983
 		SECURITY_ATTRIBUTES sa;
 		HANDLE g_hChildStd_IN_Rd, g_hChildStd_OUT_Wr, g_hChildStd_IN_Wr; //pipe handles
@@ -477,21 +443,21 @@ static bool start_and_wait_for_command(const char *program,const char *cmd,const
 		sa.bInheritHandle = TRUE;
 		sa.lpSecurityDescriptor = NULL;
 
-		if (CreatePipe(&g_hChildStd_IN_Rd,&g_hChildStd_IN_Wr,&sa,0)) //create stdin pipe
+		if(CreatePipe(&g_hChildStd_IN_Rd, &g_hChildStd_IN_Wr, &sa, 0)) //create stdin pipe
 		{
 			/*sgStdIn = [&g_hChildStd_IN_Rd,&g_hChildStd_IN_Wr]() {
 				CloseHandle(g_hChildStd_IN_Rd);
 				CloseHandle(g_hChildStd_IN_Wr);
 			};*/
 
-			if (CreatePipe(&g_hChildStd_OUT_Rd, &g_hChildStd_OUT_Wr,&sa,0)) //create stdout pipe
+			if(CreatePipe(&g_hChildStd_OUT_Rd, &g_hChildStd_OUT_Wr, &sa, 0)) //create stdout pipe
 			{
 				/*sgStdOut = [&g_hChildStd_OUT_Wr,&g_hChildStd_OUT_Rd]() {
 					CloseHandle(g_hChildStd_OUT_Wr);
 					CloseHandle(g_hChildStd_OUT_Rd);
 				};*/
-				
-                StartupInfo.dwFlags = STARTF_USESTDHANDLES;
+
+				StartupInfo.dwFlags = STARTF_USESTDHANDLES;
 				StartupInfo.hStdOutput = g_hChildStd_OUT_Wr;
 				// StartupInfo.hStdError = g_hChildStd_OUT_Wr;
 				StartupInfo.hStdInput = g_hChildStd_IN_Rd;
@@ -501,100 +467,94 @@ static bool start_and_wait_for_command(const char *program,const char *cmd,const
 	//
 
 	PROCESS_INFORMATION ProcessInfo;
-	auto hProcess = CreateProcess(
-		(program != nullptr) ? path.c_str() : nullptr,	//  pointer to name of executable module  
-		(LPSTR)cmd,		//  pointer to command line string  
-		nullptr,		//  pointer to process security attributes  
-		nullptr,		//  pointer to thread security attributes  
-		TRUE,			//  handle inheritance flag  
-		0,				//  creation flags  
-		nullptr,		//  pointer to new environment block  
-		cwd,		//  pointer to current directory name  
-		&StartupInfo,	//  pointer to STARTUPINFO  
-		&ProcessInfo	//  pointer to PROCESS_INFORMATION  
+	auto hProcess = CreateProcess((program != nullptr) ? path.c_str() : nullptr, //  pointer to name of executable module
+	  (LPSTR)cmd,                                                                //  pointer to command line string
+	  nullptr,                                                                   //  pointer to process security attributes
+	  nullptr,                                                                   //  pointer to thread security attributes
+	  TRUE,                                                                      //  handle inheritance flag
+	  0,                                                                         //  creation flags
+	  nullptr,                                                                   //  pointer to new environment block
+	  cwd,                                                                       //  pointer to current directory name
+	  &StartupInfo,                                                              //  pointer to STARTUPINFO
+	  &ProcessInfo                                                               //  pointer to PROCESS_INFORMATION
 	);
 	if(!hProcess)
 		return false;
-	auto r = WaitForSingleObject(
-		ProcessInfo.hProcess,  
-		INFINITE	// time-out interval in milliseconds  
+	auto r = WaitForSingleObject(ProcessInfo.hProcess,
+	  INFINITE // time-out interval in milliseconds
 	);
 	UNUSED(r);
 	DWORD code;
-	GetExitCodeProcess(ProcessInfo.hProcess,&code);
+	GetExitCodeProcess(ProcessInfo.hProcess, &code);
 	if(exitCode != nullptr)
 		*exitCode = code;
 
-	if(optOutput)
-	{
-		DWORD read;   //bytes read
-		DWORD avail;   //bytes available
+	if(optOutput) {
+		DWORD read;  //bytes read
+		DWORD avail; //bytes available
 		std::vector<char> buf;
 
-		for(;;)
-		{
-			if(!PeekNamedPipe(g_hChildStd_OUT_Rd,nullptr,0,nullptr,&avail,nullptr))
+		for(;;) {
+			if(!PeekNamedPipe(g_hChildStd_OUT_Rd, nullptr, 0, nullptr, &avail, nullptr))
 				break;
 			auto offset = buf.size();
-			buf.resize(buf.size() +avail);
-			auto *data = buf.data() +offset;
+			buf.resize(buf.size() + avail);
+			auto *data = buf.data() + offset;
 			auto toRead = avail;
-			PeekNamedPipe(g_hChildStd_OUT_Rd,data,toRead,&read,&avail,nullptr);
+			PeekNamedPipe(g_hChildStd_OUT_Rd, data, toRead, &read, &avail, nullptr);
 			//check to see if there is any data to read from stdout
-			if(read != 0)
-			{
-				if (ReadFile(g_hChildStd_OUT_Rd,data,toRead,&read,nullptr))
+			if(read != 0) {
+				if(ReadFile(g_hChildStd_OUT_Rd, data, toRead, &read, nullptr))
 					break;
 			}
 		}
-		*optOutput = {buf.data(),buf.size()};
+		*optOutput = {buf.data(), buf.size()};
 	}
 
 	// CloseHandle(ProcessInfo.hThread);
 	// CloseHandle(ProcessInfo.hProcess);
 	return true;
 }
-bool util::start_and_wait_for_command(const char *cmd,const char *cwd,unsigned int *exitCode,std::string *optOutput) {return ::start_and_wait_for_command(nullptr,cmd,cwd,exitCode,false,optOutput);}
-bool util::start_and_wait_for_process(const char *program,unsigned int *exitCode,bool bGlobalPath,std::string *optOutput) {return ::start_and_wait_for_command(program,nullptr,nullptr,exitCode,bGlobalPath,optOutput);}
+bool util::start_and_wait_for_command(const char *cmd, const char *cwd, unsigned int *exitCode, std::string *optOutput) { return ::start_and_wait_for_command(nullptr, cmd, cwd, exitCode, false, optOutput); }
+bool util::start_and_wait_for_process(const char *program, unsigned int *exitCode, bool bGlobalPath, std::string *optOutput) { return ::start_and_wait_for_command(program, nullptr, nullptr, exitCode, bGlobalPath, optOutput); }
 #endif
 
 std::string util::get_last_system_error_string()
 {
 #ifdef _WIN32
-    DWORD errorMessageID = ::GetLastError();
-    if(errorMessageID == 0)
-        return "No error message has been recorded";
-    LPSTR messageBuffer = nullptr;
-    size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-		nullptr,errorMessageID,MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),(LPSTR)&messageBuffer,0,nullptr);
-    std::string message(messageBuffer,size);
-    LocalFree(messageBuffer);
-    return message;
+	DWORD errorMessageID = ::GetLastError();
+	if(errorMessageID == 0)
+		return "No error message has been recorded";
+	LPSTR messageBuffer = nullptr;
+	size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, nullptr);
+	std::string message(messageBuffer, size);
+	LocalFree(messageBuffer);
+	return message;
 #else
-    return std::strerror(errno);
+	return std::strerror(errno);
 #endif
 }
 
 bool util::is_x64_system()
 {
 #ifdef __linux__
-	#if __x86_64__ || __ppc64__
-		return true; // 64-bit application can't run on 32-bit system, so it HAS to be 64-bit. Macro is only set for gcc?
-	#else
-		return (access("/lib64/ld-linux-x86-64.so.2",F_OK) != -1) ? true : false;
-	#endif
+#if __x86_64__ || __ppc64__
+	return true; // 64-bit application can't run on 32-bit system, so it HAS to be 64-bit. Macro is only set for gcc?
 #else
-	#if _WIN64
-		return true; // 64-bit application can't run on 32-bit system, so it HAS to be 64-bit. Macro is only set for visual studio?
-	#else
-		SYSTEM_INFO info;
-		ZeroMemory(&info,sizeof(info));
-		GetNativeSystemInfo(&info);
-		return (info.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64) ? true : false;
-	#endif
+	return (access("/lib64/ld-linux-x86-64.so.2", F_OK) != -1) ? true : false;
+#endif
+#else
+#if _WIN64
+	return true; // 64-bit application can't run on 32-bit system, so it HAS to be 64-bit. Macro is only set for visual studio?
+#else
+	SYSTEM_INFO info;
+	ZeroMemory(&info, sizeof(info));
+	GetNativeSystemInfo(&info);
+	return (info.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64) ? true : false;
+#endif
 #endif
 }
-bool util::is_x86_system() {return (is_x64_system() == true) ? false : true;}
+bool util::is_x86_system() { return (is_x64_system() == true) ? false : true; }
 bool util::is_windows_system()
 {
 #ifdef _WIN32
@@ -613,46 +573,43 @@ bool util::is_linux_system()
 }
 
 #ifdef _WIN32
-	std::unordered_map<std::string,std::string> util::get_launch_parameters() {return get_launch_parameters(__argc,__argv);}
+std::unordered_map<std::string, std::string> util::get_launch_parameters() { return get_launch_parameters(__argc, __argv); }
 #endif
-std::unordered_map<std::string,std::string> util::get_launch_parameters(int argc,char *argv[])
+std::unordered_map<std::string, std::string> util::get_launch_parameters(int argc, char *argv[])
 {
-	std::unordered_map<std::string,std::string> out;
-	for(auto i=0;i<argc;i++)
-	{
+	std::unordered_map<std::string, std::string> out;
+	for(auto i = 0; i < argc; i++) {
 		char *arg = argv[i];
 		std::vector<std::string> sub;
-		ustring::explode(arg,"=",sub);
-		if(!sub.empty())
-		{
+		ustring::explode(arg, "=", sub);
+		if(!sub.empty()) {
 			if(sub.size() > 1)
-				out.insert(std::unordered_map<std::string,std::string>::value_type(sub[0],sub[1]));
+				out.insert(std::unordered_map<std::string, std::string>::value_type(sub[0], sub[1]));
 			else
-				out.insert(std::unordered_map<std::string,std::string>::value_type(sub[0],"1"));
+				out.insert(std::unordered_map<std::string, std::string>::value_type(sub[0], "1"));
 		}
 	}
 	return out;
 }
 
-float util::to_float(const std::string_view &str) {return to_float<float>(str);}
-int util::to_int(const std::string_view &str) {return to_int<int>(str);}
+float util::to_float(const std::string_view &str) { return to_float<float>(str); }
+int util::to_int(const std::string_view &str) { return to_int<int>(str); }
 bool util::to_boolean(const std::string_view &str)
 {
-	if(str.length() >= 4)
-	{
-		if(ustring::match(str,"*true*"))
+	if(str.length() >= 4) {
+		if(ustring::match(str, "*true*"))
 			return true;
-		if(ustring::match(str,"*false*"))
+		if(ustring::match(str, "*false*"))
 			return false;
 	}
 	return to_int(str) != 0;
 }
 
-std::string util::round_string(double v,int places)
+std::string util::round_string(double v, int places)
 {
-	v = umath::round(v,places);
+	v = umath::round(v, places);
 	std::stringstream ss;
-	ss<<std::fixed<<std::setprecision(places)<<v;
+	ss << std::fixed << std::setprecision(places) << v;
 	return ss.str();
 }
 
@@ -660,98 +617,89 @@ util::Version util::string_to_version(const std::string_view &str)
 {
 	auto v = util::Version();
 	auto pos = str.find_first_of('.');
-	v.major = util::to_int(str.substr(0,pos));
-	v.minor = util::to_int(str.substr(pos +1,str.length()));
+	v.major = util::to_int(str.substr(0, pos));
+	v.minor = util::to_int(str.substr(pos + 1, str.length()));
 	return v;
 }
 
-Float util::get_faded_time_factor(Float cur,Float dur,Float fadeIn,Float fadeOut)
+Float util::get_faded_time_factor(Float cur, Float dur, Float fadeIn, Float fadeOut)
 {
-	cur = umath::max(cur,0.f);
-	dur = umath::max(dur,0.f);
+	cur = umath::max(cur, 0.f);
+	dur = umath::max(dur, 0.f);
 	if(cur > dur)
 		return 0.f;
-	fadeIn = umath::max(fadeIn,0.f);
-	fadeOut = umath::max(fadeOut,0.f);
+	fadeIn = umath::max(fadeIn, 0.f);
+	fadeOut = umath::max(fadeOut, 0.f);
 	auto scale = 1.f;
 	if(cur < fadeIn)
-		scale *= cur /fadeIn;
-	else if(cur >= (dur -fadeOut))
-		scale *= 1.f -((cur -(dur -fadeOut)) /fadeOut);
+		scale *= cur / fadeIn;
+	else if(cur >= (dur - fadeOut))
+		scale *= 1.f - ((cur - (dur - fadeOut)) / fadeOut);
 	return scale;
 }
 
-Float util::get_scale_factor(Float val,Float min,Float max)
+Float util::get_scale_factor(Float val, Float min, Float max)
 {
 	if(max < min || val < min)
 		return 0.f;
 	if(val > max)
 		return 1.f;
-	return get_scale_factor(max -min,val -min);
+	return get_scale_factor(max - min, val - min);
 }
-Float util::get_scale_factor(Float val,Float range)
+Float util::get_scale_factor(Float val, Float range)
 {
 	if(val < 0.f || range == 0.f)
 		return 0.f;
 	if(val > range)
 		return 1.f;
-	return val /range;
+	return val / range;
 }
 
 #ifdef _WIN32
-bool util::get_registry_key_value(HKey key,const std::string &path,const std::string &strValueName,std::string &strValue)
+bool util::get_registry_key_value(HKey key, const std::string &path, const std::string &strValueName, std::string &strValue)
 {
 	HKEY hKey;
-	std::wstring wpath(path.begin(),path.end());
-	LONG lRes = RegOpenKeyExW(reinterpret_cast<HKEY>(key),wpath.c_str(),0,KEY_READ,&hKey);
+	std::wstring wpath(path.begin(), path.end());
+	LONG lRes = RegOpenKeyExW(reinterpret_cast<HKEY>(key), wpath.c_str(), 0, KEY_READ, &hKey);
 	UNUSED(lRes);
 
 	WCHAR szBuffer[512];
 	DWORD dwBufferSize = sizeof(szBuffer);
 	ULONG nError;
 	std::wstring wstrValue;
-	std::wstring wstrValueName(strValueName.begin(),strValueName.end());
-	nError = RegQueryValueExW(hKey,wstrValueName.c_str(),0,nullptr,(LPBYTE)szBuffer,&dwBufferSize);
+	std::wstring wstrValueName(strValueName.begin(), strValueName.end());
+	nError = RegQueryValueExW(hKey, wstrValueName.c_str(), 0, nullptr, (LPBYTE)szBuffer, &dwBufferSize);
 	RegCloseKey(hKey);
-	if(nError == ERROR_SUCCESS)
-	{
+	if(nError == ERROR_SUCCESS) {
 		wstrValue = szBuffer;
-		strValue = std::string(wstrValue.begin(),wstrValue.end());
+		strValue = std::string(wstrValue.begin(), wstrValue.end());
 		return true;
 	}
 	return false;
 }
-bool util::get_registry_key_value(HKey key,const std::string &path,const std::string &strValueName,uint64_t &intValue)
+bool util::get_registry_key_value(HKey key, const std::string &path, const std::string &strValueName, uint64_t &intValue)
 {
 	HKEY hKey;
-	std::wstring wpath(path.begin(),path.end());
-	LONG lRes = RegOpenKeyExW(reinterpret_cast<HKEY>(key),wpath.c_str(),0,KEY_READ,&hKey);
+	std::wstring wpath(path.begin(), path.end());
+	LONG lRes = RegOpenKeyExW(reinterpret_cast<HKEY>(key), wpath.c_str(), 0, KEY_READ, &hKey);
 	UNUSED(lRes);
 
 	DWORD dwBufferSize(sizeof(DWORD));
 	DWORD nResult(0);
-	std::wstring wstrValueName(strValueName.begin(),strValueName.end());
+	std::wstring wstrValueName(strValueName.begin(), strValueName.end());
 	RegCloseKey(hKey);
-	LONG nError = RegQueryValueExW(
-		hKey,
-		wstrValueName.c_str(),
-		0,
-		nullptr,
-		reinterpret_cast<LPBYTE>(&nResult),
-		&dwBufferSize
-	);
-	if(ERROR_SUCCESS == nError)
-	{
+	LONG nError = RegQueryValueExW(hKey, wstrValueName.c_str(), 0, nullptr, reinterpret_cast<LPBYTE>(&nResult), &dwBufferSize);
+	if(ERROR_SUCCESS == nError) {
 		intValue = nResult;
 		return true;
 	}
 	return false;
 }
-bool util::get_registry_key_value(HKey key,const std::string &path,const std::string &strValueName,bool &val)
+bool util::get_registry_key_value(HKey key, const std::string &path, const std::string &strValueName, bool &val)
 {
 	uint64_t intVal = 0;
 	val = false;
-	if(get_registry_key_value(key,path,strValueName,intVal) == false)
+	if(get_registry_key_value(key, path, strValueName, intVal) == false)
 		return false;
 	val = (intVal != 0) ? true : false;
 	return true;
@@ -764,49 +712,46 @@ std::string util::get_date_time(const std::string &format)
 	struct tm tstruct;
 	char buf[80];
 #ifdef _WIN32
-	localtime_s(&tstruct,&now);
+	localtime_s(&tstruct, &now);
 #else
 	tstruct = *localtime(&now);
 #endif
-	strftime(buf,sizeof(buf),format.c_str(),&tstruct);
+	strftime(buf, sizeof(buf), format.c_str(), &tstruct);
 	return buf;
 }
 
-void util::open_path_in_explorer(const std::string &path,const std::optional<std::string> &selectFile)
+void util::open_path_in_explorer(const std::string &path, const std::optional<std::string> &selectFile)
 {
 #ifdef _WIN32
-	if(selectFile.has_value())
-	{
-		auto absPath = path +*selectFile;
-		ustring::replace(absPath,"/","\\");
+	if(selectFile.has_value()) {
+		auto absPath = path + *selectFile;
+		ustring::replace(absPath, "/", "\\");
 		auto *pidl = ILCreateFromPath(absPath.c_str());
-		if(pidl)
-		{
-			SHOpenFolderAndSelectItems(pidl,0,0,0);
+		if(pidl) {
+			SHOpenFolderAndSelectItems(pidl, 0, 0, 0);
 			ILFree(pidl);
 			return;
 		}
 	}
 	// Source: https://stackoverflow.com/a/4139684/2482983
 	auto npath = path;
-	ustring::replace(npath,"/","\\");
+	ustring::replace(npath, "/", "\\");
 	std::wstring stemp = ustring::string_to_wstring(npath);
 	LPCWSTR pszPathToOpen = stemp.c_str();
 	PIDLIST_ABSOLUTE pidl;
 	auto result = SHParseDisplayName(pszPathToOpen, 0, &pidl, 0, 0);
-	if(SUCCEEDED(result))
-	{
+	if(SUCCEEDED(result)) {
 		// we don't want to actually select anything in the folder, so we pass an empty
 		// PIDL in the array. if you want to select one or more items in the opened
 		// folder you'd need to build the PIDL array appropriately
-		ITEMIDLIST idNull = { 0 };
-		LPCITEMIDLIST pidlNull[1] = { &idNull };
+		ITEMIDLIST idNull = {0};
+		LPCITEMIDLIST pidlNull[1] = {&idNull};
 		SHOpenFolderAndSelectItems(pidl, 1, pidlNull, 0);
 		ILFree(pidl);
 	}
 #else
 	// TODO: This is untested!
-	std::string cmd = "xdg-open " +path;
+	std::string cmd = "xdg-open " + path;
 	system(cmd.c_str());
 	// TODO: Can we select the file as well?
 #endif
@@ -815,10 +760,10 @@ void util::open_path_in_explorer(const std::string &path,const std::optional<std
 void util::open_file_in_default_program(const std::string &filePath)
 {
 #ifdef _WIN32
-	ShellExecute(0,0,filePath.c_str(),0,0,SW_SHOW);
+	ShellExecute(0, 0, filePath.c_str(), 0, 0, SW_SHOW);
 #else
 	// TODO: This is untested!
-	std::string cmd = "xdg-open " +filePath;
+	std::string cmd = "xdg-open " + filePath;
 	system(cmd.c_str());
 #endif
 }
@@ -826,73 +771,71 @@ void util::open_file_in_default_program(const std::string &filePath)
 void util::open_url_in_browser(const std::string &url)
 {
 #ifdef _WIN32
-	ShellExecute(nullptr,"open",url.c_str(),nullptr,nullptr,SW_SHOW);
+	ShellExecute(nullptr, "open", url.c_str(), nullptr, nullptr, SW_SHOW);
 #else
-	auto cmd = "open " +url;
+	auto cmd = "open " + url;
 	system(cmd.c_str());
 #endif
 }
 
-void util::set_thread_priority(std::thread &thread,ThreadPriority priority)
+void util::set_thread_priority(std::thread &thread, ThreadPriority priority)
 {
 #ifdef _WIN32
 	auto *threadHandle = thread.native_handle();
-	switch(priority)
-	{
-		case ThreadPriority::Lowest:
-			SetThreadPriority(threadHandle,THREAD_PRIORITY_LOWEST);
-			break;
-		case ThreadPriority::Low:
-		case ThreadPriority::BelowNormal:
-			SetThreadPriority(threadHandle,THREAD_PRIORITY_BELOW_NORMAL);
-			break;
-		case ThreadPriority::Normal:
-			SetThreadPriority(threadHandle,THREAD_PRIORITY_NORMAL);
-			break;
-		case ThreadPriority::AboveNormal:
-			SetThreadPriority(threadHandle,THREAD_PRIORITY_ABOVE_NORMAL);
-			break;
-		case ThreadPriority::High:
-		case ThreadPriority::Highest:
-			SetThreadPriority(threadHandle,THREAD_PRIORITY_HIGHEST);
-			break;
+	switch(priority) {
+	case ThreadPriority::Lowest:
+		SetThreadPriority(threadHandle, THREAD_PRIORITY_LOWEST);
+		break;
+	case ThreadPriority::Low:
+	case ThreadPriority::BelowNormal:
+		SetThreadPriority(threadHandle, THREAD_PRIORITY_BELOW_NORMAL);
+		break;
+	case ThreadPriority::Normal:
+		SetThreadPriority(threadHandle, THREAD_PRIORITY_NORMAL);
+		break;
+	case ThreadPriority::AboveNormal:
+		SetThreadPriority(threadHandle, THREAD_PRIORITY_ABOVE_NORMAL);
+		break;
+	case ThreadPriority::High:
+	case ThreadPriority::Highest:
+		SetThreadPriority(threadHandle, THREAD_PRIORITY_HIGHEST);
+		break;
 	}
 #else
 	auto threadHandle = thread.native_handle();
 	auto minPriority = sched_get_priority_min(SCHED_OTHER);
 	auto maxPriority = sched_get_priority_max(SCHED_OTHER);
-	switch(priority)
-	{
-		case ThreadPriority::Lowest:
-			pthread_setschedprio(threadHandle,minPriority);
-			break;
-		case ThreadPriority::Low:
-			pthread_setschedprio(threadHandle,-10);
-			break;
-		case ThreadPriority::BelowNormal:
-			pthread_setschedprio(threadHandle,-5);
-			break;
-		case ThreadPriority::Normal:
-			pthread_setschedprio(threadHandle,0);
-			break;
-		case ThreadPriority::AboveNormal:
-			pthread_setschedprio(threadHandle,5);
-			break;
-		case ThreadPriority::High:
-			pthread_setschedprio(threadHandle,10);
-			break;
-		case ThreadPriority::Highest:
-			pthread_setschedprio(threadHandle,maxPriority);
-			break;
+	switch(priority) {
+	case ThreadPriority::Lowest:
+		pthread_setschedprio(threadHandle, minPriority);
+		break;
+	case ThreadPriority::Low:
+		pthread_setschedprio(threadHandle, -10);
+		break;
+	case ThreadPriority::BelowNormal:
+		pthread_setschedprio(threadHandle, -5);
+		break;
+	case ThreadPriority::Normal:
+		pthread_setschedprio(threadHandle, 0);
+		break;
+	case ThreadPriority::AboveNormal:
+		pthread_setschedprio(threadHandle, 5);
+		break;
+	case ThreadPriority::High:
+		pthread_setschedprio(threadHandle, 10);
+		break;
+	case ThreadPriority::Highest:
+		pthread_setschedprio(threadHandle, maxPriority);
+		break;
 	}
 #endif
 }
 
 #ifdef _WIN32
-static bool set_thread_name(HANDLE hThread,const std::string &name)
+static bool set_thread_name(HANDLE hThread, const std::string &name)
 {
-	std::wstring wname(name.begin(),name.end());
-	HRESULT hr = SetThreadDescription(hThread,wname.c_str());
+	std::wstring wname(name.begin(), name.end());
+	HRESULT hr = SetThreadDescription(hThread, wname.c_str());
 	if(FAILED(hr))
 		return false;
 	return true;
@@ -900,16 +843,17 @@ static bool set_thread_name(HANDLE hThread,const std::string &name)
 static std::string utf8_encode(const std::wstring &wstr)
 {
 	// See https://stackoverflow.com/a/3999597/2482983
-    if( wstr.empty() ) return std::string();
-    int size_needed = WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), NULL, 0, NULL, NULL);
-    std::string strTo( size_needed, 0 );
-    WideCharToMultiByte                  (CP_UTF8, 0, &wstr[0], (int)wstr.size(), &strTo[0], size_needed, NULL, NULL);
-    return strTo;
+	if(wstr.empty())
+		return std::string();
+	int size_needed = WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), NULL, 0, NULL, NULL);
+	std::string strTo(size_needed, 0);
+	WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), &strTo[0], size_needed, NULL, NULL);
+	return strTo;
 }
 static std::optional<std::string> get_thread_name(HANDLE hThread)
 {
 	PWSTR name = nullptr;
-	HRESULT hr = GetThreadDescription(hThread,&name);
+	HRESULT hr = GetThreadDescription(hThread, &name);
 	if(FAILED(hr))
 		return {};
 	auto strName = utf8_encode(name);
@@ -918,21 +862,21 @@ static std::optional<std::string> get_thread_name(HANDLE hThread)
 }
 #endif
 
-bool util::set_thread_name(std::thread &thread,const std::string &name)
+bool util::set_thread_name(std::thread &thread, const std::string &name)
 {
 #ifdef _WIN32
-	return ::set_thread_name(thread.native_handle(),name);
+	return ::set_thread_name(thread.native_handle(), name);
 #else
 	auto handle = thread.native_handle();
-	return pthread_setname_np(handle,name.c_str()) == 0;
+	return pthread_setname_np(handle, name.c_str()) == 0;
 #endif
 }
 bool util::set_thread_name(const std::string &name)
 {
 #ifdef _WIN32
-	return ::set_thread_name(GetCurrentThread(),name);
+	return ::set_thread_name(GetCurrentThread(), name);
 #else
-	return prctl(PR_SET_NAME,name.c_str(),0,0,0) == 0;
+	return prctl(PR_SET_NAME, name.c_str(), 0, 0, 0) == 0;
 #endif
 }
 
@@ -942,11 +886,11 @@ std::optional<std::string> util::get_thread_name(std::thread &thread)
 	return ::get_thread_name(thread.native_handle());
 #else
 	auto handle = thread.native_handle();
-	std::array<char,16> name;
-	auto res = pthread_getname_np(handle,name.data(),name.size());
+	std::array<char, 16> name;
+	auto res = pthread_getname_np(handle, name.data(), name.size());
 	if(res != 0)
 		return {};
-	return std::string{name.data()};
+	return std::string {name.data()};
 #endif
 }
 std::optional<std::string> util::get_thread_name()
@@ -954,50 +898,43 @@ std::optional<std::string> util::get_thread_name()
 #ifdef _WIN32
 	return ::get_thread_name(GetCurrentThread());
 #else
-	std::array<char,16> name;
-	auto result = prctl(PR_GET_NAME,name.data());
+	std::array<char, 16> name;
+	auto result = prctl(PR_GET_NAME, name.data());
 	if(result != 0)
 		return {};
-	return std::string{name.data()};
+	return std::string {name.data()};
 #endif
 }
 
-uint64_t util::to_uint64(const std::string_view &str)
-{
-	return strtoll(str.data(),nullptr,10);
-}
+uint64_t util::to_uint64(const std::string_view &str) { return strtoll(str.data(), nullptr, 10); }
 
 #ifdef _WIN32
-HWND util::get_window_handle()
-{
-	return GetActiveWindow();
-}
+HWND util::get_window_handle() { return GetActiveWindow(); }
 #endif
 
 void util::minimize_window_to_tray()
 {
 #ifdef _WIN32
-	ShowWindow(get_window_handle(),SW_HIDE);
+	ShowWindow(get_window_handle(), SW_HIDE);
 #endif
 }
 
 void util::unhide_window()
 {
 #ifdef _WIN32
-	ShowWindow(get_window_handle(),SW_SHOW);
+	ShowWindow(get_window_handle(), SW_SHOW);
 #endif
 }
 
-void util::flip_item_sequence(void *sequence,size_t sequenceSize,uint32_t numItems,uint32_t itemStride)
+void util::flip_item_sequence(void *sequence, size_t sequenceSize, uint32_t numItems, uint32_t itemStride)
 {
 	auto *tmp = new uint8_t[itemStride];
-	auto *row0 = static_cast<uint8_t*>(sequence);
-	auto *row1 = row0 +sequenceSize -itemStride;
-	for(auto y=decltype(numItems){0u};y<numItems /2;++y)
-	{
-		memcpy(tmp,row1,itemStride);
-		memcpy(row1,row0,itemStride);
-		memcpy(row0,tmp,itemStride);
+	auto *row0 = static_cast<uint8_t *>(sequence);
+	auto *row1 = row0 + sequenceSize - itemStride;
+	for(auto y = decltype(numItems) {0u}; y < numItems / 2; ++y) {
+		memcpy(tmp, row1, itemStride);
+		memcpy(row1, row0, itemStride);
+		memcpy(row0, tmp, itemStride);
 
 		row0 += itemStride;
 		row1 -= itemStride;
@@ -1025,7 +962,7 @@ std::optional<std::string> util::get_system_language()
 	unsigned lcid = 0;
 	char iso_639_lang[16];
 	char iso_3166_country[16];
-	if(GetLocaleInfoA(lcid,LOCALE_SISO639LANGNAME,iso_639_lang,sizeof(iso_639_lang))==0)
+	if(GetLocaleInfoA(lcid, LOCALE_SISO639LANGNAME, iso_639_lang, sizeof(iso_639_lang)) == 0)
 		return {};
 	/*std::string lc_name = iso_639_lang;
 	if(GetLocaleInfoA(lcid,LOCALE_SISO3166CTRYNAME,iso_3166_country,sizeof(iso_3166_country))!=0) {
@@ -1034,11 +971,11 @@ std::optional<std::string> util::get_system_language()
 	}*/
 	return iso_639_lang;
 #else
-    setlocale(LC_ALL, "");
-    std::string lan = setlocale(LC_ALL, NULL);
-    auto pos = lan.find('_');
-    if(pos != std::string::npos)
-        lan = lan.substr(0,pos);
+	setlocale(LC_ALL, "");
+	std::string lan = setlocale(LC_ALL, NULL);
+	auto pos = lan.find('_');
+	if(pos != std::string::npos)
+		lan = lan.substr(0, pos);
 	return lan;
 #endif
 }
@@ -1047,35 +984,31 @@ bool util::shutdown_os()
 {
 #ifdef _WIN32
 	// See https://docs.microsoft.com/en-us/windows/win32/shutdown/how-to-shut-down-the-system?redirectedfrom=MSDN
-	HANDLE hToken; 
-	TOKEN_PRIVILEGES tkp; 
- 
-	// Get a token for this process. 
-	if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken)) 
-		return( FALSE ); 
- 
-	// Get the LUID for the shutdown privilege. 
- 
-	LookupPrivilegeValue(NULL, SE_SHUTDOWN_NAME, 
-	&tkp.Privileges[0].Luid); 
- 
-	tkp.PrivilegeCount = 1;  // one privilege to set    
-	tkp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED; 
- 
-	// Get the shutdown privilege for this process. 
- 
-	AdjustTokenPrivileges(hToken, FALSE, &tkp, 0, (PTOKEN_PRIVILEGES)NULL, 0); 
- 
-	if (GetLastError() != ERROR_SUCCESS) 
-		return FALSE; 
- 
-	// Shut down the system and force all applications to close. 
- 
-	if (!ExitWindowsEx(EWX_SHUTDOWN | EWX_FORCE, 
-		SHTDN_REASON_MAJOR_OPERATINGSYSTEM |
-		SHTDN_REASON_MINOR_UPGRADE |
-		SHTDN_REASON_FLAG_PLANNED)) 
-		return FALSE; 
+	HANDLE hToken;
+	TOKEN_PRIVILEGES tkp;
+
+	// Get a token for this process.
+	if(!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken))
+		return (FALSE);
+
+	// Get the LUID for the shutdown privilege.
+
+	LookupPrivilegeValue(NULL, SE_SHUTDOWN_NAME, &tkp.Privileges[0].Luid);
+
+	tkp.PrivilegeCount = 1; // one privilege to set
+	tkp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+
+	// Get the shutdown privilege for this process.
+
+	AdjustTokenPrivileges(hToken, FALSE, &tkp, 0, (PTOKEN_PRIVILEGES)NULL, 0);
+
+	if(GetLastError() != ERROR_SUCCESS)
+		return FALSE;
+
+	// Shut down the system and force all applications to close.
+
+	if(!ExitWindowsEx(EWX_SHUTDOWN | EWX_FORCE, SHTDN_REASON_MAJOR_OPERATINGSYSTEM | SHTDN_REASON_MINOR_UPGRADE | SHTDN_REASON_FLAG_PLANNED))
+		return FALSE;
 
 	//shutdown was successful
 	return TRUE;
@@ -1090,7 +1023,7 @@ static util::Uuid uuid_to_bytes(const uuids::uuid &uuid)
 {
 	auto bytes = uuid.as_bytes();
 	util::Uuid result;
-	memcpy(result.data(),bytes.data(),util::size_of_container(result));
+	memcpy(result.data(), bytes.data(), util::size_of_container(result));
 	return result;
 }
 util::Uuid util::generate_uuid_v4(const std::optional<uint32_t> seed)
@@ -1098,28 +1031,26 @@ util::Uuid util::generate_uuid_v4(const std::optional<uint32_t> seed)
 	static std::random_device rd;
 	static auto seed_data = std::array<int, std::mt19937::state_size> {};
 	static auto generated = false;
-	if(generated == false)
-	{
+	if(generated == false) {
 		generated = true;
 		std::generate(std::begin(seed_data), std::end(seed_data), std::ref(rd));
 	}
 	static std::seed_seq seq(std::begin(seed_data), std::end(seed_data));
-	if(seed.has_value())
-	{
+	if(seed.has_value()) {
 		std::mt19937 generator(*seed);
-		uuids::uuid_random_generator gen{generator};
+		uuids::uuid_random_generator gen {generator};
 		return uuid_to_bytes(gen());
 	}
 	static std::mt19937 generator(seq);
-	static uuids::uuid_random_generator gen{generator};
+	static uuids::uuid_random_generator gen {generator};
 	return uuid_to_bytes(gen());
 }
 std::string util::uuid_to_string(const util::Uuid &uuid)
 {
-	std::array<uuids::uuid::value_type,16> a {};
+	std::array<uuids::uuid::value_type, 16> a {};
 	static_assert(sizeof(a) == sizeof(uuid));
-	memcpy(a.data(),uuid.data(),size_of_container(uuid));
-	return uuids::to_string(uuids::uuid{a});
+	memcpy(a.data(), uuid.data(), size_of_container(uuid));
+	return uuids::to_string(uuids::uuid {a});
 }
 util::Uuid util::uuid_string_to_bytes(const std::string &uuid)
 {
@@ -1128,12 +1059,12 @@ util::Uuid util::uuid_string_to_bytes(const std::string &uuid)
 		return {};
 	return uuid_to_bytes(*str);
 }
-bool util::is_uuid(const std::string &uuid) {return uuids::uuid::from_string(uuid).has_value();}
+bool util::is_uuid(const std::string &uuid) { return uuids::uuid::from_string(uuid).has_value(); }
 size_t util::get_uuid_hash(const Uuid &uuid)
 {
 	size_t hash = 0;
-	hash = util::hash_combine<size_t>(hash,uuid[0]);
-	hash = util::hash_combine<size_t>(hash,uuid[1]);
+	hash = util::hash_combine<size_t>(hash, uuid[0]);
+	hash = util::hash_combine<size_t>(hash, uuid[1]);
 	return hash;
 }
 //

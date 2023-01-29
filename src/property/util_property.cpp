@@ -6,10 +6,7 @@
 
 using namespace util;
 
-void util::BaseProperty::AddCallback(const CallbackHandle &hCallback)
-{
-	m_callbacks.push_back(hCallback);
-}
+void util::BaseProperty::AddCallback(const CallbackHandle &hCallback) { m_callbacks.push_back(hCallback); }
 
 void util::BoolProperty::ApplyValue(const bool &newValue)
 {

@@ -10,19 +10,17 @@
 #include <string>
 
 #ifdef __linux__
-	#undef major
-	#undef minor
+#undef major
+#undef minor
 #endif
 
-namespace util
-{
+namespace util {
 #ifdef _WIN32
-	#pragma pack(push,1)
+#pragma pack(push, 1)
 #endif
-	struct DLLSHUTIL Version
-	{
-		Version(unsigned int _major,unsigned int _minor,unsigned int _revision);
-		Version(unsigned int _major,unsigned int _minor);
+	struct DLLSHUTIL Version {
+		Version(unsigned int _major, unsigned int _minor, unsigned int _revision);
+		Version(unsigned int _major, unsigned int _minor);
 		Version(const std::string &version);
 		Version();
 		unsigned int major;
@@ -43,10 +41,10 @@ namespace util
 #endif
 	;
 #ifdef _WIN32
-	#pragma pack(pop)
+#pragma pack(pop)
 #endif
 }
 
-DLLSHUTIL std::ostream &operator<<(std::ostream &out,const util::Version &version);
+DLLSHUTIL std::ostream &operator<<(std::ostream &out, const util::Version &version);
 
 #endif

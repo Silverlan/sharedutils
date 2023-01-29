@@ -8,11 +8,11 @@
 #include <strings.h>
 #endif
 
-unsigned long util::CaseInsensitiveHashingFunc::operator()(const std::string& key) const
+unsigned long util::CaseInsensitiveHashingFunc::operator()(const std::string &key) const
 {
 	auto hash = 0ul;
 	for(auto v : key)
-		hash += (71 *hash +::tolower(v)) %5;
+		hash += (71 * hash + ::tolower(v)) % 5;
 	return hash;
 }
 
@@ -22,7 +22,4 @@ unsigned long util::CaseInsensitiveHashingFunc::operator()(const std::string& ke
 #define STRICMP strcasecmp
 #endif
 
-bool util::CaseInsensitiveStringComparator::operator()(const std::string &lhs,const std::string &rhs) const
-{
-	return STRICMP(lhs.c_str(),rhs.c_str()) < 0;
-}
+bool util::CaseInsensitiveStringComparator::operator()(const std::string &lhs, const std::string &rhs) const { return STRICMP(lhs.c_str(), rhs.c_str()) < 0; }

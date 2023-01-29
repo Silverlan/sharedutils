@@ -9,10 +9,8 @@
 #include <mathutil/uvec.h>
 #include <memory>
 
-namespace util
-{
-	struct DLLSHUTIL HairConfig
-	{
+namespace util {
+	struct DLLSHUTIL HairConfig {
 		uint32_t numSegments = 1;
 		float hairPerSquareMeter = 100.f;
 		umath::Centimeter defaultThickness = 0.1f;
@@ -22,8 +20,7 @@ namespace util
 		float curvature = 0.f;
 	};
 
-	struct DLLSHUTIL HairData
-	{
+	struct DLLSHUTIL HairData {
 		std::vector<Vector3> hairPoints {};
 		std::vector<Vector2> hairUvs {};
 		std::vector<Vector3> hairNormals {};
@@ -31,26 +28,23 @@ namespace util
 		std::vector<Vector2> hairPointBarycentric {};
 	};
 
-	class DLLSHUTIL HairGenerator
-	{
-	public:
-		struct DLLSHUTIL MeshInterface
-		{
-			virtual uint32_t GetTriangleCount() const=0;
-			virtual uint32_t GetVertexCount() const=0;
-			virtual std::array<uint32_t,3> GetTriangle(uint32_t triIdx) const=0;
-			virtual const Vector3 GetVertexPosition(uint32_t vertIdx) const=0;
-			virtual const Vector3 GetVertexNormal(uint32_t vertIdx) const=0;
-			virtual const Vector2 GetVertexUv(uint32_t vertIdx) const=0;
+	class DLLSHUTIL HairGenerator {
+	  public:
+		struct DLLSHUTIL MeshInterface {
+			virtual uint32_t GetTriangleCount() const = 0;
+			virtual uint32_t GetVertexCount() const = 0;
+			virtual std::array<uint32_t, 3> GetTriangle(uint32_t triIdx) const = 0;
+			virtual const Vector3 GetVertexPosition(uint32_t vertIdx) const = 0;
+			virtual const Vector3 GetVertexNormal(uint32_t vertIdx) const = 0;
+			virtual const Vector2 GetVertexUv(uint32_t vertIdx) const = 0;
 		};
-		void SetMeshDataInterface(std::unique_ptr<MeshInterface> &&meshInterface) {m_meshData = std::move(meshInterface);}
+		void SetMeshDataInterface(std::unique_ptr<MeshInterface> &&meshInterface) { m_meshData = std::move(meshInterface); }
 		HairData Generate(float hairPerArea);
-	private:
+	  private:
 		std::unique_ptr<MeshInterface> m_meshData {};
 	};
 
-	struct DLLSHUTIL HairStrandData
-	{
+	struct DLLSHUTIL HairStrandData {
 		std::vector<uint32_t> hairSegments;
 		std::vector<Vector3> points;
 		std::vector<Vector2> uvs;

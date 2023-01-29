@@ -15,25 +15,23 @@
 
 #undef CreateFile
 
-namespace util
-{
+namespace util {
 	DLLSHUTIL void canonicalize_path(std::string &inOutPath);
 	DLLSHUTIL std::string get_normalized_path(const std::string &path);
 
 	class Path;
 	template<class TPath>
-		class DLLSHUTIL PathIterator
-	{
-	public:
+	class DLLSHUTIL PathIterator {
+	  public:
 		using iterator_category = std::forward_iterator_tag;
 		using value_type = std::string_view;
 		using difference_type = value_type;
-		using pointer = value_type*;
-		using reference = value_type&;
+		using pointer = value_type *;
+		using reference = value_type &;
 
-		PathIterator(TPath &value,bool begin);
-		PathIterator(const PathIterator&)=default;
-		PathIterator &operator=(const PathIterator&)=default;
+		PathIterator(TPath &value, bool begin);
+		PathIterator(const PathIterator &) = default;
+		PathIterator &operator=(const PathIterator &) = default;
 
 		const value_type &operator++();
 		const value_type &operator++(int);
@@ -43,22 +41,21 @@ namespace util
 
 		bool operator==(const PathIterator &other) const;
 		bool operator!=(const PathIterator &other) const;
-	private:
+	  private:
 		TPath *m_path = nullptr;
 		std::string_view m_cur = {};
 		size_t m_pos = 0;
 	};
 
-	class DLLSHUTIL Path
-	{
-	public:
+	class DLLSHUTIL Path {
+	  public:
 		static Path CreatePath(const std::string &path);
 		static Path CreateFile(const std::string &path);
-		Path(const std::string &path="");
+		Path(const std::string &path = "");
 		Path(std::string &&path);
 		Path(const std::vector<std::string> &fromComponents);
-		Path(const Path&)=default;
-		Path &operator=(const Path&)=default;
+		Path(const Path &) = default;
+		Path &operator=(const Path &) = default;
 		Path &operator=(const std::string &path);
 		Path &operator=(std::string &&path);
 
@@ -77,7 +74,7 @@ namespace util
 
 		std::string_view GetFront() const;
 		std::string_view GetBack() const;
-		std::string_view GetComponent(size_t offset,size_t *outOptNextOffset=nullptr) const;
+		std::string_view GetComponent(size_t offset, size_t *outOptNextOffset = nullptr) const;
 		void PopFront();
 		void PopBack();
 		bool MakeRelative(const Path &relativeTo);
@@ -93,9 +90,9 @@ namespace util
 		std::optional<std::string> GetFileExtension() const;
 		void RemoveFileExtension();
 		template<typename TList>
-			void RemoveFileExtension(const TList &extensions)
+		void RemoveFileExtension(const TList &extensions)
 		{
-			ufile::remove_extension_from_filename(m_path,extensions);
+			ufile::remove_extension_from_filename(m_path, extensions);
 		}
 
 		std::string Move();
@@ -107,7 +104,7 @@ namespace util
 		PathIterator<Path> rend();
 		PathIterator<const Path> rbegin() const;
 		PathIterator<const Path> rend() const;*/
-	private:
+	  private:
 		void SetPath(const std::string &path);
 		void SetPath(std::string &&path);
 		void UpdatePath();
@@ -115,7 +112,7 @@ namespace util
 	};
 };
 
-DLLSHUTIL util::Path operator+(const std::string &path,const util::Path &other);
-DLLSHUTIL std::ostream &operator<<(std::ostream &out,const util::Path &path);
+DLLSHUTIL util::Path operator+(const std::string &path, const util::Path &other);
+DLLSHUTIL std::ostream &operator<<(std::ostream &out, const util::Path &path);
 
 #endif
