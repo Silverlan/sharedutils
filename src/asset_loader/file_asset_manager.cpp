@@ -283,14 +283,14 @@ void util::FileAssetManager::SetLogHandler(const util::LogHandler &logHandler)
 
 util::AssetObject util::FileAssetManager::Poll(std::optional<util::AssetLoadJobId> untilJob, util::AssetLoaderWaitMode wait)
 {
-	if(ShouldLog())
-		m_logHandler("Poll: Waiting for job " + (untilJob.has_value() ? std::to_string(*untilJob) : std::string {"n/a"}) + "!", util::LogSeverity::Trace);
+	// if(ShouldLog())
+	// 	m_logHandler("Poll: Waiting for job " + (untilJob.has_value() ? std::to_string(*untilJob) : std::string {"n/a"}) + "!", util::LogSeverity::Trace);
 	if(untilJob.has_value() && wait == util::AssetLoaderWaitMode::None)
 		wait = util::AssetLoaderWaitMode::Single;
 	util::AssetObject targetAsset = nullptr;
 	do {
-		if(ShouldLog())
-			m_logHandler("Pre-poll loader state: " + std::to_string(m_loader->HasCompletedJobs()) + "," + std::to_string(m_loader->HasPendingJobs()), util::LogSeverity::Trace);
+		// if(ShouldLog())
+		// 	m_logHandler("Pre-poll loader state: " + std::to_string(m_loader->HasCompletedJobs()) + "," + std::to_string(m_loader->HasPendingJobs()), util::LogSeverity::Trace);
 		if(untilJob.has_value() && !m_loader->IsJobPending(*untilJob)) // TODO: What conditions cause this?
 			return nullptr;
 		m_loader->Poll(
