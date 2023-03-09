@@ -11,27 +11,19 @@
 #include <memory>
 #include <chrono>
 
-namespace util
-{
+namespace util {
 	using AssetLoadJobId = uint64_t;
 	using AssetLoadJobPriority = int32_t;
 	class ITextureFormatHandler;
 	class TextureProcessor;
 	class IAssetProcessor;
-	struct DLLSHUTIL AssetLoadJob
-	{
-		enum class State : uint8_t
-		{
-			Pending = 0,
-			Succeeded,
-			Failed,
-			Cancelled
-		};
-		AssetLoadJob()=default;
-		AssetLoadJob(AssetLoadJob &&other)=default;
-		AssetLoadJob(const AssetLoadJob &other)=default;
-		AssetLoadJob &operator=(const AssetLoadJob&)=default;
-		AssetLoadJob &operator=(AssetLoadJob&&)=default;
+	struct DLLSHUTIL AssetLoadJob {
+		enum class State : uint8_t { Pending = 0, Succeeded, Failed, Cancelled };
+		AssetLoadJob() = default;
+		AssetLoadJob(AssetLoadJob &&other) = default;
+		AssetLoadJob(const AssetLoadJob &other) = default;
+		AssetLoadJob &operator=(const AssetLoadJob &) = default;
+		AssetLoadJob &operator=(AssetLoadJob &&) = default;
 
 		std::shared_ptr<IAssetProcessor> processor = nullptr;
 		State state = State::Pending;
@@ -43,13 +35,9 @@ namespace util
 		std::chrono::high_resolution_clock::time_point completionTime;
 		std::chrono::high_resolution_clock::time_point taskStartTime;
 	};
-	class DLLSHUTIL CompareTextureLoadJob
-	{
-	public:
-		bool operator()(AssetLoadJob& t1, AssetLoadJob& t2)
-		{
-			return t1.priority > t2.priority;
-		}
+	class DLLSHUTIL CompareTextureLoadJob {
+	  public:
+		bool operator()(AssetLoadJob &t1, AssetLoadJob &t2) { return t1.priority > t2.priority; }
 	};
 };
 

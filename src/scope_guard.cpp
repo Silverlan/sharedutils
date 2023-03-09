@@ -6,15 +6,9 @@
 
 using namespace util;
 
-ScopeGuard::ScopeGuard()
-	: f(nullptr)
-{}
+ScopeGuard::ScopeGuard() : f(nullptr) {}
 
-ScopeGuard::ScopeGuard(ScopeGuard &&other)
-	: f(std::move(other.f))
-{
-	other.f = nullptr;
-}
+ScopeGuard::ScopeGuard(ScopeGuard &&other) : f(std::move(other.f)) { other.f = nullptr; }
 
 ScopeGuard &ScopeGuard::operator=(ScopeGuard &&other)
 {
@@ -31,6 +25,4 @@ ScopeGuard::~ScopeGuard()
 		f(); // must not throw
 }
 
-void ScopeGuard::dismiss() throw() {
-	f = nullptr;
-}
+void ScopeGuard::dismiss() throw() { f = nullptr; }

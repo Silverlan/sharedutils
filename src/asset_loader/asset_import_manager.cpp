@@ -4,30 +4,27 @@
 
 #include "sharedutils/asset_loader/file_asset_manager.hpp"
 
-void util::FileAssetManager::RegisterImportHandler(
-	const std::string &ext,const std::function<std::unique_ptr<util::IImportAssetFormatHandler>(util::IAssetManager&)> &factory,
-	util::AssetFormatType formatType
-)
+void util::FileAssetManager::RegisterImportHandler(const std::string &ext, const std::function<std::unique_ptr<util::IImportAssetFormatHandler>(util::IAssetManager &)> &factory, util::AssetFormatType formatType)
 {
 	m_importHandlers[ext] = factory;
-	RegisterFileExtension(ext,formatType,FormatExtensionInfo::Type::Import);
+	RegisterFileExtension(ext, formatType, FormatExtensionInfo::Type::Import);
 }
 bool util::FileAssetManager::Import(const std::string &path)
 {
 	std::string ext;
-	if(!ufile::get_extension(path,&ext))
+	if(!ufile::get_extension(path, &ext))
 		return false;
-	return Import(path,ext);
+	return Import(path, ext);
 }
-bool util::FileAssetManager::Import(const std::string &path,const std::string &ext)
+bool util::FileAssetManager::Import(const std::string &path, const std::string &ext)
 {
-	auto itExt = FindExtension(m_extensions,ext,FormatExtensionInfo::Type::Import);
+	auto itExt = FindExtension(m_extensions, ext, FormatExtensionInfo::Type::Import);
 	if(itExt == m_extensions.end())
 		return false;
 	auto &extInfo = *itExt;
 	auto cacheIdentifier = ToCacheIdentifier(path);
-	auto extPath = cacheIdentifier +'.' +extInfo.extension;
-	auto f = m_fileHandler->open((m_rootDir +extPath).GetString(),extInfo.formatType);
+	auto extPath = cacheIdentifier + '.' + extInfo.extension;
+	auto f = m_fileHandler->open((m_rootDir + extPath).GetString(), extInfo.formatType);
 	if(!f)
 		return false;
 	auto it = m_importHandlers.find(ext);
@@ -38,7 +35,7 @@ bool util::FileAssetManager::Import(const std::string &path,const std::string &e
 	if(!handler)
 		return false;
 	handler->SetFile(std::move(f));
-	auto outputPath = m_importRootDir +cacheIdentifier;
+	auto outputPath = m_importRootDir + cacheIdentifier;
 	std::string finalFilePath;
-	return handler->Import(outputPath.GetString(),finalFilePath);
+	return handler->Import(outputPath.GetString(), finalFilePath);
 }

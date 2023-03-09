@@ -17,32 +17,30 @@
 #pragma warning(push)
 #pragma warning(disable : 4251)
 template<typename T>
-	class TCallbackHandler
-{
-public:
+class TCallbackHandler {
+  public:
 	TCallbackHandler();
 	virtual ~TCallbackHandler();
-	CallbackHandle AddCallback(const T &identifier,const CallbackHandle &hCallback);
+	CallbackHandle AddCallback(const T &identifier, const CallbackHandle &hCallback);
 	std::vector<CallbackHandle> *GetCallbacks(const T &identifier);
-	template<class TRet,typename... TARGS>
-		void RegisterCallback(const T &identifier);
-	template<class TRet,typename... TARGS>
-		void RegisterCallbackWithOptionalReturn(const T &identifier);
+	template<class TRet, typename... TARGS>
+	void RegisterCallback(const T &identifier);
+	template<class TRet, typename... TARGS>
+	void RegisterCallbackWithOptionalReturn(const T &identifier);
 
 	void CallCallbacks(const T &identifier);
 
 	template<typename... TARGS>
-		void CallCallbacks(const T &identifier,TARGS ...args);
-	template<class TRet,typename... TARGS>
-		TRet CallCallbacks(const T &identifier,TARGS ...args);
+	void CallCallbacks(const T &identifier, TARGS... args);
+	template<class TRet, typename... TARGS>
+	TRet CallCallbacks(const T &identifier, TARGS... args);
 	// Avoid using this overload; Use CallCallbacksWithOptionalReturn instead
-	template<class TRet,typename... TARGS>
-		CallbackReturnType CallCallbacks(const T &identifier,TRet *ret,TARGS ...args);
-	template<class TRet,typename... TARGS>
-		CallbackReturnType CallCallbacksWithOptionalReturn(const T &identifier,TRet &ret,TARGS ...args);
-protected:
-	struct CallbackInfo
-	{
+	template<class TRet, typename... TARGS>
+	CallbackReturnType CallCallbacks(const T &identifier, TRet *ret, TARGS... args);
+	template<class TRet, typename... TARGS>
+	CallbackReturnType CallCallbacksWithOptionalReturn(const T &identifier, TRet &ret, TARGS... args);
+  protected:
+	struct CallbackInfo {
 		CallbackInfo();
 		uint32_t callDepth;
 		std::vector<CallbackHandle> callbacks;
@@ -50,13 +48,12 @@ protected:
 		size_t hashCode = std::numeric_limits<size_t>::max();
 #endif
 	};
-	std::unordered_map<T,CallbackInfo> m_callbacks;
+	std::unordered_map<T, CallbackInfo> m_callbacks;
 	virtual T TranslateIdentifier(const T &identifier) const;
-private:
+  private:
 	std::shared_ptr<bool> m_bAlive;
-	struct StackInfo
-	{
-		StackInfo(const T &n,const CallbackHandle &hCb);
+	struct StackInfo {
+		StackInfo(const T &n, const CallbackHandle &hCb);
 		T name;
 		CallbackHandle hCallback;
 	};
@@ -65,10 +62,8 @@ private:
 	void ProcessCallbackStack(const T &identifier);
 };
 
-class DLLSHUTIL CallbackHandler
-	: public TCallbackHandler<std::string>
-{
-protected:
+class DLLSHUTIL CallbackHandler : public TCallbackHandler<std::string> {
+  protected:
 	virtual std::string TranslateIdentifier(const std::string &identifier) const override;
 };
 #pragma warning(pop)

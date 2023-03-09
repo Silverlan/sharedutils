@@ -7,17 +7,15 @@
 
 #include <memory>
 
-namespace util
-{
+namespace util {
 	template<class T>
-		class WeakHandle
-	{
-	public:
+	class WeakHandle {
+	  public:
 		using value_type = T;
 
-		WeakHandle()=default;
+		WeakHandle() = default;
 		WeakHandle(const std::shared_ptr<T> &o);
-		WeakHandle(const WeakHandle<T>&)=default;
+		WeakHandle(const WeakHandle<T> &) = default;
 
 		const T &operator*() const;
 		T &operator*();
@@ -29,44 +27,56 @@ namespace util
 		bool valid() const;
 		T *get() const;
 		void reset();
-	private:
+	  private:
 		mutable std::weak_ptr<T> m_ptr = {};
 	};
 };
 
 template<class T>
-	util::WeakHandle<T>::WeakHandle(const std::shared_ptr<T> &o)
-		: m_ptr(o)
-{}
+util::WeakHandle<T>::WeakHandle(const std::shared_ptr<T> &o) : m_ptr(o)
+{
+}
 
 template<class T>
-	const T &util::WeakHandle<T>::operator*() const
+const T &util::WeakHandle<T>::operator*() const
 {
-	return const_cast<util::WeakHandle<T>*>(this)->operator*();
+	return const_cast<util::WeakHandle<T> *>(this)->operator*();
 }
 template<class T>
-	T &util::WeakHandle<T>::operator*()
+T &util::WeakHandle<T>::operator*()
 {
 	return *get();
 }
 template<class T>
-	const T *util::WeakHandle<T>::operator->() const
+const T *util::WeakHandle<T>::operator->() const
 {
-	return const_cast<util::WeakHandle<T>*>(this)->operator->();
+	return const_cast<util::WeakHandle<T> *>(this)->operator->();
 }
 template<class T>
-	T *util::WeakHandle<T>::operator->()
+T *util::WeakHandle<T>::operator->()
 {
 	return get();
 }
 
 template<class T>
-	bool util::WeakHandle<T>::expired() const {return m_ptr.expired();}
+bool util::WeakHandle<T>::expired() const
+{
+	return m_ptr.expired();
+}
 template<class T>
-	bool util::WeakHandle<T>::valid() const {return !m_ptr.expired();}
+bool util::WeakHandle<T>::valid() const
+{
+	return !m_ptr.expired();
+}
 template<class T>
-	T *util::WeakHandle<T>::get() const {return m_ptr.lock().get();}
+T *util::WeakHandle<T>::get() const
+{
+	return m_ptr.lock().get();
+}
 template<class T>
-	void util::WeakHandle<T>::reset() {m_ptr = {};}
+void util::WeakHandle<T>::reset()
+{
+	m_ptr = {};
+}
 
 #endif

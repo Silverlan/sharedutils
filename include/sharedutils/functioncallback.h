@@ -13,24 +13,19 @@
 
 // #define CALLBACK_SANITY_CHECK_ENABLED
 
-enum class CallbackReturnType : uint8_t
-{
-	NoReturnValue = 0u,
-	HasReturnValue
-};
+enum class CallbackReturnType : uint8_t { NoReturnValue = 0u, HasReturnValue };
 
 class CallbackHandle;
-class DLLSHUTIL TCallback
-{
-protected:
+class DLLSHUTIL TCallback {
+  protected:
 	void Release();
-public:
+  public:
 #ifdef CALLBACK_SANITY_CHECK_ENABLED
 	TCallback(size_t hashCode) : hashCode(hashCode) {}
 #else
-	TCallback()=default;
+	TCallback() = default;
 #endif
-	virtual ~TCallback()=default;
+	virtual ~TCallback() = default;
 	virtual bool operator==(void *p);
 	virtual bool operator!=(void *p);
 	virtual void operator()();
@@ -39,53 +34,50 @@ public:
 #endif
 };
 
-template<typename T,typename... TARGS>
-	class Callback
-		: public TCallback
-{
-protected:
+template<typename T, typename... TARGS>
+class Callback : public TCallback {
+  protected:
 	std::function<T(TARGS...)> m_function;
-public:
+  public:
 	Callback(const std::function<T(TARGS...)> &function)
-		: 
+	    :
 #ifdef CALLBACK_SANITY_CHECK_ENABLED
-		TCallback(typeid(std::function<T(TARGS...)>).hash_code()),
+	      TCallback(typeid(std::function<T(TARGS...)>).hash_code()),
 #else
-		TCallback(),
+	      TCallback(),
 #endif
-		m_function(function)
-	{}
-	void SetFunction(const std::function<T(TARGS...)> &f) {m_function = f;}
-	T operator()(TARGS ...args) {return m_function(std::forward<TARGS>(args)...);}
+	      m_function(function)
+	{
+	}
+	void SetFunction(const std::function<T(TARGS...)> &f) { m_function = f; }
+	T operator()(TARGS... args) { return m_function(std::forward<TARGS>(args)...); }
 };
 
-class DLLSHUTIL CallbackHandle
-	: public util::BaseHandle<std::shared_ptr<TCallback>,TCallback>
-{
-public:
-	using util::BaseHandle<std::shared_ptr<TCallback>,TCallback>::BaseHandle;
+class DLLSHUTIL CallbackHandle : public util::BaseHandle<std::shared_ptr<TCallback>, TCallback> {
+  public:
+	using util::BaseHandle<std::shared_ptr<TCallback>, TCallback>::BaseHandle;
 	void Remove();
 	void operator()();
 	template<typename... TARGS>
-		void operator()(TARGS ...args);
+	void operator()(TARGS... args);
 	template<typename T COMMA typename... TARGS>
-		T Call(TARGS ...args);
+	T Call(TARGS... args);
 	template<typename T COMMA typename... TARGS>
-		CallbackReturnType Call(T *ret,TARGS ...args);
+	CallbackReturnType Call(T *ret, TARGS... args);
 };
 
 template<typename... TARGS>
-	void CallbackHandle::operator()(TARGS ...args)
+void CallbackHandle::operator()(TARGS... args)
 {
-	Call<void,TARGS...>(std::forward<TARGS>(args)...);
+	Call<void, TARGS...>(std::forward<TARGS>(args)...);
 }
 
-template<typename T,typename... TARGS>
-	T CallbackHandle::Call(TARGS ...args)
+template<typename T, typename... TARGS>
+T CallbackHandle::Call(TARGS... args)
 {
 	if(!IsValid())
 		return T();
-	auto cb = get<Callback<T,TARGS...>>();
+	auto cb = get<Callback<T, TARGS...>>();
 #ifdef CALLBACK_SANITY_CHECK_ENABLED
 	if(cb == nullptr && get()->hashCode != typeid(std::function<void(void)>).hash_code())
 		throw std::invalid_argument("Attempted to call callback with template arguments that are incompatible with specified template arguments!");
@@ -98,18 +90,17 @@ template<typename T,typename... TARGS>
 }
 
 template<typename T COMMA typename... TARGS>
-	CallbackReturnType CallbackHandle::Call(T *ret,TARGS ...args)
+CallbackReturnType CallbackHandle::Call(T *ret, TARGS... args)
 {
 	if(!IsValid())
 		return CallbackReturnType::NoReturnValue;
-	auto cb = get<Callback<CallbackReturnType,T*,TARGS...>>();
+	auto cb = get<Callback<CallbackReturnType, T *, TARGS...>>();
 #ifdef CALLBACK_SANITY_CHECK_ENABLED
 	if(cb == nullptr && get()->hashCode != typeid(std::function<void(void)>).hash_code())
 		throw std::invalid_argument("Attempted to call callback with template arguments that are incompatible with specified template arguments!");
 #endif
-	if(cb != nullptr)
-	{
-		if((*cb)(ret,std::forward<TARGS>(args)...) == CallbackReturnType::HasReturnValue)
+	if(cb != nullptr) {
+		if((*cb)(ret, std::forward<TARGS>(args)...) == CallbackReturnType::HasReturnValue)
 			return CallbackReturnType::HasReturnValue;
 	}
 	else
@@ -119,26 +110,25 @@ template<typename T COMMA typename... TARGS>
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-template<typename T=void,typename... TARGS>
-	class FunctionCallback
-{
-private:
-	FunctionCallback()=delete;
-public:
+template<typename T = void, typename... TARGS>
+class FunctionCallback {
+  private:
+	FunctionCallback() = delete;
+  public:
 	static CallbackHandle Create(const std::function<T(TARGS...)> &function);
-	static CallbackHandle CreateWithOptionalReturn(const std::function<CallbackReturnType(T*,TARGS...)> &function);
+	static CallbackHandle CreateWithOptionalReturn(const std::function<CallbackReturnType(T *, TARGS...)> &function);
 };
 
-template<typename T,typename... TARGS>
-	CallbackHandle FunctionCallback<T,TARGS...>::Create(const std::function<T(TARGS...)> &function)
+template<typename T, typename... TARGS>
+CallbackHandle FunctionCallback<T, TARGS...>::Create(const std::function<T(TARGS...)> &function)
 {
-	return CallbackHandle(std::shared_ptr<Callback<T,TARGS...>>(new Callback<T,TARGS...>(function)));
+	return CallbackHandle(std::shared_ptr<Callback<T, TARGS...>>(new Callback<T, TARGS...>(function)));
 }
 
-template<typename T,typename... TARGS>
-	CallbackHandle FunctionCallback<T,TARGS...>::CreateWithOptionalReturn(const std::function<CallbackReturnType(T*,TARGS...)> &function)
+template<typename T, typename... TARGS>
+CallbackHandle FunctionCallback<T, TARGS...>::CreateWithOptionalReturn(const std::function<CallbackReturnType(T *, TARGS...)> &function)
 {
-	return FunctionCallback<CallbackReturnType,T*,TARGS...>::Create(function);
+	return FunctionCallback<CallbackReturnType, T *, TARGS...>::Create(function);
 }
 
 #endif

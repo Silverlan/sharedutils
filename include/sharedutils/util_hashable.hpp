@@ -10,20 +10,20 @@
 #include <unordered_map>
 
 // Source: https://stackoverflow.com/q/21900707/2482983
-class DLLSHUTIL Hashable
-{
-public:
+class DLLSHUTIL Hashable {
+  public:
 	virtual ~Hashable() {}
-	virtual std::size_t Hash() const=0;
+	virtual std::size_t Hash() const = 0;
 };
-#define DEFINE_STD_HASH_SPECIALIZATION(hashable)                              \
-	namespace std {                                                           \
-		template<>                                                            \
-			struct hash<hashable> {                                           \
-				std::size_t operator()(const hashable& object) const {        \
-				return object.Hash();                                         \
-				}                                                                 \
-			};                                                                    \
+#define DEFINE_STD_HASH_SPECIALIZATION(hashable)                                                                                                                                                                                                                                                 \
+	namespace std {                                                                                                                                                                                                                                                                              \
+		template<>                                                                                                                                                                                                                                                                               \
+		struct hash<hashable> {                                                                                                                                                                                                                                                                  \
+			std::size_t operator()(const hashable &object) const                                                                                                                                                                                                                                 \
+			{                                                                                                                                                                                                                                                                                    \
+				return object.Hash();                                                                                                                                                                                                                                                            \
+			}                                                                                                                                                                                                                                                                                    \
+		};                                                                                                                                                                                                                                                                                       \
 	}
 
 #endif

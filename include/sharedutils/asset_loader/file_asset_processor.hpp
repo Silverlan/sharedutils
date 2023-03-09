@@ -9,21 +9,18 @@
 #include "sharedutils/asset_loader/asset_load_info.hpp"
 #include "sharedutils/asset_loader/asset_format_handler.hpp"
 
-namespace util
-{
+namespace util {
 	enum class AssetLoadResult : uint8_t;
 	class AssetFormatLoader;
-	class DLLSHUTIL FileAssetProcessor
-		: public util::IAssetProcessor
-	{
-	public:
-		FileAssetProcessor(AssetFormatLoader &loader,std::unique_ptr<IAssetFormatHandler> &&handler);
+	class DLLSHUTIL FileAssetProcessor : public util::IAssetProcessor {
+	  public:
+		FileAssetProcessor(AssetFormatLoader &loader, std::unique_ptr<IAssetFormatHandler> &&handler);
 		virtual void Close() override;
 		std::unique_ptr<util::AssetLoadInfo> loadInfo = nullptr;
-		std::function<void(util::Asset*,AssetLoadResult)> onLoaded = nullptr;
+		std::function<void(util::Asset *, AssetLoadResult)> onLoaded = nullptr;
 
 		std::unique_ptr<IAssetFormatHandler> handler;
-	protected:
+	  protected:
 		AssetFormatLoader &m_loader;
 	};
 };

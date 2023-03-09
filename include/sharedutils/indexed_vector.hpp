@@ -11,17 +11,15 @@
 #include <memory>
 #include <cinttypes>
 
-namespace util
-{
-	template<typename T,class TPtr=std::shared_ptr<T>>
-		class IndexedVector
-	{
-	public:
+namespace util {
+	template<typename T, class TPtr = std::shared_ptr<T>>
+	class IndexedVector {
+	  public:
 		using Index = uint32_t;
 		using Size = size_t;
-		IndexedVector()=default;
-		IndexedVector(const IndexedVector&)=default;
-		IndexedVector &operator=(const IndexedVector&)=default;
+		IndexedVector() = default;
+		IndexedVector(const IndexedVector &) = default;
+		IndexedVector &operator=(const IndexedVector &) = default;
 		Index Add(const TPtr &item);
 		void Remove(const T &item);
 		void Remove(Index index);
@@ -30,39 +28,36 @@ namespace util
 		T *Get(Index idx);
 		const T *Get(Index idx) const;
 		void Clear();
-	private:
+	  private:
 		std::vector<TPtr> m_data = {};
 		std::queue<Index> m_freeIndices = {};
 	};
 };
 
-template<typename T,class TPtr>
-	util::IndexedVector<T,TPtr>::Index util::IndexedVector<T,TPtr>::Add(const TPtr &item)
+template<typename T, class TPtr>
+util::IndexedVector<T, TPtr>::Index util::IndexedVector<T, TPtr>::Add(const TPtr &item)
 {
-	if(m_freeIndices.empty() == false)
-	{
+	if(m_freeIndices.empty() == false) {
 		auto index = m_freeIndices.front();
 		m_freeIndices.pop();
 		m_data.at(index) = item;
 		return index;
 	}
 	m_data.push_back(item);
-	return m_data.size() -1;
+	return m_data.size() - 1;
 }
 
-template<typename T,class TPtr>
-	void util::IndexedVector<T,TPtr>::Remove(const T &item)
+template<typename T, class TPtr>
+void util::IndexedVector<T, TPtr>::Remove(const T &item)
 {
-	auto it = std::find_if(m_data.begin(),m_data.end(),[&item](const TPtr &itemOther) {
-		return itemOther.get() == &item;
-	});
+	auto it = std::find_if(m_data.begin(), m_data.end(), [&item](const TPtr &itemOther) { return itemOther.get() == &item; });
 	if(it == m_data.end())
 		return;
-	Remove(static_cast<Index>(it -m_data.begin()));
+	Remove(static_cast<Index>(it - m_data.begin()));
 }
 
-template<typename T,class TPtr>
-	void util::IndexedVector<T,TPtr>::Remove(Index index)
+template<typename T, class TPtr>
+void util::IndexedVector<T, TPtr>::Remove(Index index)
 {
 	if(index >= m_data.size())
 		return;
@@ -73,32 +68,32 @@ template<typename T,class TPtr>
 	ptr = nullptr;
 }
 
-template<typename T,class TPtr>
-	void util::IndexedVector<T,TPtr>::Reserve(Size size)
+template<typename T, class TPtr>
+void util::IndexedVector<T, TPtr>::Reserve(Size size)
 {
 	m_data.reserve(size);
 }
 
-template<typename T,class TPtr>
-	util::IndexedVector<T,TPtr>::Size util::IndexedVector<T,TPtr>::GetSize() const
+template<typename T, class TPtr>
+util::IndexedVector<T, TPtr>::Size util::IndexedVector<T, TPtr>::GetSize() const
 {
 	return m_data.size();
 }
 
-template<typename T,class TPtr>
-	T *util::IndexedVector<T,TPtr>::Get(Index idx)
+template<typename T, class TPtr>
+T *util::IndexedVector<T, TPtr>::Get(Index idx)
 {
 	return (idx < GetSize()) ? m_data.at(idx).get() : nullptr;
 }
 
-template<typename T,class TPtr>
-	const T *util::IndexedVector<T,TPtr>::Get(Index idx) const
+template<typename T, class TPtr>
+const T *util::IndexedVector<T, TPtr>::Get(Index idx) const
 {
-	return const_cast<IndexedVector<T>*>(this)->Get(idx);
+	return const_cast<IndexedVector<T> *>(this)->Get(idx);
 }
 
-template<typename T,class TPtr>
-	void util::IndexedVector<T,TPtr>::Clear()
+template<typename T, class TPtr>
+void util::IndexedVector<T, TPtr>::Clear()
 {
 	m_data.clear();
 	m_freeIndices = {};

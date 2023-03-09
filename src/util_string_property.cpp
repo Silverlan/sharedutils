@@ -12,18 +12,18 @@ StringProperty &StringProperty::operator+=(const std::string &val)
 	GetValue() += val;
 	return *this;
 }
-StringProperty &StringProperty::operator+=(const SimpleNumberProperty<StringProperty,std::string> &prop) {return *this +=prop.GetValue();}
+StringProperty &StringProperty::operator+=(const SimpleNumberProperty<StringProperty, std::string> &prop) { return *this += prop.GetValue(); }
 
 // Arithmetic
-std::string StringProperty::operator+(const std::string &val) const {return GetValue() +val;}
-std::string StringProperty::operator+(const SimpleNumberProperty<StringProperty,std::string> &prop) const {return *this +prop.GetValue();}
+std::string StringProperty::operator+(const std::string &val) const { return GetValue() + val; }
+std::string StringProperty::operator+(const SimpleNumberProperty<StringProperty, std::string> &prop) const { return *this + prop.GetValue(); }
 
 // Comparison
-bool StringProperty::operator<(const std::string &val) const {return GetValue() < val;}
-bool StringProperty::operator<(const SimpleProperty<StringProperty,std::string> &prop) const {return *this < prop.GetValue();}
-bool StringProperty::operator>(const std::string &val) const {return GetValue() > val;}
-bool StringProperty::operator>(const SimpleProperty<StringProperty,std::string> &prop) const {return *this > prop.GetValue();}
-bool StringProperty::operator<=(const std::string &val) const {return GetValue() <= val;}
-bool StringProperty::operator<=(const SimpleProperty<StringProperty,std::string> &prop) const {return *this <= prop.GetValue();}
-bool StringProperty::operator>=(const std::string &val) const {return GetValue() >= val;}
-bool StringProperty::operator>=(const SimpleProperty<StringProperty,std::string> &prop) const {return *this >= prop.GetValue();}
+bool StringProperty::operator<(const std::string &val) const { return GetValue() < val; }
+bool StringProperty::operator<(const SimpleProperty<StringProperty, std::string> &prop) const { return *this < prop.GetValue(); }
+bool StringProperty::operator>(const std::string &val) const { return GetValue() > val; }
+bool StringProperty::operator>(const SimpleProperty<StringProperty, std::string> &prop) const { return *this > prop.GetValue(); }
+bool StringProperty::operator<=(const std::string &val) const { return GetValue() <= val; }
+bool StringProperty::operator<=(const SimpleProperty<StringProperty, std::string> &prop) const { return *this <= prop.GetValue(); }
+bool StringProperty::operator>=(const std::string &val) const { return GetValue() >= val; }
+bool StringProperty::operator>=(const SimpleProperty<StringProperty, std::string> &prop) const { return *this >= prop.GetValue(); }

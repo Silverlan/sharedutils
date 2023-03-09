@@ -10,8 +10,7 @@
 
 #include <cinttypes>
 
-enum class AlphaMode : uint32_t
-{
+enum class AlphaMode : uint32_t {
 	Opaque = 0,
 	Mask,
 	Blend,

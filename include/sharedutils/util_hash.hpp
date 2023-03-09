@@ -13,32 +13,30 @@
 #include <functional>
 
 // Source: https://stackoverflow.com/a/50978188/2482983
-namespace util
-{
+namespace util {
 	using Hash = uint64_t;
 	template<typename T>
-		T xorshift(const T& n,int i)
-		{
-			return n^(n>>i);
-		}
-
-	DLLSHUTIL uint32_t distribute(const uint32_t& n);
-	DLLSHUTIL Hash hash(const Hash& n);
-
-	// if c++20 rotl is not available:
-	template <typename T,typename S>
-	typename std::enable_if<std::is_unsigned<T>::value,T>::type
-	constexpr rotl(const T n, const S i)
+	T xorshift(const T &n, int i)
 	{
-			const T m = (std::numeric_limits<T>::digits-1);
-		const T c = i&m;
-		return (n<<c)|(n>>((T(0)-c)&m)); // this is usually recognized by the compiler to mean rotation, also c++20 now gives us rotl directly
+		return n ^ (n >> i);
 	}
 
-	template <class T>
-		inline Hash hash_combine(Hash seed, const T& v)
+	DLLSHUTIL uint32_t distribute(const uint32_t &n);
+	DLLSHUTIL Hash hash(const Hash &n);
+
+	// if c++20 rotl is not available:
+	template<typename T, typename S>
+	typename std::enable_if<std::is_unsigned<T>::value, T>::type constexpr rotl(const T n, const S i)
 	{
-		return rotl(seed,std::numeric_limits<size_t>::digits/3) ^ distribute(std::hash<T>()(v));
+		const T m = (std::numeric_limits<T>::digits - 1);
+		const T c = i & m;
+		return (n << c) | (n >> ((T(0) - c) & m)); // this is usually recognized by the compiler to mean rotation, also c++20 now gives us rotl directly
+	}
+
+	template<class T>
+	inline Hash hash_combine(Hash seed, const T &v)
+	{
+		return rotl(seed, std::numeric_limits<size_t>::digits / 3) ^ distribute(std::hash<T>()(v));
 	}
 };
 

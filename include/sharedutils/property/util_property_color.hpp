@@ -10,24 +10,20 @@
 
 #pragma warning(push)
 #pragma warning(disable : 4251)
-namespace util
-{
-	class DLLSHUTIL ColorProperty:
-		public SimpleProperty<ColorProperty,Color>
-	{
-	public:
+namespace util {
+	class DLLSHUTIL ColorProperty : public SimpleProperty<ColorProperty, Color> {
+	  public:
 		ColorProperty();
 		ColorProperty(const Color &col);
-		ColorProperty(Int16 r,Int16 g,Int16 b,Int16 a=255);
+		ColorProperty(Int16 r, Int16 g, Int16 b, Int16 a = 255);
 		ColorProperty(const std::string &str);
 		ColorProperty(const Vector3 &v);
 		ColorProperty(const Vector4 &v);
 		ColorProperty &operator/=(float f);
 		ColorProperty &operator*=(float f);
 		ColorProperty &operator+=(const Color &other);
-        ColorProperty &operator-=(const Color &other);
-        using SimpleProperty<ColorProperty,Color>::operator=;
-
+		ColorProperty &operator-=(const Color &other);
+		using SimpleProperty<ColorProperty, Color>::operator=;
 	};
 	using PColorProperty = std::shared_ptr<ColorProperty>;
 };

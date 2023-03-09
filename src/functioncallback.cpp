@@ -4,10 +4,10 @@
 
 #include "sharedutils/functioncallback.h"
 
-bool TCallback::operator==(void*) {return false;}
-bool TCallback::operator!=(void*) {return true;}
+bool TCallback::operator==(void *) { return false; }
+bool TCallback::operator!=(void *) { return true; }
 void TCallback::operator()() {}
-void TCallback::Release() {delete this;}
+void TCallback::Release() { delete this; }
 
 /////////////////////////////
 

@@ -7,20 +7,17 @@
 
 #include "util_property_vector.h"
 
-namespace util
-{
-	class DLLSHUTIL QuatProperty
-		: public SimpleVectorProperty<QuatProperty,Quat>
-	{
-	public:
-		QuatProperty()=default;
+namespace util {
+	class DLLSHUTIL QuatProperty : public SimpleVectorProperty<QuatProperty, Quat> {
+	  public:
+		QuatProperty() = default;
 		QuatProperty(const Quat &v);
-		QuatProperty(float w,float x,float y,float z);
+		QuatProperty(float w, float x, float y, float z);
 
 		QuatProperty &operator/=(float f);
 		QuatProperty &operator*=(float f);
 		QuatProperty &operator*=(const Quat &other);
-		using SimpleVectorProperty<QuatProperty,Quat>::operator=;
+		using SimpleVectorProperty<QuatProperty, Quat>::operator=;
 	};
 	using PQuatProperty = std::shared_ptr<QuatProperty>;
 };

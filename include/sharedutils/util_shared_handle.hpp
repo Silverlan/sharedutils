@@ -9,38 +9,35 @@
 #include <memory>
 #include <functional>
 
-namespace util
-{
-	class DLLSHUTIL PtrSharedHandleData
-	{
-	public:
+namespace util {
+	class DLLSHUTIL PtrSharedHandleData {
+	  public:
 		PtrSharedHandleData(const std::shared_ptr<void> &data);
 		void Invalidate();
 		void *GetData();
-	private:
+	  private:
 		std::shared_ptr<void> m_data = nullptr;
 	};
 
 	template<typename T>
-		class TWeakSharedHandle;
-	template<class TSrc,class TDst>
-		TWeakSharedHandle<TDst> weak_shared_handle_cast(const TWeakSharedHandle<TSrc> &handle);
+	class TWeakSharedHandle;
+	template<class TSrc, class TDst>
+	TWeakSharedHandle<TDst> weak_shared_handle_cast(const TWeakSharedHandle<TSrc> &handle);
 
 	template<typename T>
-		class TSharedHandle
-	{
-	public:
+	class TSharedHandle {
+	  public:
 		using value_type = T;
 		friend TWeakSharedHandle<T>;
-		TSharedHandle(const TSharedHandle<T>&)=default;
-		TSharedHandle(const std::shared_ptr<PtrSharedHandleData> &data,T *typedDataPtr);
+		TSharedHandle(const TSharedHandle<T> &) = default;
+		TSharedHandle(const std::shared_ptr<PtrSharedHandleData> &data, T *typedDataPtr);
 		TSharedHandle();
-        TSharedHandle(std::nullptr_t);
-		TSharedHandle(T *data,const std::function<void(T*)> &customDeleter=nullptr);
-		TSharedHandle(const TWeakSharedHandle<T>&)=delete;
+		TSharedHandle(std::nullptr_t);
+		TSharedHandle(T *data, const std::function<void(T *)> &customDeleter = nullptr);
+		TSharedHandle(const TWeakSharedHandle<T> &) = delete;
 		operator TWeakSharedHandle<T>() const;
-        bool operator==(std::nullptr_t) const;
-        bool operator!=(std::nullptr_t) const;
+		bool operator==(std::nullptr_t) const;
+		bool operator!=(std::nullptr_t) const;
 		T *operator->();
 		const T *operator->() const;
 		T &operator*();
@@ -54,43 +51,48 @@ namespace util
 		void Remove();
 
 		// Alias methods for compatibility with shared_ptr
-		bool valid() const {return IsValid();}
-		bool expired() const {return IsExpired();}
-		const T *get() const {return Get();}
-		T *get() {return Get();}
+		bool valid() const { return IsValid(); }
+		bool expired() const { return IsExpired(); }
+		const T *get() const { return Get(); }
+		T *get() { return Get(); }
 
 		template<class TT>
-			TT *get() {return static_cast<TT*>(get());}
+		TT *get()
+		{
+			return static_cast<TT *>(get());
+		}
 		template<class TT>
-			const TT *get() const {return static_cast<TT*>(get());}
+		const TT *get() const
+		{
+			return static_cast<TT *>(get());
+		}
 
 		const std::shared_ptr<PtrSharedHandleData> &GetInternalData() const;
-	private:
+	  private:
 		std::shared_ptr<PtrSharedHandleData> m_data = nullptr;
 		T *m_typedPtr = nullptr;
 	};
 
-	template<class TSrc,class TDst>
-		TSharedHandle<TDst> shared_handle_cast(const TSharedHandle<TSrc> &handle);
+	template<class TSrc, class TDst>
+	TSharedHandle<TDst> shared_handle_cast(const TSharedHandle<TSrc> &handle);
 	template<class TDst>
-		TSharedHandle<TDst> to_shared_handle(const std::shared_ptr<TDst> &handle);
+	TSharedHandle<TDst> to_shared_handle(const std::shared_ptr<TDst> &handle);
 	template<class T>
-		TSharedHandle<T> claim_shared_handle_ownership(const TWeakSharedHandle<T> &wkHandle);
+	TSharedHandle<T> claim_shared_handle_ownership(const TWeakSharedHandle<T> &wkHandle);
 
 	template<typename T>
-		class TWeakSharedHandle
-	{
-	public:
+	class TWeakSharedHandle {
+	  public:
 		using value_type = T;
-		template<class TSrc,class TDst>
-			friend TWeakSharedHandle<TDst> weak_shared_handle_cast(const TWeakSharedHandle<TSrc> &handle);
+		template<class TSrc, class TDst>
+		friend TWeakSharedHandle<TDst> weak_shared_handle_cast(const TWeakSharedHandle<TSrc> &handle);
 		template<class TT>
-			friend TSharedHandle<TT> claim_shared_handle_ownership(const TWeakSharedHandle<TT> &wkHandle);
+		friend TSharedHandle<TT> claim_shared_handle_ownership(const TWeakSharedHandle<TT> &wkHandle);
 
-		TWeakSharedHandle(const TWeakSharedHandle<T>&)=default;
+		TWeakSharedHandle(const TWeakSharedHandle<T> &) = default;
 		TWeakSharedHandle(const TSharedHandle<T> &sharedHandle);
 		TWeakSharedHandle();
-		
+
 		TWeakSharedHandle<T> operator=(const TWeakSharedHandle<T> &other);
 		TWeakSharedHandle<T> operator=(const TSharedHandle<T> &other);
 		T *operator->();
@@ -107,169 +109,255 @@ namespace util
 		void Reset();
 
 		// Alias methods for compatibility with shared_ptr
-		bool valid() const {return IsValid();}
-		bool expired() const {return IsExpired();}
-		const T *get() const {return Get();}
-		T *get() {return Get();}
+		bool valid() const { return IsValid(); }
+		bool expired() const { return IsExpired(); }
+		const T *get() const { return Get(); }
+		T *get() { return Get(); }
 
 		template<class TT>
-			TT *get() {return static_cast<TT*>(get());}
+		TT *get()
+		{
+			return static_cast<TT *>(get());
+		}
 		template<class TT>
-			const TT *get() const {return static_cast<TT*>(get());}
+		const TT *get() const
+		{
+			return static_cast<TT *>(get());
+		}
 
 		std::shared_ptr<PtrSharedHandleData> GetInternalData() const;
-	private:
-		TWeakSharedHandle(const std::shared_ptr<PtrSharedHandleData> &data,T *typedDataPtr);
+	  private:
+		TWeakSharedHandle(const std::shared_ptr<PtrSharedHandleData> &data, T *typedDataPtr);
 		std::weak_ptr<PtrSharedHandleData> m_data = {};
 		T *m_typedPtr = nullptr;
 	};
 };
 
 template<typename T>
-	util::TSharedHandle<T>::TSharedHandle()
-		: m_data{nullptr},m_typedPtr{nullptr}
-{}
+util::TSharedHandle<T>::TSharedHandle() : m_data {nullptr}, m_typedPtr {nullptr}
+{
+}
 
 template<typename T>
-    util::TSharedHandle<T>::TSharedHandle(std::nullptr_t)
-		: m_data{nullptr},m_typedPtr{nullptr}
-{}
+util::TSharedHandle<T>::TSharedHandle(std::nullptr_t) : m_data {nullptr}, m_typedPtr {nullptr}
+{
+}
 
 template<typename T>
-	util::TSharedHandle<T>::TSharedHandle(T *data,const std::function<void(T*)> &customDeleter)
-		: m_data{std::make_shared<PtrSharedHandleData>(customDeleter ? std::shared_ptr<T>{data,customDeleter} : std::shared_ptr<T>{data})},
-		m_typedPtr{data}
-{}
+util::TSharedHandle<T>::TSharedHandle(T *data, const std::function<void(T *)> &customDeleter) : m_data {std::make_shared<PtrSharedHandleData>(customDeleter ? std::shared_ptr<T> {data, customDeleter} : std::shared_ptr<T> {data})}, m_typedPtr {data}
+{
+}
 
 template<typename T>
-	util::TSharedHandle<T>::TSharedHandle(const std::shared_ptr<PtrSharedHandleData> &data,T *typedDataPtr)
-		: m_data{data},m_typedPtr{typedDataPtr}
-{}
+util::TSharedHandle<T>::TSharedHandle(const std::shared_ptr<PtrSharedHandleData> &data, T *typedDataPtr) : m_data {data}, m_typedPtr {typedDataPtr}
+{
+}
 template<typename T>
-	util::TSharedHandle<T>::operator util::TWeakSharedHandle<T>() const {return TWeakSharedHandle{*this};}
+util::TSharedHandle<T>::operator util::TWeakSharedHandle<T>() const
+{
+	return TWeakSharedHandle {*this};
+}
 template<typename T>
-    bool util::TSharedHandle<T>::operator==(std::nullptr_t) const {return !operator!=(nullptr);}
+bool util::TSharedHandle<T>::operator==(std::nullptr_t) const
+{
+	return !operator!=(nullptr);
+}
 template<typename T>
-    bool util::TSharedHandle<T>::operator!=(std::nullptr_t) const {return IsValid();}
+bool util::TSharedHandle<T>::operator!=(std::nullptr_t) const
+{
+	return IsValid();
+}
 template<typename T>
-	T *util::TSharedHandle<T>::operator->() {return Get();}
+T *util::TSharedHandle<T>::operator->()
+{
+	return Get();
+}
 template<typename T>
-	const T *util::TSharedHandle<T>::operator->() const {return const_cast<util::TSharedHandle<T>*>(this)->operator->();}
+const T *util::TSharedHandle<T>::operator->() const
+{
+	return const_cast<util::TSharedHandle<T> *>(this)->operator->();
+}
 template<typename T>
-	T &util::TSharedHandle<T>::operator*() {return *Get();}
+T &util::TSharedHandle<T>::operator*()
+{
+	return *Get();
+}
 template<typename T>
-	const T &util::TSharedHandle<T>::operator*() const {return const_cast<util::TSharedHandle<T>*>(this)->operator*();}
+const T &util::TSharedHandle<T>::operator*() const
+{
+	return const_cast<util::TSharedHandle<T> *>(this)->operator*();
+}
 template<typename T>
-	bool util::TSharedHandle<T>::IsValid() const {return m_data && m_data->GetData() != nullptr;}
+bool util::TSharedHandle<T>::IsValid() const
+{
+	return m_data && m_data->GetData() != nullptr;
+}
 template<typename T>
-bool util::TSharedHandle<T>::IsExpired() const {return IsValid() == false;}
+bool util::TSharedHandle<T>::IsExpired() const
+{
+	return IsValid() == false;
+}
 template<typename T>
-	const T *util::TSharedHandle<T>::Get() const {return const_cast<TSharedHandle<T>*>(this)->Get();}
+const T *util::TSharedHandle<T>::Get() const
+{
+	return const_cast<TSharedHandle<T> *>(this)->Get();
+}
 template<typename T>
-	T *util::TSharedHandle<T>::Get() {return IsValid() ? m_typedPtr : nullptr;}
+T *util::TSharedHandle<T>::Get()
+{
+	return IsValid() ? m_typedPtr : nullptr;
+}
 template<typename T>
-	const T *util::TSharedHandle<T>::GetRawPtr() const {return const_cast<TSharedHandle<T>*>(this)->GetRawPtr();}
+const T *util::TSharedHandle<T>::GetRawPtr() const
+{
+	return const_cast<TSharedHandle<T> *>(this)->GetRawPtr();
+}
 template<typename T>
-	T *util::TSharedHandle<T>::GetRawPtr() {return m_typedPtr;}
+T *util::TSharedHandle<T>::GetRawPtr()
+{
+	return m_typedPtr;
+}
 template<typename T>
-	void util::TSharedHandle<T>::Remove() {m_data->Invalidate();}
-	
+void util::TSharedHandle<T>::Remove()
+{
+	m_data->Invalidate();
+}
+
 template<typename T>
-	const std::shared_ptr<util::PtrSharedHandleData> &util::TSharedHandle<T>::GetInternalData() const {return m_data;}
+const std::shared_ptr<util::PtrSharedHandleData> &util::TSharedHandle<T>::GetInternalData() const
+{
+	return m_data;
+}
 
 //
 
-template<class TSrc,class TDst>
-	util::TSharedHandle<TDst> util::shared_handle_cast(const TSharedHandle<TSrc> &handle)
+template<class TSrc, class TDst>
+util::TSharedHandle<TDst> util::shared_handle_cast(const TSharedHandle<TSrc> &handle)
 {
-	if constexpr (std::is_convertible<TSrc*,TDst*>::value)
-		return util::TSharedHandle<TDst>{handle.GetInternalData(),static_cast<TDst*>(const_cast<TSrc*>(handle.Get()))};
+	if constexpr(std::is_convertible<TSrc *, TDst *>::value)
+		return util::TSharedHandle<TDst> {handle.GetInternalData(), static_cast<TDst *>(const_cast<TSrc *>(handle.Get()))};
 	else
-		return util::TSharedHandle<TDst>{handle.GetInternalData(),dynamic_cast<TDst*>(const_cast<TSrc*>(handle.Get()))};
+		return util::TSharedHandle<TDst> {handle.GetInternalData(), dynamic_cast<TDst *>(const_cast<TSrc *>(handle.Get()))};
 }
 
 template<class TDst>
-	util::TSharedHandle<TDst> util::to_shared_handle(const std::shared_ptr<TDst> &handle)
+util::TSharedHandle<TDst> util::to_shared_handle(const std::shared_ptr<TDst> &handle)
 {
-	return util::TSharedHandle<TDst>{std::make_shared<PtrSharedHandleData>(handle),handle.get()};
+	return util::TSharedHandle<TDst> {std::make_shared<PtrSharedHandleData>(handle), handle.get()};
 }
 
 template<class T>
-	util::TSharedHandle<T> util::claim_shared_handle_ownership(const TWeakSharedHandle<T> &wkHandle)
+util::TSharedHandle<T> util::claim_shared_handle_ownership(const TWeakSharedHandle<T> &wkHandle)
 {
-	return wkHandle.m_data.expired() ? TSharedHandle<T>{} : TSharedHandle<T>{wkHandle.m_data.lock(),wkHandle.m_typedPtr};
+	return wkHandle.m_data.expired() ? TSharedHandle<T> {} : TSharedHandle<T> {wkHandle.m_data.lock(), wkHandle.m_typedPtr};
 }
 
 //////////////////////
-	
-template<typename T>
-	util::TWeakSharedHandle<T>::TWeakSharedHandle()
-		: m_data{},m_typedPtr{nullptr}
-{}
 
 template<typename T>
-	util::TWeakSharedHandle<T>::TWeakSharedHandle(const TSharedHandle<T> &sharedHandle)
-		: m_data{sharedHandle.GetInternalData()},m_typedPtr{sharedHandle.m_typedPtr}
-{}
+util::TWeakSharedHandle<T>::TWeakSharedHandle() : m_data {}, m_typedPtr {nullptr}
+{
+}
 
 template<typename T>
-	util::TWeakSharedHandle<T>::TWeakSharedHandle(const std::shared_ptr<PtrSharedHandleData> &data,T *typedDataPtr)
-		: m_data{data},m_typedPtr{typedDataPtr}
-{}
+util::TWeakSharedHandle<T>::TWeakSharedHandle(const TSharedHandle<T> &sharedHandle) : m_data {sharedHandle.GetInternalData()}, m_typedPtr {sharedHandle.m_typedPtr}
+{
+}
+
 template<typename T>
-	util::TWeakSharedHandle<T> util::TWeakSharedHandle<T>::operator=(const TWeakSharedHandle<T> &other)
+util::TWeakSharedHandle<T>::TWeakSharedHandle(const std::shared_ptr<PtrSharedHandleData> &data, T *typedDataPtr) : m_data {data}, m_typedPtr {typedDataPtr}
+{
+}
+template<typename T>
+util::TWeakSharedHandle<T> util::TWeakSharedHandle<T>::operator=(const TWeakSharedHandle<T> &other)
 {
 	m_data = other.m_data;
 	m_typedPtr = other.m_typedPtr;
 	return *this;
 }
 template<typename T>
-	util::TWeakSharedHandle<T> util::TWeakSharedHandle<T>::operator=(const TSharedHandle<T> &other)
+util::TWeakSharedHandle<T> util::TWeakSharedHandle<T>::operator=(const TSharedHandle<T> &other)
 {
 	m_data = other.m_data;
 	m_typedPtr = other.m_typedPtr;
 	return *this;
 }
 template<typename T>
-	T *util::TWeakSharedHandle<T>::operator->() {return Get();}
+T *util::TWeakSharedHandle<T>::operator->()
+{
+	return Get();
+}
 template<typename T>
-	const T *util::TWeakSharedHandle<T>::operator->() const {return const_cast<util::TWeakSharedHandle<T>*>(this)->operator->();}
+const T *util::TWeakSharedHandle<T>::operator->() const
+{
+	return const_cast<util::TWeakSharedHandle<T> *>(this)->operator->();
+}
 template<typename T>
-	T &util::TWeakSharedHandle<T>::operator*() {return *Get();}
+T &util::TWeakSharedHandle<T>::operator*()
+{
+	return *Get();
+}
 template<typename T>
-	const T &util::TWeakSharedHandle<T>::operator*() const {return const_cast<util::TWeakSharedHandle<T>*>(this)->operator*();}
+const T &util::TWeakSharedHandle<T>::operator*() const
+{
+	return const_cast<util::TWeakSharedHandle<T> *>(this)->operator*();
+}
 template<typename T>
-	bool util::TWeakSharedHandle<T>::IsValid() const {return m_data.expired() == false && m_data.lock()->GetData() != nullptr;}
+bool util::TWeakSharedHandle<T>::IsValid() const
+{
+	return m_data.expired() == false && m_data.lock()->GetData() != nullptr;
+}
 template<typename T>
-bool util::TWeakSharedHandle<T>::IsExpired() const {return IsValid() == false;}
+bool util::TWeakSharedHandle<T>::IsExpired() const
+{
+	return IsValid() == false;
+}
 template<typename T>
-	const T *util::TWeakSharedHandle<T>::Get() const {return const_cast<TWeakSharedHandle<T>*>(this)->Get();}
+const T *util::TWeakSharedHandle<T>::Get() const
+{
+	return const_cast<TWeakSharedHandle<T> *>(this)->Get();
+}
 template<typename T>
-	T *util::TWeakSharedHandle<T>::Get() {return IsValid() ? m_typedPtr : nullptr;}
+T *util::TWeakSharedHandle<T>::Get()
+{
+	return IsValid() ? m_typedPtr : nullptr;
+}
 template<typename T>
-	const T *util::TWeakSharedHandle<T>::GetRawPtr() const {return const_cast<TWeakSharedHandle<T>*>(this)->GetRawPtr();}
+const T *util::TWeakSharedHandle<T>::GetRawPtr() const
+{
+	return const_cast<TWeakSharedHandle<T> *>(this)->GetRawPtr();
+}
 template<typename T>
-	T *util::TWeakSharedHandle<T>::GetRawPtr() {return m_typedPtr;}
+T *util::TWeakSharedHandle<T>::GetRawPtr()
+{
+	return m_typedPtr;
+}
 template<typename T>
-	void util::TWeakSharedHandle<T>::Remove() {m_data.lock()->Invalidate();}
+void util::TWeakSharedHandle<T>::Remove()
+{
+	m_data.lock()->Invalidate();
+}
 template<typename T>
-	void util::TWeakSharedHandle<T>::Reset()
+void util::TWeakSharedHandle<T>::Reset()
 {
 	m_data = {};
 	m_typedPtr = nullptr;
 }
 template<typename T>
-	std::shared_ptr<util::PtrSharedHandleData> util::TWeakSharedHandle<T>::GetInternalData() const {return m_data.lock();}
+std::shared_ptr<util::PtrSharedHandleData> util::TWeakSharedHandle<T>::GetInternalData() const
+{
+	return m_data.lock();
+}
 
 //
 
-template<class TSrc,class TDst>
-	util::TWeakSharedHandle<TDst> util::weak_shared_handle_cast(const TWeakSharedHandle<TSrc> &handle)
+template<class TSrc, class TDst>
+util::TWeakSharedHandle<TDst> util::weak_shared_handle_cast(const TWeakSharedHandle<TSrc> &handle)
 {
-	if constexpr (std::is_convertible<TSrc*,TDst*>::value)
-		return util::TWeakSharedHandle<TDst>{handle.GetInternalData(),static_cast<TDst*>(const_cast<TSrc*>(handle.Get()))};
+	if constexpr(std::is_convertible<TSrc *, TDst *>::value)
+		return util::TWeakSharedHandle<TDst> {handle.GetInternalData(), static_cast<TDst *>(const_cast<TSrc *>(handle.Get()))};
 	else
-		return util::TWeakSharedHandle<TDst>{handle.GetInternalData(),dynamic_cast<TDst*>(const_cast<TSrc*>(handle.Get()))};
+		return util::TWeakSharedHandle<TDst> {handle.GetInternalData(), dynamic_cast<TDst *>(const_cast<TSrc *>(handle.Get()))};
 }
 
 #endif

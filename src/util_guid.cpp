@@ -29,11 +29,11 @@ std::string util::guid_to_string(const GUID &guid)
 	// Source: https://github.com/graeme-hill/crossguid/blob/master/src/guid.cpp
 	char one[10], two[6], three[6], four[6], five[14];
 
-	snprintf(one, 10, "%02x%02x%02x%02x",guid[0], guid[1], guid[2], guid[3]);
-	snprintf(two, 6, "%02x%02x",guid[4], guid[5]);
-	snprintf(three, 6, "%02x%02x",guid[6], guid[7]);
-	snprintf(four, 6, "%02x%02x",guid[8], guid[9]);
-	snprintf(five, 14, "%02x%02x%02x%02x%02x%02x",guid[10], guid[11], guid[12], guid[13], guid[14], guid[15]);
+	snprintf(one, 10, "%02x%02x%02x%02x", guid[0], guid[1], guid[2], guid[3]);
+	snprintf(two, 6, "%02x%02x", guid[4], guid[5]);
+	snprintf(three, 6, "%02x%02x", guid[6], guid[7]);
+	snprintf(four, 6, "%02x%02x", guid[8], guid[9]);
+	snprintf(five, 14, "%02x%02x%02x%02x%02x%02x", guid[10], guid[11], guid[12], guid[13], guid[14], guid[15]);
 	const std::string sep("-");
 	std::string out(one);
 
@@ -45,7 +45,4 @@ std::string util::guid_to_string(const GUID &guid)
 	return out;
 }
 
-bool util::compare_guid(const GUID &guid0,const GUID &guid1)
-{
-	return memcmp(guid0.data(),guid1.data(),guid0.size()) == 0;
-}
+bool util::compare_guid(const GUID &guid0, const GUID &guid1) { return memcmp(guid0.data(), guid1.data(), guid0.size()) == 0; }

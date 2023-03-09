@@ -8,10 +8,9 @@
 #include "utildefinitions.h"
 #include <string>
 
-namespace util
-{
-	DLLSHUTIL bool create_link(const std::string &srcPath,const std::string &lnkPath);
-	DLLSHUTIL bool resolve_link(const std::string &lnkPath,std::string &outResolvedPath);
+namespace util {
+	DLLSHUTIL bool create_link(const std::string &srcPath, const std::string &lnkPath);
+	DLLSHUTIL bool resolve_link(const std::string &lnkPath, std::string &outResolvedPath);
 	DLLSHUTIL bool link_exists(const std::string &lnkPath);
 };
 

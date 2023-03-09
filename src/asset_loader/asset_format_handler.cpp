@@ -4,6 +4,4 @@
 
 #include "sharedutils/asset_loader/asset_format_handler.hpp"
 
-util::IAssetFormatHandler::IAssetFormatHandler(util::IAssetManager &assetManager)
-	: m_assetManager{assetManager}
-{}
+util::IAssetFormatHandler::IAssetFormatHandler(util::IAssetManager &assetManager) : m_assetManager {assetManager} {}

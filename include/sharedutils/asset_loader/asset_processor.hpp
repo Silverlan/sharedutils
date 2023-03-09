@@ -11,17 +11,21 @@
 #include <functional>
 #include <memory>
 
-namespace prosper {class IBuffer; class IPrContext; class IImage;};
-namespace uimg {class ImageBuffer;};
-namespace util
-{
+namespace prosper {
+	class IBuffer;
+	class IPrContext;
+	class IImage;
+};
+namespace uimg {
+	class ImageBuffer;
+};
+namespace util {
 	class ITextureFormatHandler;
-	class DLLSHUTIL IAssetProcessor
-	{
-	public:
-		virtual ~IAssetProcessor()=default;
-		virtual bool Load()=0;
-		virtual bool Finalize()=0;
+	class DLLSHUTIL IAssetProcessor {
+	  public:
+		virtual ~IAssetProcessor() = default;
+		virtual bool Load() = 0;
+		virtual bool Finalize() = 0;
 		virtual void Close() {};
 	};
 };

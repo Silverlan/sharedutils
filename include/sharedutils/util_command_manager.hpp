@@ -11,17 +11,15 @@
 #include <string>
 #include <functional>
 
-namespace util
-{
-	class DLLSHUTIL CommandManager
-	{
-	private:
+namespace util {
+	class DLLSHUTIL CommandManager {
+	  private:
 		static std::vector<std::string> m_cmds;
-		static std::vector<std::function<void(std::vector<std::string>&)>> m_functions;
-		static bool Input(std::string *cmdOut,const std::function<void(const std::function<void(std::vector<std::string>&)>&,std::vector<std::string>&)> &callbac);
-	public:
-		static void RegisterCommand(const char *cmd,const std::function<void(std::vector<std::string>&)> &f);
-		static bool Input(std::string *cmdOut=nullptr);
+		static std::vector<std::function<void(std::vector<std::string> &)>> m_functions;
+		static bool Input(std::string *cmdOut, const std::function<void(const std::function<void(std::vector<std::string> &)> &, std::vector<std::string> &)> &callbac);
+	  public:
+		static void RegisterCommand(const char *cmd, const std::function<void(std::vector<std::string> &)> &f);
+		static bool Input(std::string *cmdOut = nullptr);
 		static const std::vector<std::string> &GetCommands();
 
 		// Optional: Run command manager on separate thread
