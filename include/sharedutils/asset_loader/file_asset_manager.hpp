@@ -24,9 +24,10 @@ namespace util {
 		static constexpr util::AssetLoadJobPriority DEFAULT_PRIORITY = 0;
 		static constexpr util::AssetLoadJobPriority IMMEDIATE_PRIORITY = 10;
 		struct DLLSHUTIL PreloadResult {
-			enum class Result : uint8_t { Pending = 0, AlreadyLoaded, UnsupportedFormat, FileNotFound, UnableToOpenFile, JobCreationFailed, Success };
+			enum class Result : uint8_t { Pending = 0, AlreadyLoaded, UnsupportedFormat, FileNotFound, UnableToOpenFile, JobCreationFailed, ImportFailed, Success };
 			std::optional<util::AssetLoadJobId> jobId {};
 			Result result = Result::Pending;
+			std::optional<std::string> errorMessage {};
 			bool firstTimeError = true;
 			operator bool() const { return result == Result::AlreadyLoaded || result == Result::Success; }
 		};
@@ -100,7 +101,7 @@ namespace util {
 			return RegisterImportHandler(
 			  ext, [](util::IAssetManager &assetManager) -> std::unique_ptr<util::IImportAssetFormatHandler> { return std::make_unique<T>(assetManager); }, formatType);
 		}
-		bool Import(const std::string &path, const std::string &ext);
+		bool Import(const std::string &path, const std::string &ext, std::string *optOutErrMsg = nullptr);
 
 		std::unique_ptr<AssetFormatLoader> m_loader;
 		Callbacks m_callbacks;

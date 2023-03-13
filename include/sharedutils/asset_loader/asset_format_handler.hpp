@@ -18,6 +18,7 @@ namespace util {
 		void Close() { m_file = nullptr; }
 		util::IAssetManager &GetAssetManager() { return m_assetManager; }
 		const util::IAssetManager &GetAssetManager() const { return const_cast<IAssetFormatHandler *>(this)->GetAssetManager(); }
+		const std::optional<std::string> &GetErrorMessage() const { return m_error; }
 	  protected:
 		IAssetFormatHandler(util::IAssetManager &assetManager);
 		std::unique_ptr<ufile::IFile> m_file = nullptr;
