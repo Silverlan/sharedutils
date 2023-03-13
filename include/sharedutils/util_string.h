@@ -71,9 +71,9 @@ namespace ustring {
 	DLLSHUTIL Bool match(PCTSTR pszText, PCTSTR pszMatch, Bool bMatchCase = false);
 	DLLSHUTIL Bool match(const std::string_view &text, const std::string_view &match, Bool bMatchCase = false);
 	template<class type, class rtype>
-	void string_to_array(const std::string &str, type *a, rtype (*atot)(const Char *), UInt32 count);
+	size_t string_to_array(const std::string &str, type *a, rtype (*atot)(const Char *), UInt32 count);
 	template<class type>
-	void string_to_array(const std::string &str, type *a, type (*atot)(const Char *), UInt32 count);
+	size_t string_to_array(const std::string &str, type *a, type (*atot)(const Char *), UInt32 count);
 	DLLSHUTIL std::wstring string_to_wstring(const std::string &str);
 	DLLSHUTIL std::string wstring_to_string(const std::wstring &str);
 	DLLSHUTIL void replace(std::string &str, const std::string &from, const std::string &to);
@@ -166,7 +166,7 @@ namespace ustring {
 }
 
 template<class type, class rtype>
-void ustring::string_to_array(const std::string &str, type *a, rtype (*atot)(const Char *), UInt32 count)
+size_t ustring::string_to_array(const std::string &str, type *a, rtype (*atot)(const Char *), UInt32 count)
 {
 	std::vector<std::string> vdat;
 	explode(str, WHITESPACE.c_str(), vdat);
@@ -175,10 +175,11 @@ void ustring::string_to_array(const std::string &str, type *a, rtype (*atot)(con
 		l = count;
 	for(unsigned int i = 0; i < l; i++)
 		a[i] = static_cast<type>(atot(vdat[i].c_str()));
+	return l;
 }
 
 template<class type>
-void ustring::string_to_array(const std::string &str, type *a, type (*atot)(const Char *), UInt32 count)
+size_t ustring::string_to_array(const std::string &str, type *a, type (*atot)(const Char *), UInt32 count)
 {
 	return string_to_array<type, type>(str, a, atot, count);
 }
