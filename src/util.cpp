@@ -41,8 +41,6 @@
 #endif
 #include <thread>
 
-#pragma comment(lib, "mathutil.lib")
-
 std::string util::get_pretty_bytes(unsigned long long bytes)
 {
 	auto sz = static_cast<double>(bytes);
