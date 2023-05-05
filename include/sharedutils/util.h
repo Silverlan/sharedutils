@@ -45,6 +45,7 @@ namespace util {
 	DLLSHUTIL bool start_and_wait_for_process(const char *program, unsigned int *exitCode = nullptr, bool bGlobalPath = false, std::string *optOutput = nullptr);
 #endif
 	DLLSHUTIL std::string get_last_system_error_string();
+	DLLSHUTIL void set_prevent_os_sleep_mode(bool prevent);
 	DLLSHUTIL bool is_x64_system();
 	DLLSHUTIL bool is_x86_system();
 	DLLSHUTIL bool is_windows_system();

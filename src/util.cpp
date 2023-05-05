@@ -533,6 +533,18 @@ std::string util::get_last_system_error_string()
 #endif
 }
 
+void util::set_prevent_os_sleep_mode(bool prevent)
+{
+#ifdef _WIN32
+	if(prevent)
+		SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED | ES_AWAYMODE_REQUIRED);
+	else
+		SetThreadExecutionState(ES_CONTINUOUS);
+#else
+// TODO: Not yet implemented
+#endif
+}
+
 bool util::is_x64_system()
 {
 #ifdef __linux__
