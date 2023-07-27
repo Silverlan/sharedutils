@@ -8,6 +8,7 @@
 #include <cstring>
 #include <cctype>
 #include <codecvt>
+#include <locale>
 #ifdef _WIN32
 #include <winsock.h>
 #pragma comment(lib, "Ws2_32.lib") // Required for inet_addr / inet_ntoa
