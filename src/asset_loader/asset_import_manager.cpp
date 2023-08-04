@@ -16,7 +16,7 @@ bool util::FileAssetManager::Import(const std::string &path)
 		return false;
 	return Import(path, ext);
 }
-bool util::FileAssetManager::Import(const std::string &path, const std::string &ext)
+bool util::FileAssetManager::Import(const std::string &path, const std::string &ext, std::string *optOutErrMsg)
 {
 	auto itExt = FindExtension(m_extensions, ext, FormatExtensionInfo::Type::Import);
 	if(itExt == m_extensions.end())
@@ -37,5 +37,16 @@ bool util::FileAssetManager::Import(const std::string &path, const std::string &
 	handler->SetFile(std::move(f));
 	auto outputPath = m_importRootDir + cacheIdentifier;
 	std::string finalFilePath;
-	return handler->Import(outputPath.GetString(), finalFilePath);
+	auto res = handler->Import(outputPath.GetString(), finalFilePath);
+	if(!res) {
+		if(optOutErrMsg) {
+			auto &errMsg = handler->GetErrorMessage();
+			if(errMsg)
+				*optOutErrMsg = *errMsg;
+			else
+				*optOutErrMsg = "Unknown error";
+		}
+		return false;
+	}
+	return res;
 }

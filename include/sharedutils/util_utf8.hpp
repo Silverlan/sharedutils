@@ -25,6 +25,7 @@ namespace util {
 		Utf8StringView(const Utf8String &str);
 		Utf8StringView(const std::string &str);
 		Utf8StringView(const char *str);
+		Utf8StringView(const char *str, size_t count);
 		Utf8StringView &operator=(const Utf8String &str);
 		Utf8StringView &operator=(const Utf8StringView &str);
 		Utf8StringView &operator=(const std::string &str);
@@ -40,10 +41,14 @@ namespace util {
 		Utf8StringIterator begin() const;
 		Utf8StringIterator end() const;
 		const char *c_str() const;
+		const char *data() const;
 		size_t length() const;
+		size_t size() const;
 		bool empty() const { return length() == 0; }
 		uint16_t get(size_t idx) const;
 		Utf8StringView substr(size_t start, size_t count = std::numeric_limits<size_t>::max()) const;
+
+		operator std::string() const;
 	  private:
 		Utf8String m_string;
 	};

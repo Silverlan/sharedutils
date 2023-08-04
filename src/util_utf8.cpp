@@ -13,6 +13,7 @@ using namespace util;
 Utf8StringView::Utf8StringView(const Utf8String &str) : m_string {str} {}
 Utf8StringView::Utf8StringView(const std::string &str) : m_string {str} {}
 Utf8StringView::Utf8StringView(const char *str) : m_string {str} {}
+Utf8StringView::Utf8StringView(const char *str, size_t count) : m_string {str, count} {}
 Utf8StringView &Utf8StringView::operator=(const Utf8String &str)
 {
 	m_string = str;
@@ -34,6 +35,7 @@ Utf8StringView &Utf8StringView::operator=(const char *str)
 	return *this;
 }
 size_t Utf8StringView::length() const { return m_string.length(); }
+size_t Utf8StringView::size() const { return m_string.size(); }
 size_t Utf8StringView::find(const char *str, size_t startPos) const { return m_string.find(str, startPos); }
 size_t Utf8StringView::find(const std::string &str, size_t startPos) const { return m_string.find(str, startPos); }
 size_t Utf8StringView::find(const Utf8String &strU8, size_t startPos) const { return m_string.find(strU8, startPos); }
@@ -42,6 +44,8 @@ Utf8StringIterator Utf8StringView::begin() const { return const_cast<Utf8StringV
 Utf8StringIterator Utf8StringView::end() const { return const_cast<Utf8StringView *>(this)->m_string.end(); }
 std::string Utf8StringView::cpp_str() const { return m_string.cpp_str(); }
 const char *Utf8StringView::c_str() const { return m_string.c_str(); }
+const char *Utf8StringView::data() const { return m_string.data(); }
+Utf8StringView::operator std::string() const { return cpp_str(); }
 Utf8StringView Utf8StringView::substr(size_t start, size_t count) const { return m_string.substr(start, count); }
 bool Utf8StringView::operator==(const Utf8StringView &other) const { return m_string == other.m_string; }
 bool Utf8StringView::operator!=(const Utf8StringView &other) const { return !operator==(other); }

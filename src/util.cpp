@@ -41,8 +41,6 @@
 #endif
 #include <thread>
 
-#pragma comment(lib, "mathutil.lib")
-
 std::string util::get_pretty_bytes(unsigned long long bytes)
 {
 	auto sz = static_cast<double>(bytes);
@@ -532,6 +530,18 @@ std::string util::get_last_system_error_string()
 	return message;
 #else
 	return std::strerror(errno);
+#endif
+}
+
+void util::set_prevent_os_sleep_mode(bool prevent)
+{
+#ifdef _WIN32
+	if(prevent)
+		SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED | ES_AWAYMODE_REQUIRED);
+	else
+		SetThreadExecutionState(ES_CONTINUOUS);
+#else
+// TODO: Not yet implemented
 #endif
 }
 

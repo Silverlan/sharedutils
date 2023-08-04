@@ -402,13 +402,19 @@ util::AssetObject util::FileAssetManager::LoadAsset(const std::string &path, std
 			assert(hasExt);
 			if(hasExt) // This should always be true
 			{
-				if(Import(assetPath, ext)) {
+				std::string errMsg;
+				if(Import(assetPath, ext, &errMsg)) {
 					// Import was successful, attempt to preload again
 					if(loadInfo) {
 						ufile::remove_extension_from_filename(assetPath, std::vector<std::string> {ext});
 						ClearCachedResult(GetIdentifierHash(assetPath));
 						r = PreloadAsset(assetPath, IMMEDIATE_PRIORITY, std::move(loadInfo));
 					}
+				}
+				else {
+					r.result = PreloadResult::Result::ImportFailed;
+					if(!errMsg.empty())
+						r.errorMessage = errMsg;
 				}
 			}
 		}

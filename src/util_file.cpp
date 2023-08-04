@@ -55,11 +55,14 @@ std::string ufile::get_file_from_filename(const std::string &str)
 	return str.substr(br + 1);
 }
 
-void ufile::remove_extension_from_filename(std::string &str)
+std::optional<std::string> ufile::remove_extension_from_filename(std::string &str)
 {
 	std::string ext;
-	if(get_extension(str, &ext) == true)
+	if(get_extension(str, &ext) == true) {
 		str = str.substr(0, str.length() - (ext.length() + 1));
+		return ext;
+	}
+	return {};
 }
 
 std::vector<std::string> ufile::split_path(const std::string &path)
@@ -70,6 +73,7 @@ std::vector<std::string> ufile::split_path(const std::string &path)
 	ustring::explode(path, "\\", r);
 	return r;
 }
+void ufile::to_lower(std::string &str) { return ustring::to_lower(str); }
 
 std::string ufile::to_path(const std::vector<std::string> &splitPath, size_t startPos, size_t endPos)
 {

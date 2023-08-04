@@ -26,6 +26,7 @@ namespace util {
 		static void StartAsync();
 		static void PollEvents();
 		static bool ShouldExit();
+		static void Stop(bool wait = true);
 		static void Join();
 	};
 };

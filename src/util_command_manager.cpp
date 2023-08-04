@@ -67,6 +67,8 @@ void CommandManager::StartAsync()
 				s_eventQueue.push([fInput, args]() mutable { fInput(args); });
 				s_eventMutex.unlock();
 			});
+			if(s_shouldExit)
+				break;
 			if(r == false) {
 				if(cmd != "exit")
 					std::cout << "Unknown command '" << cmd << "'!" << std::endl;
@@ -75,7 +77,14 @@ void CommandManager::StartAsync()
 			}
 		}
 		s_shouldExit = true;
+		// End of thread
 	});
+}
+void CommandManager::Stop(bool wait)
+{
+	s_shouldExit = true;
+	if(wait && s_thread.joinable())
+		s_thread.join();
 }
 void CommandManager::PollEvents()
 {
@@ -89,6 +98,8 @@ void CommandManager::PollEvents()
 bool CommandManager::ShouldExit() { return s_shouldExit; }
 void CommandManager::Join()
 {
+	if(!s_thread.joinable())
+		return;
 	s_thread.detach();
 #ifdef _WIN32
 	INPUT_RECORD input;
