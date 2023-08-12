@@ -982,10 +982,13 @@ std::optional<std::string> util::get_system_language()
 	return iso_639_lang;
 #else
 	setlocale(LC_ALL, "");
-	std::string lan = setlocale(LC_ALL, NULL);
-	auto pos = lan.find('_');
-	if(pos != std::string::npos)
-		lan = lan.substr(0, pos);
+	std::string lan {getenv("LANG")};
+	auto uscorePos = lan.find('_');
+	auto dotPos = lan.find('.');
+	if(uscorePos != std::string::npos)
+		lan = lan.substr(0, uscorePos);
+	if(dotPos != std::string::npos)
+		lan = lan.substr(0, dotPos);
 	return lan;
 #endif
 }
