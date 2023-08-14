@@ -12,6 +12,7 @@
 #include <optional>
 #include <vector>
 #include <iostream>
+#include <cstdint>
 
 #undef CreateFile
 
@@ -79,7 +80,7 @@ namespace util {
 		void PopBack();
 		bool MakeRelative(const Path &relativeTo);
 
-		uint32_t GetComponentCount() const;
+		std::uint32_t GetComponentCount() const;
 		bool IsEmpty() const;
 		std::vector<std::string> ToComponents() const;
 		const std::string &GetString() const;
