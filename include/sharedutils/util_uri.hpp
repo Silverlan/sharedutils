@@ -1,6 +1,7 @@
 #include "utildefinitions.h"
 #include <string>
 #include <array>
+#include <cinttypes>
 #include <unordered_map>
 
 // See https://stackoverflow.com/a/11040947/2482983
