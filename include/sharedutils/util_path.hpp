@@ -12,6 +12,7 @@
 #include <optional>
 #include <vector>
 #include <iostream>
+#include <cinttypes>
 
 #undef CreateFile
 
