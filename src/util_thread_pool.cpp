@@ -10,7 +10,7 @@
 #include <mathutil/umath.h>
 
 util::ThreadPool::ThreadPool(uint32_t threadCount) : ThreadPool {threadCount, ""} {}
-util::ThreadPool::ThreadPool(uint32_t threadCount, const std::string &name, const std::string &baseName) : m_pool {threadCount}
+util::ThreadPool::ThreadPool(uint32_t threadCount, const std::string &name, const std::string &baseName) : m_pool {static_cast<int32_t>(threadCount)}
 {
 	auto n = m_pool.size();
 	std::string fullName = baseName;
