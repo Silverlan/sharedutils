@@ -102,9 +102,10 @@ namespace ustring {
 	DLLSHUTIL std::size_t longest_common_substring(const std::string &str1, const std::string &str2);
 	DLLSHUTIL std::string substr(const std::string &str, std::size_t start, size_t len = std::string::npos);
 	DLLSHUTIL std::string_view substr(const std::string_view &str, std::size_t start, size_t len = std::string::npos);
+	size_t find(const auto &strHaystack, const auto &strNeedle, bool caseSensitive = true);
 	template<typename T>
-	    requires(std::is_same_v<T, std::string> || std::is_same_v<T, std::string_view>) bool
-	compare(const T &a, const T &b, bool caseSensitive = true);
+	    requires(std::is_same_v<T, std::string> || std::is_same_v<T, std::string_view>)
+	bool compare(const T &a, const T &b, bool caseSensitive = true);
 	DLLSHUTIL bool compare(const char *a, const char *b, bool caseSensitive = true, size_t len = std::string::npos);
 	DLLSHUTIL std::string name_to_identifier(const std::string &name);
 
@@ -163,6 +164,14 @@ namespace ustring {
 
 		constexpr inline long long int operator"" _(char const *p, size_t) { return ustring::string_switch::hash(p, std::char_traits<char>::length(p)); }
 	}
+}
+
+size_t ustring::find(const auto &strHaystack, const auto &strNeedle, bool caseSensitive)
+{
+	if(caseSensitive)
+		return strHaystack.find(strNeedle);
+	auto it = std::search(strHaystack.begin(), strHaystack.end(), strNeedle.begin(), strNeedle.end(), [](auto ch1, auto ch2) { return std::toupper(ch1) == std::toupper(ch2); });
+	return (it != strHaystack.end()) ? std::distance(strHaystack.begin(), it) : std::string::npos;
 }
 
 template<class type, class rtype>
