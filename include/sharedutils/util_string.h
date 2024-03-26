@@ -164,6 +164,23 @@ namespace ustring {
 
 		constexpr inline long long int operator"" _(char const *p, size_t) { return ustring::string_switch::hash(p, std::char_traits<char>::length(p)); }
 	}
+
+	namespace string_switch_ci {
+		// Same as string_switch, but case-insensitive
+		constexpr uint32_t hash(const char *data, size_t const size) noexcept
+		{
+			uint32_t hash = 5381;
+
+			for(const char *c = data; c < data + size; ++c)
+				hash = ((hash << 5) + hash) + char_to_lower((unsigned char)*c);
+
+			return hash;
+		}
+
+		constexpr uint32_t hash(const std::string_view &str) noexcept { return hash(str.data(), str.length()); }
+
+		constexpr inline long long int operator"" _(char const *p, size_t) { return ustring::string_switch_ci::hash(p, std::char_traits<char>::length(p)); }
+	}
 }
 
 size_t ustring::find(const auto &strHaystack, const auto &strNeedle, bool caseSensitive)
