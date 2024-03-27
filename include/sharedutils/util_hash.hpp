@@ -7,6 +7,7 @@
 
 #include "sharedutils/utildefinitions.h"
 #include <limits>
+#include <utility>
 #include <stddef.h>
 #include <type_traits>
 #include <cstdint>
@@ -38,6 +39,18 @@ namespace util {
 	{
 		return rotl(seed, std::numeric_limits<size_t>::digits / 3) ^ distribute(std::hash<T>()(v));
 	}
+
+	struct pair_hash {
+		template<class T1, class T2>
+		std::size_t operator()(const std::pair<T1, T2> &pair) const
+		{
+			util::Hash hash = 0;
+			hash = util::hash_combine<size_t>(hash, std::hash<T1> {}(pair.first));
+			hash = util::hash_combine<size_t>(hash, std::hash<T2> {}(pair.second));
+			return hash;
+		}
+	};
+
 };
 
 #endif
