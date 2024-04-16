@@ -5,6 +5,7 @@
 #include "sharedutils/util_utf8.hpp"
 #include <sharedutils/tinyutf8/tinyutf8.h>
 #include <iostream>
+#include <locale>
 
 // TODO: Replace this implementation with https://github.com/DuffsDevice/tiny-utf8 once it has support for utf8 string_view
 
@@ -55,6 +56,24 @@ bool util::utf8_strncmp(const char *t0, const char *t1, size_t num)
 	auto v0 = Utf8StringView {t0};
 	auto v1 = Utf8StringView {t1};
 	return v0.substr(0, num) == v1.substr(0, num);
+}
+
+int util::utf8_char_to_lower(int c) { return std::tolower(c, std::locale("")); }
+int util::utf8_char_to_upper(int c) { return std::toupper(c, std::locale("")); }
+
+void util::utf8_string_to_upper(std::string &str)
+{
+	util::Utf8String utf8Str {str};
+	for(auto it = utf8Str.begin(); it != utf8Str.end(); ++it)
+		*it = utf8_char_to_upper(*it);
+	str = utf8Str.cpp_str();
+}
+void util::utf8_string_to_lower(std::string &str)
+{
+	util::Utf8String utf8Str {str};
+	for(auto it = utf8Str.begin(); it != utf8Str.end(); ++it)
+		*it = utf8_char_to_lower(*it);
+	str = utf8Str.cpp_str();
 }
 
 //////////////////////////

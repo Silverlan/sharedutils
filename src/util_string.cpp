@@ -9,6 +9,7 @@
 #include <cctype>
 #include <codecvt>
 #include <locale>
+#include <cwctype>
 #ifdef _WIN32
 #include <winsock.h>
 #pragma comment(lib, "Ws2_32.lib") // Required for inet_addr / inet_ntoa
@@ -321,8 +322,8 @@ std::size_t ustring::longest_common_substring(const std::string &str1, const std
 std::string ustring::substr(const std::string &str, std::size_t start, size_t len) { return (start < str.length()) ? str.substr(start, len) : ""; }
 std::string_view ustring::substr(const std::string_view &str, std::size_t start, size_t len) { return (start < str.length()) ? str.substr(start, len) : std::string_view {}; }
 template<typename T>
-    requires(std::is_same_v<T, std::string> || std::is_same_v<T, std::string_view>) bool
-ustring::compare(const T &a, const T &b, bool caseSensitive)
+    requires(std::is_same_v<T, std::string> || std::is_same_v<T, std::string_view>)
+bool ustring::compare(const T &a, const T &b, bool caseSensitive)
 {
 	if(caseSensitive == true)
 		return a == b;
