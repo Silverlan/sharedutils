@@ -184,13 +184,17 @@ std::string_view util::Path::GetFront() const { return GetComponent(0); }
 std::string_view util::Path::GetBack() const
 {
 	auto br = m_path.rfind('/');
-	if(IsFile() == false) {
+	auto isFile = IsFile();
+	if(isFile == false) {
 		br = m_path.rfind('/', br - 1);
 		if(br == std::string::npos)
 			return m_path;
 	}
-	if(br == std::string::npos)
+	if(br == std::string::npos) {
+		if(isFile)
+			return m_path;
 		return std::string_view {};
+	}
 	return std::string_view {m_path}.substr(br + 1);
 }
 std::string_view util::Path::GetComponent(size_t offset, size_t *outOptNextOffset) const
