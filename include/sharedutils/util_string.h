@@ -121,6 +121,7 @@ namespace ustring {
 	DLLSHUTIL std::string int_to_ip(uint32_t ip);
 
 	constexpr char char_to_lower(const char c) { return (c >= 'A' && c <= 'Z') ? c + ('a' - 'A') : c; }
+	constexpr char char_to_upper(const char c) { return (c >= 'a' && c <= 'z') ? c - ('a' - 'A') : c; }
 
 	constexpr bool iequals(const std::string_view &a, const std::string_view &b)
 	{

@@ -53,6 +53,10 @@ namespace util {
 		Utf8String m_string;
 	};
 	DLLSHUTIL bool utf8_strncmp(const char *t0, const char *t1, size_t num);
+	DLLSHUTIL int utf8_char_to_lower(int c);
+	DLLSHUTIL int utf8_char_to_upper(int c);
+	DLLSHUTIL void utf8_string_to_upper(std::string &str);
+	DLLSHUTIL void utf8_string_to_lower(std::string &str);
 };
 DLLSHUTIL util::Utf8String &operator+=(util::Utf8String &str, const util::Utf8StringView &view);
 DLLSHUTIL std::ostream &operator<<(std::ostream &out, const util::Utf8String &str);
