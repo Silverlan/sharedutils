@@ -3,6 +3,7 @@
 #include <array>
 #include <cinttypes>
 #include <unordered_map>
+#include <cstdint>
 
 // See https://stackoverflow.com/a/11040947/2482983
 struct UriTextRangeStructA;
@@ -27,7 +28,7 @@ namespace uriparser {
 		std::string fragment() const;
 	  private:
 		std::string uri_;
-		std::array<uint8_t, 160> uriParse_;
+		std::array<std::uint8_t, 160> uriParse_;
 		UriUriStructA &GetUriParse();
 		const UriUriStructA &GetUriParse() const { return const_cast<Uri *>(this)->GetUriParse(); }
 		bool isValid_;
