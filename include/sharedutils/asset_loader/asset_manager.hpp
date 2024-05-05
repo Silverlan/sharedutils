@@ -57,6 +57,7 @@ namespace util {
 		void FlagAllForRemoval();
 
 		virtual void SetLogHandler(const util::LogHandler &logHandler);
+		void Log(const std::string &msg, util::LogSeverity severity) const;
 		bool ShouldLog() const;
 
 		Asset *GetAsset(AssetIndex index);

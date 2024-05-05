@@ -335,6 +335,12 @@ void util::IAssetManager::FlagAllForRemoval()
 }
 
 void util::IAssetManager::SetLogHandler(const util::LogHandler &logHandler) { m_logHandler = logHandler; }
+void util::IAssetManager::Log(const std::string &msg, util::LogSeverity severity) const
+{
+	if(!ShouldLog())
+		return;
+	m_logHandler(msg, severity);
+}
 bool util::IAssetManager::ShouldLog() const { return m_logHandler != nullptr; }
 
 util::Asset *util::IAssetManager::GetAsset(AssetIndex index)
