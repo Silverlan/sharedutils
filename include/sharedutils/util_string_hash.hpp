@@ -10,6 +10,8 @@
 
 #include "utildefinitions.h"
 #include <unordered_map>
+#include <string>
+#include <string_view>
 
 namespace util {
 	// See https://en.cppreference.com/w/cpp/container/unordered_map/find
