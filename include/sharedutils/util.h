@@ -15,6 +15,7 @@
 #include <functional>
 #include <optional>
 #include <charconv>
+#include <algorithm>
 #include "util_version.h"
 #include <mathutil/umath.h>
 #ifdef _WIN32
