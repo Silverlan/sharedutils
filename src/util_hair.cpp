@@ -5,6 +5,8 @@
 #include "sharedutils/util_hair.hpp"
 #include <mathutil/umath_geometry.hpp>
 
+void util::HairGenerator::SetMeshDataInterface(std::unique_ptr<MeshInterface> &&meshInterface) { m_meshData = std::move(meshInterface); }
+
 util::HairData util::HairGenerator::Generate(float hairPerArea)
 {
 	auto numTris = m_meshData->GetTriangleCount();
