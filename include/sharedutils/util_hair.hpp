@@ -6,8 +6,8 @@
 #define __UTIL_HAIR_HPP__
 
 #include "utildefinitions.h"
-#include <mathutil/uvec.h>
 #include <memory>
+#include <mathutil/uvec.h>
 
 namespace util {
 	struct DLLSHUTIL HairConfig {
@@ -38,7 +38,7 @@ namespace util {
 			virtual const Vector3 GetVertexNormal(uint32_t vertIdx) const = 0;
 			virtual const Vector2 GetVertexUv(uint32_t vertIdx) const = 0;
 		};
-		void SetMeshDataInterface(std::unique_ptr<MeshInterface> &&meshInterface) { m_meshData = std::move(meshInterface); }
+		void SetMeshDataInterface(std::unique_ptr<MeshInterface> &&meshInterface);
 		HairData Generate(float hairPerArea);
 	  private:
 		std::unique_ptr<MeshInterface> m_meshData {};

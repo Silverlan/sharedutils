@@ -44,6 +44,13 @@ namespace util {
 	DLLSHUTIL bool start_process(const char *program, const std::vector<std::string> &args, bool bGlobalPath = false);
 #ifdef _WIN32
 	DLLSHUTIL bool start_and_wait_for_process(const char *program, unsigned int *exitCode = nullptr, bool bGlobalPath = false, std::string *optOutput = nullptr);
+
+	enum class SubSystem : uint8_t {
+		Console = 0,
+		GUI,
+		Unknown,
+	};
+	DLLSHUTIL SubSystem get_subsystem();
 #endif
 	DLLSHUTIL std::string get_last_system_error_string();
 	DLLSHUTIL void set_prevent_os_sleep_mode(bool prevent);
