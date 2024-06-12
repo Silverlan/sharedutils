@@ -515,6 +515,20 @@ static bool start_and_wait_for_command(const char *program, const char *cmd, con
 }
 bool util::start_and_wait_for_command(const char *cmd, const char *cwd, unsigned int *exitCode, std::string *optOutput) { return ::start_and_wait_for_command(nullptr, cmd, cwd, exitCode, false, optOutput); }
 bool util::start_and_wait_for_process(const char *program, unsigned int *exitCode, bool bGlobalPath, std::string *optOutput) { return ::start_and_wait_for_command(program, nullptr, nullptr, exitCode, bGlobalPath, optOutput); }
+#pragma comment(lib, "Dbghelp.lib")
+#include <DbgHelp.h>
+util::SubSystem util::get_subsystem()
+{
+	// See https://stackoverflow.com/a/1440163/1879228
+	PIMAGE_NT_HEADERS nth = ImageNtHeader((PVOID)GetModuleHandle(NULL));
+	switch(nth->OptionalHeader.Subsystem) {
+	case IMAGE_SUBSYSTEM_WINDOWS_CUI:
+		return SubSystem::Console;
+	case IMAGE_SUBSYSTEM_WINDOWS_GUI:
+		return SubSystem::GUI;
+	}
+	return SubSystem::Unknown;
+}
 #endif
 
 std::string util::get_last_system_error_string()
