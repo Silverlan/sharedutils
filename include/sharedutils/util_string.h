@@ -119,6 +119,7 @@ namespace ustring {
 
 	DLLSHUTIL uint32_t ip_to_int(const std::string_view &ip);
 	DLLSHUTIL std::string int_to_ip(uint32_t ip);
+	DLLSHUTIL void truncate_string(std::string &str, std::size_t maxLength);
 
 	constexpr char char_to_lower(const char c) { return (c >= 'A' && c <= 'Z') ? c + ('a' - 'A') : c; }
 	constexpr char char_to_upper(const char c) { return (c >= 'a' && c <= 'z') ? c - ('a' - 'A') : c; }

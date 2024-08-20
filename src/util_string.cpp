@@ -594,3 +594,9 @@ std::string ustring::int_to_ip(uint32_t ip)
 #endif
 	return inet_ntoa(paddr);
 }
+
+void ustring::truncate_string(std::string &str, std::size_t maxLength)
+{
+	if(str.length() > maxLength)
+		str = str.substr(0, maxLength - 3) + "...";
+}
