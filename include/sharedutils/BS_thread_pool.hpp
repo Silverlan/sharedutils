@@ -10,6 +10,8 @@
  * @brief BS::thread_pool: a fast, lightweight, and easy-to-use C++17 thread pool library. This header file contains the main thread pool class and some additional classes and definitions. No other files are needed in order to use the thread pool itself.
  */
 
+#define BS_THREAD_POOL_DISABLE_EXCEPTION_HANDLING
+
 #ifndef __cpp_exceptions
     #define BS_THREAD_POOL_DISABLE_EXCEPTION_HANDLING
     #undef BS_THREAD_POOL_ENABLE_WAIT_DEADLOCK_CHECK
