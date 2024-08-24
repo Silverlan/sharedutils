@@ -19,6 +19,7 @@ namespace util {
 		ScopeGuard();
 		~ScopeGuard();
 		void dismiss() throw();
+		void release() throw();
 		ScopeGuard(const ScopeGuard &) = delete;
 		template<class Callable>
 		ScopeGuard &operator=(Callable &&undo_func);

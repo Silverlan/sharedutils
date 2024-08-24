@@ -26,3 +26,9 @@ ScopeGuard::~ScopeGuard()
 }
 
 void ScopeGuard::dismiss() throw() { f = nullptr; }
+void ScopeGuard::release() throw()
+{
+	if(f)
+		f(); // must not throw
+	dismiss();
+}
