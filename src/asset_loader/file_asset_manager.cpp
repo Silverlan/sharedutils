@@ -220,7 +220,7 @@ util::AssetObject util::FileAssetManager::LoadAsset(const std::string &path, con
 	auto jobId = *r.jobId;
 	std::chrono::steady_clock::time_point t;
 	if(ShouldLog()) {
-		m_logHandler("LoadAsset '" + identifier + "': Job Id: " + std::to_string(jobId), util::LogSeverity::Info);
+		m_logHandler("LoadAsset '" + identifier + "': Job Id: " + std::to_string(jobId), util::LogSeverity::Debug);
 		t = std::chrono::steady_clock::now();
 	}
 
