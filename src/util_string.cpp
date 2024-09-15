@@ -582,6 +582,46 @@ std::string ustring::name_to_identifier(const std::string &name)
 	}
 	return r;
 }
+std::string ustring::to_camel_case(const std::string &str)
+{
+	std::string camelCase;
+	bool capitalizeNext = false;
+
+	for(char ch : str) {
+		if(ch == '_')
+			capitalizeNext = true; // Set flag to capitalize the next character
+		else {
+			if(capitalizeNext) {
+				camelCase += std::toupper(ch); // Capitalize current character
+				capitalizeNext = false;
+			}
+			else {
+				camelCase += ch; // Add character as is
+			}
+		}
+	}
+
+	return camelCase;
+}
+std::string ustring::to_snake_case(const std::string &str)
+{
+	std::string snake_case;
+
+	auto isFirstChar = true;
+	for(char ch : str) {
+		if(std::isupper(ch)) {
+			if(!isFirstChar)
+				snake_case += '_';          // Add underscore before uppercase letter
+			snake_case += std::tolower(ch); // Convert uppercase to lowercase
+		}
+		else {
+			snake_case += ch; // Add character as is
+		}
+		isFirstChar = false;
+	}
+
+	return snake_case;
+}
 
 uint32_t ustring::ip_to_int(const std::string_view &ip) { return inet_addr(ip.data()); }
 std::string ustring::int_to_ip(uint32_t ip)

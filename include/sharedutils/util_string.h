@@ -108,6 +108,8 @@ namespace ustring {
 	bool compare(const T &a, const T &b, bool caseSensitive = true);
 	DLLSHUTIL bool compare(const char *a, const char *b, bool caseSensitive = true, size_t len = std::string::npos);
 	DLLSHUTIL std::string name_to_identifier(const std::string &name);
+	DLLSHUTIL std::string to_camel_case(const std::string &str);
+	DLLSHUTIL std::string to_snake_case(const std::string &str);
 
 	// Calculates the similarity between the two specified strings. The result only makes sense in context,
 	// lower values (<0) represent a higher similarity than higher values.
