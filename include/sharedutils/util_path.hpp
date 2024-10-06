@@ -50,8 +50,25 @@ namespace util {
 
 	class DLLSHUTIL Path {
 	  public:
-		static Path CreatePath(const std::string &path);
-		static Path CreateFile(const std::string &path);
+		template<typename... Args>
+		static Path CreatePath(const Args &...args)
+		{
+			auto npath = Concatenate(args...);
+			if(npath.empty())
+				npath = '/';
+			else if(npath.back() != '/' && npath.back() != '\\')
+				npath += '/';
+			return Path {std::move(npath)};
+		}
+		template<typename... Args>
+		static Path CreateFile(const Args &...args)
+		{
+			auto strPath = Concatenate(args...);
+			Path path {std::move(strPath)};
+			if(!path.m_path.empty() && (path.m_path.back() == '/' || path.m_path.back() == '\\'))
+				path.m_path.pop_back();
+			return path;
+		}
 		Path(const std::string &path = "");
 		Path(std::string &&path);
 		Path(const std::vector<std::string> &fromComponents);
@@ -106,6 +123,18 @@ namespace util {
 		PathIterator<const Path> rbegin() const;
 		PathIterator<const Path> rend() const;*/
 	  private:
+		template<typename First, typename... Rest>
+		static std::string Concatenate(const First &first, const Rest &...rest)
+		{
+			return to_string(first) + ("/" + ... + to_string(rest));
+		}
+		static std::string to_string(const std::string &s) { return s; }
+		static std::string to_string(const char *s) { return std::string(s); }
+		template<typename T>
+		static std::string to_string(const T &value)
+		{
+			return std::to_string(value);
+		}
 		void SetPath(const std::string &path);
 		void SetPath(std::string &&path);
 		void UpdatePath();

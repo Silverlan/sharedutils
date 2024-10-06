@@ -89,17 +89,6 @@ void util::canonicalize_path(std::string &inOutPath)
 	inOutPath = std::move(newPath);
 }
 
-util::Path util::Path::CreatePath(const std::string &path)
-{
-	auto npath = path;
-	if(npath.empty())
-		npath = '/';
-	else if(npath.back() != '/' && npath.back() != '\\')
-		npath += '/';
-	return util::Path {npath};
-}
-util::Path util::Path::CreateFile(const std::string &path) { return util::Path {path}; }
-
 util::Path::Path(const std::string &path) { SetPath(path); }
 util::Path::Path(std::string &&path) { SetPath(std::move(path)); }
 util::Path::Path(const std::vector<std::string> &fromComponents)
@@ -288,6 +277,13 @@ void util::Path::RemoveFileExtension() { ufile::remove_extension_from_filename(m
 void util::Path::UpdatePath()
 {
 	std::replace(m_path.begin(), m_path.end(), '\\', '/');
+
+	const std::string doubleSlash = "//";
+	const std::string singleSlash = "/";
+	size_t pos;
+	while((pos = m_path.find(doubleSlash)) != std::string::npos)
+		m_path.replace(pos, doubleSlash.length(), singleSlash);
+
 #ifdef _WIN32
 	if(m_path.empty() == false && m_path.front() == '/')
 		m_path.erase(m_path.begin());
