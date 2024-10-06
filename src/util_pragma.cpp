@@ -6,7 +6,7 @@
 #include "sharedutils/util_pragma.hpp"
 #include <mathutil/umath_lighting.hpp>
 
-float util::pragma::light_intensity_to_watts(float candelaOrLux, LightType lightType)
+float pragma::light_intensity_to_watts(float candelaOrLux, LightType lightType)
 {
 	if(lightType == LightType::Directional) {
 		static auto intensity = 7.5f;
