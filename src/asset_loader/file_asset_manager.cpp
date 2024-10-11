@@ -403,7 +403,7 @@ util::AssetObject util::FileAssetManager::LoadAsset(const std::string &path, std
 			if(hasExt) // This should always be true
 			{
 				std::string errMsg;
-				if(Import(assetPath, ext, &errMsg)) {
+				if(Import(GetRootDirectory().GetString() + assetPath, ext, &errMsg)) {
 					// Import was successful, attempt to preload again
 					if(loadInfo) {
 						ufile::remove_extension_from_filename(assetPath, std::vector<std::string> {ext});
@@ -425,7 +425,7 @@ util::AssetObject util::FileAssetManager::LoadAsset(const std::string &path, std
 				if(extInfo.type != FormatExtensionInfo::Type::Import || !loadInfo)
 					return false;
 				auto extPath = normPath + '.' + extInfo.extension;
-				if(Import(extPath, extInfo.extension)) {
+				if(Import(GetRootDirectory().GetString() + extPath, extInfo.extension)) {
 					// Import was successful, attempt to preload again
 					ClearCachedResult(GetIdentifierHash(assetPath));
 					r = PreloadAsset(assetPath, IMMEDIATE_PRIORITY, std::move(loadInfo));

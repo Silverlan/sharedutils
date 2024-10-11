@@ -24,7 +24,7 @@ bool util::FileAssetManager::Import(const std::string &path, const std::string &
 	auto &extInfo = *itExt;
 	auto cacheIdentifier = ToCacheIdentifier(path);
 	auto extPath = cacheIdentifier + '.' + extInfo.extension;
-	auto f = m_fileHandler->open((m_rootDir + extPath).GetString(), extInfo.formatType);
+	auto f = m_fileHandler->open(extPath, extInfo.formatType);
 	if(!f)
 		return false;
 	auto it = m_importHandlers.find(ext);
