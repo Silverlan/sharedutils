@@ -9,14 +9,15 @@ void util::FileAssetManager::RegisterImportHandler(const std::string &ext, const
 	m_importHandlers[ext] = factory;
 	RegisterFileExtension(ext, formatType, FormatExtensionInfo::Type::Import);
 }
-bool util::FileAssetManager::Import(const std::string &path)
+bool util::FileAssetManager::Import(const std::string &path) { return Import(path, path); }
+bool util::FileAssetManager::Import(const std::string &path, const std::string &outputPath)
 {
 	std::string ext;
 	if(!ufile::get_extension(path, &ext))
 		return false;
-	return Import(path, ext);
+	return Import(path, outputPath, ext);
 }
-bool util::FileAssetManager::Import(const std::string &path, const std::string &ext, std::string *optOutErrMsg)
+bool util::FileAssetManager::Import(const std::string &path, const std::string &outputPath, const std::string &ext, std::string *optOutErrMsg)
 {
 	auto itExt = FindExtension(m_extensions, ext, FormatExtensionInfo::Type::Import);
 	if(itExt == m_extensions.end())
@@ -35,9 +36,9 @@ bool util::FileAssetManager::Import(const std::string &path, const std::string &
 	if(!handler)
 		return false;
 	handler->SetFile(std::move(f));
-	auto outputPath = m_importRootDir + cacheIdentifier;
+	auto normalizedOutputPath = m_importRootDir + ToCacheIdentifier(outputPath);
 	std::string finalFilePath;
-	auto res = handler->Import(outputPath.GetString(), finalFilePath);
+	auto res = handler->Import(normalizedOutputPath.GetString(), finalFilePath);
 	if(!res) {
 		if(optOutErrMsg) {
 			auto &errMsg = handler->GetErrorMessage();

@@ -72,6 +72,7 @@ namespace util {
 		void CallOnLoad(const std::string &path, const std::function<void(util::Asset *, AssetLoadResult)> &onLoad);
 
 		bool Import(const std::string &path);
+		bool Import(const std::string &path, const std::string &outputPath);
 		virtual void Poll();
 	  protected:
 		virtual void Reset() override;
@@ -101,7 +102,7 @@ namespace util {
 			return RegisterImportHandler(
 			  ext, [](util::IAssetManager &assetManager) -> std::unique_ptr<util::IImportAssetFormatHandler> { return std::make_unique<T>(assetManager); }, formatType);
 		}
-		bool Import(const std::string &path, const std::string &ext, std::string *optOutErrMsg = nullptr);
+		bool Import(const std::string &path, const std::string &outputPath, const std::string &ext, std::string *optOutErrMsg = nullptr);
 
 		std::unique_ptr<AssetFormatLoader> m_loader;
 		Callbacks m_callbacks;
