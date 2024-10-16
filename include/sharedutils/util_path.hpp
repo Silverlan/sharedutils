@@ -124,9 +124,14 @@ namespace util {
 		PathIterator<const Path> rend() const;*/
 	  private:
 		template<typename First, typename... Rest>
+		static std::string Concatenate(const First &first)
+		{
+			return std::string {"/"} + to_string(first);
+		}
+		template<typename First, typename... Rest>
 		static std::string Concatenate(const First &first, const Rest &...rest)
 		{
-			return to_string(first) + ("/" + ... + to_string(rest));
+			return Concatenate(first) + Concatenate(rest...);
 		}
 		static std::string to_string(const std::string &s) { return s; }
 		static std::string to_string(const char *s) { return std::string(s); }
