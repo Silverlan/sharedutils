@@ -19,12 +19,11 @@ std::string uriparser::unescape(const std::string_view &str)
 	return escaped;
 }
 
-uriparser::Uri::Uri(std::string uri) : uri_ {std::move(uri)}
+uriparser::Uri::Uri(std::string uri)
 {
-	ustring::replace(uri_, " ", "%20");
-	UriParserStateA state_;
-	state_.uri = &GetUriParse();
-	isValid_ = uriParseUriA(&state_, uri_.c_str()) == URI_SUCCESS;
+	ustring::replace(uri, " ", "%20");
+	uri_ = std::move(uri);
+	isValid_ = uriParseSingleUriA(&GetUriParse(), uri_.c_str(), nullptr) == URI_SUCCESS;
 }
 
 UriUriStructA &uriparser::Uri::GetUriParse()
