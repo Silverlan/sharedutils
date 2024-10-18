@@ -426,7 +426,7 @@ util::AssetObject util::FileAssetManager::LoadAsset(const std::string &path, std
 				if(extInfo.type != FormatExtensionInfo::Type::Import || !loadInfo)
 					return false;
 				auto extPath = normPath + '.' + extInfo.extension;
-				if(Import(GetRootDirectory().GetString() + extPath, extInfo.extension)) {
+				if(Import(GetRootDirectory().GetString() + extPath, extPath, extInfo.extension)) {
 					// Import was successful, attempt to preload again
 					ClearCachedResult(GetIdentifierHash(assetPath));
 					r = PreloadAsset(assetPath, IMMEDIATE_PRIORITY, std::move(loadInfo));
