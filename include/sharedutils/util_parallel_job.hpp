@@ -96,7 +96,7 @@ namespace util {
 	  private:
 		virtual void CallCompletionHandler() override
 		{
-			if(m_fOnComplete == nullptr)
+			if(!m_fOnComplete)
 				return;
 			auto fOnComplete = m_fOnComplete;
 			m_fOnComplete = nullptr;
