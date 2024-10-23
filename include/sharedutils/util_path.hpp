@@ -72,6 +72,7 @@ namespace util {
 				p.pop_back();
 			return path;
 		}
+		static void RunTests();
 		Path(const std::string &path = "");
 		Path(std::string &&path);
 		Path(const std::vector<std::string> &fromComponents);
