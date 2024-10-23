@@ -53,20 +53,23 @@ namespace util {
 		template<typename... Args>
 		static Path CreatePath(const Args &...args)
 		{
-			auto npath = Concatenate(args...);
+			auto isFirstValidArg = false;
+			auto npath = Concatenate(isFirstValidArg, args...);
 			if(npath.empty())
 				npath = '/';
 			else if(npath.back() != '/' && npath.back() != '\\')
 				npath += '/';
-			return Path {std::move(npath)};
+			return util::Path {std::move(npath)};
 		}
 		template<typename... Args>
 		static Path CreateFile(const Args &...args)
 		{
-			auto strPath = Concatenate(args...);
-			Path path {std::move(strPath)};
-			if(!path.m_path.empty() && (path.m_path.back() == '/' || path.m_path.back() == '\\'))
-				path.m_path.pop_back();
+			auto isFirstValidArg = false;
+			auto strPath = Concatenate(isFirstValidArg, args...);
+			util::Path path {std::move(strPath)};
+			auto &p = reinterpret_cast<std::string &>(path);
+			if(!p.empty() && (p.back() == '/' || p.back() == '\\'))
+				p.pop_back();
 			return path;
 		}
 		Path(const std::string &path = "");
@@ -124,14 +127,27 @@ namespace util {
 		PathIterator<const Path> rend() const;*/
 	  private:
 		template<typename First, typename... Rest>
-		static std::string Concatenate(const First &first)
+		static std::string Concatenate(bool &isFirstValidArg, const First &first)
 		{
-			return std::string {"/"} + to_string(first);
+			auto str = to_string(first);
+			// We only want to begin the string with a forward slash if the first valid argument (i.e. non-empty)
+			// starts with a forward slash as well (which indicates an absolute path).
+			if(!isFirstValidArg) {
+				if(!str.empty()) {
+					isFirstValidArg = true;
+					return str;
+				}
+			}
+			if(str.empty() || str.front() == '/' || str.front() == '\\')
+				return str;
+			return std::string {"/"} + str;
 		}
 		template<typename First, typename... Rest>
-		static std::string Concatenate(const First &first, const Rest &...rest)
+		static std::string Concatenate(bool &isFirstValidArg, const First &first, const Rest &...rest)
 		{
-			return Concatenate(first) + Concatenate(rest...);
+			auto s0 = Concatenate(isFirstValidArg, first);
+			auto s1 = Concatenate(isFirstValidArg, rest...);
+			return s0 + s1;
 		}
 		static std::string to_string(const std::string &s) { return s; }
 		static std::string to_string(const char *s) { return std::string(s); }

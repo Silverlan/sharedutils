@@ -136,15 +136,25 @@ util::Path util::Path::operator+(const Path &other) const
 	cpy += other;
 	return cpy;
 }
+static void resolve_multi_slash(std::string &str)
+{
+	const std::string doubleSlash = "//";
+	const std::string singleSlash = "/";
+	size_t pos;
+	while((pos = str.find(doubleSlash)) != std::string::npos)
+		str.replace(pos, doubleSlash.length(), singleSlash);
+}
 util::Path &util::Path::operator+=(const Path &other)
 {
 	if(IsFile()) {
 		if(other.GetString().find('/') != std::string::npos)
 			return *this; // Appending a path to a file makes no sense, we'll just ignore it...
 		m_path += other.m_path;
+		resolve_multi_slash(m_path);
 		return *this;
 	}
 	m_path += other.m_path;
+	resolve_multi_slash(m_path);
 	return *this;
 }
 util::Path util::Path::operator+(const char *other) const { return operator+(std::string {other}); }
@@ -277,14 +287,9 @@ void util::Path::RemoveFileExtension() { ufile::remove_extension_from_filename(m
 void util::Path::UpdatePath()
 {
 	std::replace(m_path.begin(), m_path.end(), '\\', '/');
+	resolve_multi_slash(m_path);
 
-	const std::string doubleSlash = "//";
-	const std::string singleSlash = "/";
-	size_t pos;
-	while((pos = m_path.find(doubleSlash)) != std::string::npos)
-		m_path.replace(pos, doubleSlash.length(), singleSlash);
-
-#ifdef _WIN32
+#if 0
 	if(m_path.empty() == false && m_path.front() == '/')
 		m_path.erase(m_path.begin());
 #endif
