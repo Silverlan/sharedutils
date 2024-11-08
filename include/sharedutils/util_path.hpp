@@ -151,7 +151,9 @@ namespace util {
 			return s0 + s1;
 		}
 		static std::string to_string(const std::string &s) { return s; }
-		static std::string to_string(const char *s) { return std::string(s); }
+		static std::string to_string(const std::string_view &sw) { return std::string {sw}; }
+		static std::string to_string(const char *s) { return std::string {s}; }
+		static std::string to_string(const util::Path &path) { return path.GetString(); }
 		template<typename T>
 		static std::string to_string(const T &value)
 		{
@@ -162,6 +164,18 @@ namespace util {
 		void UpdatePath();
 		std::string m_path = "";
 	};
+
+	template<typename... Args>
+	Path FilePath(const Args &...args)
+	{
+		return Path::CreateFile(args...);
+	}
+
+	template<typename... Args>
+	Path DirPath(const Args &...args)
+	{
+		return Path::CreatePath(args...);
+	}
 };
 
 DLLSHUTIL util::Path operator+(const std::string &path, const util::Path &other);
