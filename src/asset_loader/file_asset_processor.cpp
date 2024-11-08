@@ -12,3 +12,5 @@ void util::FileAssetProcessor::Close()
 	if(handler)
 		handler->Close();
 }
+
+std::optional<std::string> util::FileAssetProcessor::GetErrorMessage() const { return handler->GetErrorMessage(); }

@@ -16,6 +16,7 @@ namespace util {
 	  public:
 		FileAssetProcessor(AssetFormatLoader &loader, std::unique_ptr<IAssetFormatHandler> &&handler);
 		virtual void Close() override;
+		virtual std::optional<std::string> GetErrorMessage() const override;
 		std::unique_ptr<util::AssetLoadInfo> loadInfo = nullptr;
 		std::function<void(util::Asset *, AssetLoadResult)> onLoaded = nullptr;
 

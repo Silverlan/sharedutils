@@ -125,18 +125,16 @@ std::optional<util::FileAssetManager::PreloadResult> util::FileAssetManager::Get
 	auto it = m_errorCache.find(hash);
 	if(it == m_errorCache.end())
 		return {};
-	util::FileAssetManager::PreloadResult result {};
+	auto result = it->second;
 	result.firstTimeError = false;
-	result.result = it->second;
 	return result;
 }
-util::FileAssetManager::PreloadResult::Result util::FileAssetManager::CacheResult(size_t hash, util::FileAssetManager::PreloadResult::Result result)
+void util::FileAssetManager::CacheResult(size_t hash, const util::FileAssetManager::PreloadResult &result)
 {
 	std::scoped_lock lock {m_errorCacheMutex};
 	m_errorCache[hash] = result;
-	return result;
 }
-util::FileAssetManager::PreloadResult::Result util::FileAssetManager::CacheResult(const std::string &assetName, util::FileAssetManager::PreloadResult::Result result) { return CacheResult(GetIdentifierHash(assetName), result); }
+void util::FileAssetManager::CacheResult(const std::string &assetName, const util::FileAssetManager::PreloadResult &result) { CacheResult(GetIdentifierHash(assetName), result); }
 util::FileAssetManager::PreloadResult util::FileAssetManager::PreloadAsset(const std::string &strPath, util::AssetLoadJobPriority priority, std::unique_ptr<util::AssetLoadInfo> &&loadInfo)
 {
 	if(!loadInfo || !umath::is_flag_set(loadInfo->flags, AssetLoadFlags::IgnoreCache)) {
@@ -294,7 +292,7 @@ util::AssetObject util::FileAssetManager::Poll(std::optional<util::AssetLoadJobI
 		if(untilJob.has_value() && !m_loader->IsJobPending(*untilJob)) // TODO: What conditions cause this?
 			return nullptr;
 		m_loader->Poll(
-		  [this, &untilJob, &targetAsset](const util::AssetLoadJob &job, AssetLoadResult result) {
+		  [this, &untilJob, &targetAsset](const util::AssetLoadJob &job, AssetLoadResult result, std::optional<std::string> errMsg) {
 			  if(ShouldLog())
 				  m_logHandler("Poll: Job " + (untilJob.has_value() ? std::to_string(*untilJob) : std::string {"n/a"}) + " state: " + std::to_string(umath::to_integral(result)) + "!", util::LogSeverity::Trace);
 			  auto &processor = *static_cast<FileAssetProcessor *>(job.processor.get());
@@ -325,8 +323,14 @@ util::AssetObject util::FileAssetManager::Poll(std::optional<util::AssetLoadJobI
 				  }
 			  default:
 				  {
-					  if(ShouldLog())
-						  m_logHandler(job.identifier + " has failed!", util::LogSeverity::Warning);
+					  if(ShouldLog()) {
+						  std::string msg = job.identifier + " has failed: ";
+						  if(errMsg)
+							  msg += *errMsg;
+						  else
+							  msg += "Unknown error.";
+						  m_logHandler(msg, util::LogSeverity::Warning);
+					  }
 
 					  if(untilJob.has_value() && job.jobId == *untilJob) {
 						  targetAsset = nullptr;
@@ -373,7 +377,7 @@ util::AssetObject util::FileAssetManager::LoadAsset(const std::string &cacheName
 		*optOutResult = r;
 	if(!r) {
 		if(!loadInfo || (loadInfo->flags & util::AssetLoadFlags::DontCache) == util::AssetLoadFlags::None)
-			CacheResult(cacheName, r.result);
+			CacheResult(cacheName, r);
 		return nullptr;
 	}
 	return LoadAsset(cacheName, r, onLoaded, onFailure);
@@ -464,7 +468,7 @@ util::AssetObject util::FileAssetManager::LoadAsset(const std::string &path, std
 		*optOutResult = r;
 	if(!r) {
 		if(!loadInfo || (loadInfo->flags & util::AssetLoadFlags::DontCache) == util::AssetLoadFlags::None)
-			CacheResult(assetPath, r.result);
+			CacheResult(assetPath, r);
 		return nullptr;
 	}
 	return LoadAsset(assetPath, r, onLoaded, onFailure);

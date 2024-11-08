@@ -179,7 +179,7 @@ bool util::IAssetLoader::HasCompletedJobs() const
 	return res;
 }
 
-void util::IAssetLoader::Poll(const std::function<void(const AssetLoadJob &, AssetLoadResult)> &onComplete, AssetLoaderWaitMode wait)
+void util::IAssetLoader::Poll(const std::function<void(const AssetLoadJob &, AssetLoadResult, std::optional<std::string>)> &onComplete, AssetLoaderWaitMode wait)
 {
 	if(wait == AssetLoaderWaitMode::All) {
 		for(;;) {
@@ -239,16 +239,17 @@ void util::IAssetLoader::Poll(const std::function<void(const AssetLoadJob &, Ass
 		auto valid = (it != m_assetIdToJobId.end() && it->second.jobId == job.jobId);
 		m_assetIdToJobIdMutex.unlock();
 
+		auto errorMsg = job.processor->GetErrorMessage();
 		if(valid) {
 			if(job.state == AssetLoadJob::State::Succeeded && job.processor->Finalize()) {
 				success = true;
-				onComplete(job, AssetLoadResult::Succeeded);
+				onComplete(job, AssetLoadResult::Succeeded, errorMsg);
 			}
 			else
-				onComplete(job, AssetLoadResult::Failed);
+				onComplete(job, AssetLoadResult::Failed, errorMsg);
 		}
 		else
-			onComplete(job, AssetLoadResult::Cancelled);
+			onComplete(job, AssetLoadResult::Cancelled, errorMsg);
 		{
 			m_assetIdToJobIdMutex.lock();
 

@@ -43,7 +43,7 @@ namespace util {
 	  public:
 		IAssetLoader(std::string name = "");
 		virtual ~IAssetLoader();
-		void Poll(const std::function<void(const AssetLoadJob &, AssetLoadResult)> &onComplete, AssetLoaderWaitMode wait = AssetLoaderWaitMode::None);
+		void Poll(const std::function<void(const AssetLoadJob &, AssetLoadResult, std::optional<std::string>)> &onComplete, AssetLoaderWaitMode wait = AssetLoaderWaitMode::None);
 		std::optional<AssetLoadJobId> AddJob(const std::string &identifier, std::unique_ptr<IAssetProcessor> &&processor, AssetLoadJobPriority priority = 0);
 		std::optional<AssetLoadJobId> FindJobId(const std::string &identifier) const;
 		bool InvalidateLoadJob(const std::string &identifier);

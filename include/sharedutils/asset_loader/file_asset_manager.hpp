@@ -24,7 +24,16 @@ namespace util {
 		static constexpr util::AssetLoadJobPriority DEFAULT_PRIORITY = 0;
 		static constexpr util::AssetLoadJobPriority IMMEDIATE_PRIORITY = 10;
 		struct DLLSHUTIL PreloadResult {
-			enum class Result : uint8_t { Pending = 0, AlreadyLoaded, UnsupportedFormat, FileNotFound, UnableToOpenFile, JobCreationFailed, ImportFailed, Success };
+			enum class Result : uint8_t {
+				Pending = 0,
+				AlreadyLoaded,
+				UnsupportedFormat,
+				FileNotFound,
+				UnableToOpenFile,
+				JobCreationFailed,
+				ImportFailed,
+				Success,
+			};
 			std::optional<util::AssetLoadJobId> jobId {};
 			Result result = Result::Pending;
 			std::optional<std::string> errorMessage {};
@@ -107,8 +116,8 @@ namespace util {
 		std::unique_ptr<AssetFormatLoader> m_loader;
 		Callbacks m_callbacks;
 	  private:
-		util::FileAssetManager::PreloadResult::Result CacheResult(size_t hash, util::FileAssetManager::PreloadResult::Result result);
-		util::FileAssetManager::PreloadResult::Result CacheResult(const std::string &assetName, util::FileAssetManager::PreloadResult::Result result);
+		void CacheResult(size_t hash, const util::FileAssetManager::PreloadResult &result);
+		void CacheResult(const std::string &assetName, const util::FileAssetManager::PreloadResult &result);
 		std::optional<util::FileAssetManager::PreloadResult> GetCachedResult(size_t hash) const;
 		std::function<std::optional<std::string>(const std::string &, const std::string &)> m_externalSourceFileImportHandler = nullptr;
 		std::unordered_map<size_t, std::vector<std::function<void(util::Asset *, AssetLoadResult)>>> m_callOnLoad;
@@ -117,7 +126,7 @@ namespace util {
 		util::Path m_importRootDir;
 		std::mutex m_preloadMutex;
 
-		std::unordered_map<size_t, util::FileAssetManager::PreloadResult::Result> m_errorCache;
+		std::unordered_map<size_t, util::FileAssetManager::PreloadResult> m_errorCache;
 		mutable std::mutex m_errorCacheMutex;
 
 		std::unordered_map<std::string, std::function<std::unique_ptr<IImportAssetFormatHandler>(util::IAssetManager &)>> m_importHandlers;

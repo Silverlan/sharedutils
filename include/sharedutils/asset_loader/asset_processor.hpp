@@ -8,6 +8,7 @@
 #include "sharedutils/utildefinitions.h"
 #include <cinttypes>
 #include <optional>
+#include <string>
 #include <functional>
 #include <memory>
 
@@ -26,6 +27,7 @@ namespace util {
 		virtual ~IAssetProcessor() = default;
 		virtual bool Load() = 0;
 		virtual bool Finalize() = 0;
+		virtual std::optional<std::string> GetErrorMessage() const = 0;
 		virtual void Close() {};
 	};
 };
