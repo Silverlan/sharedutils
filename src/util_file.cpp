@@ -18,22 +18,22 @@ bool ufile::get_extension(const std::string &f, std::string *ext)
 	return false;
 }
 
-bool ufile::compare_extension(const std::string &f, std::vector<std::string> *extensions)
+bool ufile::compare_extension(const std::string &f, const std::vector<std::string> &extensions)
 {
 	std::string ext;
 	if(!get_extension(f, &ext))
 		return false;
-	for(int i = 0; i < extensions->size(); i++)
-		if((*extensions)[i] == ext)
+	for(int i = 0; i < extensions.size(); i++)
+		if(extensions[i] == ext)
 			return true;
 	return false;
 }
 
-bool ufile::compare_directory(const std::string &f, std::vector<std::string> *folders)
+bool ufile::compare_directory(const std::string &f, const std::vector<std::string> &folders)
 {
-	for(int i = 0; i < folders->size(); i++) {
-		size_t l = (*folders)[i].length();
-		if(f.substr(0, l) == (*folders)[i] && f[l] == '\\')
+	for(int i = 0; i < folders.size(); i++) {
+		size_t l = folders[i].length();
+		if(f.substr(0, l) == folders[i] && f[l] == '\\')
 			return true;
 	}
 	return false;

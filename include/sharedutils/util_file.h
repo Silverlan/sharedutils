@@ -13,8 +13,8 @@
 
 namespace ufile {
 	DLLSHUTIL bool get_extension(const std::string &f, std::string *ext);
-	DLLSHUTIL bool compare_extension(const std::string &f, std::vector<std::string> *extensions);
-	DLLSHUTIL bool compare_directory(const std::string &f, std::vector<std::string> *folders);
+	DLLSHUTIL bool compare_extension(const std::string &f, const std::vector<std::string> &extensions);
+	DLLSHUTIL bool compare_directory(const std::string &f, const std::vector<std::string> &folders);
 	DLLSHUTIL std::string get_path_from_filename(const std::string &str);
 	DLLSHUTIL std::string get_file_from_filename(const std::string &str);
 	DLLSHUTIL std::optional<std::string> remove_extension_from_filename(std::string &str);
