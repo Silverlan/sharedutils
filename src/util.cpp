@@ -10,6 +10,7 @@
 #include "sharedutils/scope_guard.h"
 #include "sharedutils/util_hash.hpp"
 #include "sharedutils/util_string_hash.hpp"
+#include "sharedutils/util_log.hpp"
 #include <sstream>
 #include <iomanip>
 #include <cstring>
@@ -40,6 +41,12 @@
 #include <Shlobj_core.h>
 #endif
 #include <thread>
+
+#ifdef _WIN32
+std::string util::LOG_NL = "\r\n";
+#else
+std::string util::LOG_NL = "\n";
+#endif
 
 std::string util::get_pretty_bytes(unsigned long long bytes)
 {
