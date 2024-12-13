@@ -229,6 +229,7 @@ std::string util::IAssetManager::ToCacheIdentifier(const std::string &assetName)
 {
 	auto path = util::Path::CreateFile(assetName);
 	path.Canonicalize();
+	path.RemoveLeadingRootSlash();
 	auto canonPath = path.Move();
 	for(auto &c : canonPath)
 		c = std::tolower(c);

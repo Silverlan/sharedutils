@@ -107,6 +107,7 @@ namespace util {
 		const std::string &GetString() const;
 		void MoveUp();
 		void Canonicalize();
+		void RemoveLeadingRootSlash();
 		bool IsFile() const;
 		bool IsDirectory() const;
 		std::optional<std::string> GetFileExtension() const;
