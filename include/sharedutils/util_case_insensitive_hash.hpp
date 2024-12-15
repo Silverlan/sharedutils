@@ -16,8 +16,10 @@ namespace util {
 	struct DLLSHUTIL CaseInsensitiveHashingFunc {
 		unsigned long operator()(const std::string &key) const;
 	};
+	template<typename T>
+	using CIMap = std::unordered_map<std::string, T, CaseInsensitiveHashingFunc, CaseInsensitiveStringComparator>;
 	// Does not work correctly? Find out why
-	// using KeyValueMap = std::unordered_map<std::string,std::string,util::CaseInsensitiveHashingFunc,util::CaseInsensitiveStringComparator>;
+	//using KeyValueMap = std::unordered_map<std::string,std::string,util::CaseInsensitiveHashingFunc,util::CaseInsensitiveStringComparator>;
 };
 
 #endif

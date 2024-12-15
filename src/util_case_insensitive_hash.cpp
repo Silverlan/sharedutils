@@ -10,9 +10,22 @@
 
 unsigned long util::CaseInsensitiveHashingFunc::operator()(const std::string &key) const
 {
-	auto hash = 0ul;
-	for(auto v : key)
-		hash += (71 * hash + ::tolower(v)) % 5;
+	// djb2 hash
+	size_t hash = 5381;
+	auto len = key.length();
+	for(auto i = 0; i < key.length(); ++i) {
+		auto idx = i;
+		auto c = (unsigned char)key[i];
+		if(c == '\\')
+			c = '/';
+		if(c == '/') {
+			if(idx == 0 || idx == (len - 1))
+				continue;
+		}
+		c = std::tolower(static_cast<unsigned char>(c));
+
+		hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+	}
 	return hash;
 }
 
@@ -22,4 +35,7 @@ unsigned long util::CaseInsensitiveHashingFunc::operator()(const std::string &ke
 #define STRICMP strcasecmp
 #endif
 
-bool util::CaseInsensitiveStringComparator::operator()(const std::string &lhs, const std::string &rhs) const { return STRICMP(lhs.c_str(), rhs.c_str()) < 0; }
+bool util::CaseInsensitiveStringComparator::operator()(const std::string &lhs, const std::string &rhs) const
+{
+	return lhs.size() == rhs.size() && std::equal(lhs.begin(), lhs.end(), rhs.begin(), [](char a, char b) { return tolower(a) == tolower(b); });
+}
