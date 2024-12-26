@@ -86,6 +86,8 @@ void util::canonicalize_path(std::string &inOutPath)
 		newPath = '/' + newPath;
 	if(endedWithSlash) // If our original path ended with a simple slash, we want the new path to also end with it
 		newPath += '/';
+	if(newPath == "//")
+		newPath = "/";
 	inOutPath = std::move(newPath);
 }
 

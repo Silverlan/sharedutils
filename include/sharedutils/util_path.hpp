@@ -177,6 +177,15 @@ namespace util {
 	{
 		return Path::CreatePath(args...);
 	}
+
+	template<typename... Args>
+	Path RelPath(const Args &...args)
+	{
+		auto path = DirPath(args...);
+		if(!path.m_path.empty() && path.m_path.front() == '/')
+			path.m_path.erase(path.m_path.begin());
+		return path;
+	}
 };
 
 DLLSHUTIL util::Path operator+(const std::string &path, const util::Path &other);
