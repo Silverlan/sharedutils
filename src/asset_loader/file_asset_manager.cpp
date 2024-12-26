@@ -426,11 +426,12 @@ util::AssetObject util::FileAssetManager::LoadAsset(const std::string &path, std
 		else if(r.result == PreloadResult::Result::FileNotFound) {
 			// Could not find asset at all, try all our known import formats.
 			auto normPath = ToCacheIdentifier(assetPath);
-			auto importFormat = [this, &normPath, &r, &assetPath, &loadInfo](const FormatExtensionInfo &extInfo) {
+			std::string errMsg;
+			auto importFormat = [this, &normPath, &r, &assetPath, &loadInfo, &errMsg](const FormatExtensionInfo &extInfo) {
 				if(extInfo.type != FormatExtensionInfo::Type::Import || !loadInfo)
 					return false;
 				auto extPath = normPath + '.' + extInfo.extension;
-				if(Import(GetRootDirectory().GetString() + extPath, extPath, extInfo.extension)) {
+				if(Import(GetRootDirectory().GetString() + extPath, extPath, extInfo.extension, &errMsg)) {
 					// Import was successful, attempt to preload again
 					ClearCachedResult(GetIdentifierHash(assetPath));
 					r = PreloadAsset(assetPath, IMMEDIATE_PRIORITY, std::move(loadInfo));
@@ -462,6 +463,9 @@ util::AssetObject util::FileAssetManager::LoadAsset(const std::string &path, std
 					}
 				}
 			}
+
+			if(!r && !r.errorMessage)
+				r.errorMessage = std::move(errMsg);
 		}
 	}
 	if(optOutResult)
