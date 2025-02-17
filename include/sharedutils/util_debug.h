@@ -18,6 +18,7 @@ namespace _impl {
 #include <Windows.h>
 #include <DbgHelp.h>
 #include <vector>
+#include <functional>
 
 namespace util {
 	struct DLLSHUTIL Symbol {
@@ -31,6 +32,7 @@ namespace util {
 		LineInfo lineInfo;
 	};
 	DLLSHUTIL std::vector<Symbol> get_stack_backtrace(uint32_t maxIterations = 100);
+	DLLSHUTIL void set_lua_backtrace_function(const std::function<std::string()> &func);
 	DLLSHUTIL std::string get_formatted_stack_backtrace_string(uint32_t maxIterations = 100);
 };
 

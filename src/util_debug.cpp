@@ -8,6 +8,8 @@
 #include <sstream>
 #include <vector>
 #include <array>
+#include <mutex>
+#include "sharedutils/util_string.h"
 
 #undef max
 
@@ -22,8 +24,11 @@ util::Symbol::Symbol()
 	info->SizeOfStruct = sizeof(SYMBOL_INFO);
 }
 
+// dbghelp functions are not thread safe
+static std::mutex g_dbgHelpMutex;
 std::vector<util::Symbol> util::get_stack_backtrace(uint32_t maxIterations)
 {
+	std::lock_guard<std::mutex> lock {g_dbgHelpMutex};
 	std::vector<Symbol> symbols;
 	std::vector<void *> stack(maxIterations, nullptr);
 	auto process = GetCurrentProcess();
@@ -40,7 +45,10 @@ std::vector<util::Symbol> util::get_stack_backtrace(uint32_t maxIterations)
 	for(auto i = decltype(frames) {0}; i < frames; ++i) {
 		symbols.push_back(Symbol {});
 		auto &symbol = symbols.back();
-		SymFromAddr(process, reinterpret_cast<DWORD64>(stack[i]), 0, symbol.info.get());
+		if(SymFromAddr(process, reinterpret_cast<DWORD64>(stack[i]), 0, symbol.info.get()) == FALSE) {
+			symbols.pop_back();
+			continue;
+		}
 		DWORD dwDisplacement = 0;
 		auto r = SymGetLineFromAddr(process, symbol.info->Address, &dwDisplacement, &lineInfo);
 		if(r == TRUE) {
@@ -50,6 +58,9 @@ std::vector<util::Symbol> util::get_stack_backtrace(uint32_t maxIterations)
 	}
 	return symbols;
 }
+
+static std::function<std::string()> g_luaBacktraceFunction;
+void util::set_lua_backtrace_function(const std::function<std::string()> &func) { g_luaBacktraceFunction = func; }
 
 std::string util::get_formatted_stack_backtrace_string(uint32_t maxIterations)
 {
@@ -66,6 +77,17 @@ std::string util::get_formatted_stack_backtrace_string(uint32_t maxIterations)
 			msg << "   " << symbol.lineInfo.path;
 			if(idx < (numSymbols - 1))
 				msg << "\n\n";
+		}
+		// If we're in lua_pcall, we can get a backtrace from Lua
+		if(ustring::compare(symbol.info->Name, "lua_pcall")) {
+			if(g_luaBacktraceFunction) {
+				auto luaBacktrace = g_luaBacktraceFunction();
+				if(!luaBacktrace.empty()) {
+					ustring::replace(luaBacktrace, "\n", "\n    ");
+					msg << "    " << luaBacktrace;
+					msg << "\n\n";
+				}
+			}
 		}
 		++idx;
 	}
