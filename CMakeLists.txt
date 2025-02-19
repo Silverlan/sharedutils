@@ -35,4 +35,13 @@ if(UNIX)
 	target_link_libraries(${PROJ_NAME} PRIVATE stdc++fs)
 endif()
 
+include(FetchContent)
+FetchContent_Declare(
+	cpptrace
+	GIT_REPOSITORY https://github.com/jeremy-rifkin/cpptrace.git
+	GIT_TAG        v0.7.5
+)
+FetchContent_MakeAvailable(cpptrace)
+target_link_libraries(${PROJ_NAME} PRIVATE cpptrace::cpptrace)
+
 pr_finalize(${PROJ_NAME})

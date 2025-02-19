@@ -3,13 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "sharedutils/util_debug.h"
-
-#ifdef _WIN32
 #include <sstream>
 #include <vector>
 #include <array>
 #include <mutex>
+#include "sharedutils/util.h"
 #include "sharedutils/util_string.h"
+#include <cpptrace/cpptrace.hpp>
+
 std::optional<util::debug::MessageBoxButton> util::debug::show_message_prompt(const std::string &msg, MessageBoxButtons bts, std::optional<std::string> title)
 {
 	if(!title)
@@ -133,6 +134,52 @@ std::optional<util::debug::MessageBoxButton> util::debug::show_message_prompt(co
 #endif
 }
 
+//////////
+
+static std::function<std::string()> g_luaBacktraceFunction;
+void util::debug::set_lua_backtrace_function(const std::function<std::string()> &func) { g_luaBacktraceFunction = func; }
+
+std::string util::debug::get_formatted_stack_backtrace_string(uint32_t maxIterations)
+{
+	auto trace = cpptrace::generate_trace(0, maxIterations).to_string(true);
+	if(!g_luaBacktraceFunction || trace.find("in lua_pcall") == std::string::npos)
+		return trace;
+	std::stringstream msg;
+	msg << trace << "\n\nLua Call Trace:\n";
+	// If we're in lua_pcall, we can get a backtrace from Lua
+	auto luaBacktrace = g_luaBacktraceFunction();
+	if(!luaBacktrace.empty()) {
+		msg << luaBacktrace;
+		msg << "\n\n";
+	}
+	return msg.str();
+}
+
+bool _impl::util_assert(const std::string &file, uint32_t line, const std::string &message, bool bAllowExit)
+{
+	std::stringstream msg;
+	msg << "Assertion failed in " << file << " on line " << line << ":\n" << message << "\n\n";
+
+	msg << "Stack Trace:\n";
+	msg << util::debug::get_formatted_stack_backtrace_string();
+	auto msgType = util::debug::MessageBoxButtons::Ok;
+	if(bAllowExit == true) {
+		msgType = util::debug::MessageBoxButtons::YesNo;
+		msg << "\n\nExit?";
+	}
+	auto bt = util::debug::show_message_prompt(msg.str(), msgType, "Assertion Failed");
+	if(bt == util::debug::MessageBoxButton::Yes) {
+#ifdef _WIN32
+		::PostQuitMessage(EXIT_FAILURE);
+#endif
+		exit(EXIT_FAILURE);
+		// Unreachable
+		return false;
+	}
+	return true;
+}
+
+#ifdef _WIN32
 
 #undef max
 
@@ -180,60 +227,6 @@ std::vector<util::Symbol> util::get_stack_backtrace(uint32_t maxIterations)
 		}
 	}
 	return symbols;
-}
-
-static std::function<std::string()> g_luaBacktraceFunction;
-void util::set_lua_backtrace_function(const std::function<std::string()> &func) { g_luaBacktraceFunction = func; }
-
-std::string util::get_formatted_stack_backtrace_string(uint32_t maxIterations)
-{
-	std::stringstream msg;
-	auto stack = get_stack_backtrace(maxIterations);
-	uint32_t idx = 0;
-	auto numSymbols = stack.size();
-	for(auto &symbol : stack) {
-		msg << idx << " - " << symbol.info->Name;
-		if(symbol.lineInfo.line < std::numeric_limits<decltype(symbol.lineInfo.line)>::max())
-			msg << " (Line " << symbol.lineInfo.line << ")";
-		msg << "\n";
-		if(!symbol.lineInfo.path.empty()) {
-			msg << "   " << symbol.lineInfo.path;
-			if(idx < (numSymbols - 1))
-				msg << "\n\n";
-		}
-		// If we're in lua_pcall, we can get a backtrace from Lua
-		if(ustring::compare(symbol.info->Name, "lua_pcall")) {
-			if(g_luaBacktraceFunction) {
-				auto luaBacktrace = g_luaBacktraceFunction();
-				if(!luaBacktrace.empty()) {
-					ustring::replace(luaBacktrace, "\n", "\n    ");
-					msg << "    " << luaBacktrace;
-					msg << "\n\n";
-				}
-			}
-		}
-		++idx;
-	}
-	return msg.str();
-}
-
-bool _impl::util_assert(const std::string &file, uint32_t line, const std::string &message, bool bAllowExit)
-{
-	std::stringstream msg;
-	msg << "Assertion failed in " << file << " on line " << line << ":\n" << message << "\n\n";
-
-	msg << "Stack Trace:\n";
-	msg << util::get_formatted_stack_backtrace_string();
-	UINT msgType = MB_OK;
-	if(bAllowExit == true) {
-		msgType = MB_YESNO;
-		msg << "\n\nExit?";
-	}
-	if(::MessageBoxA(nullptr, msg.str().c_str(), nullptr, msgType) == IDYES) {
-		::PostQuitMessage(EXIT_FAILURE);
-		exit(EXIT_FAILURE);
-	}
-	return true;
 }
 
 #endif
