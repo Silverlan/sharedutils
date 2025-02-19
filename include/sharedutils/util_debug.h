@@ -7,6 +7,29 @@
 
 #include <string>
 #include "utildefinitions.h"
+namespace util::debug {
+	enum class MessageBoxButton : uint32_t {
+		Ok = 0,
+		Cancel,
+		Abort,
+		Retry,
+		Ignore,
+		Yes,
+		No,
+		TryAgain,
+		Continue,
+	};
+	enum class MessageBoxButtons : uint8_t {
+		Ok = 0,
+		OkCancel,
+		AbortRetryIgnore,
+		YesNoCancel,
+		YesNo,
+		RetryCancel,
+		CancelTryAgainContinue,
+	};
+	DLLSHUTIL std::optional<MessageBoxButton> show_message_prompt(const std::string &msg, MessageBoxButtons bts, std::optional<std::string> title = {});
+};
 
 #ifdef _WIN32
 namespace _impl {
