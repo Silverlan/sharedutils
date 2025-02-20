@@ -13,6 +13,7 @@ set(PROJ_NAME sharedutils)
 pr_add_library(${PROJ_NAME} ${LIB_TYPE})
 
 pr_add_dependency(${PROJ_NAME} mathutil TARGET PUBLIC)
+pr_add_external_dependency(${PROJ_NAME} cpptrace LIBRARY PRIVATE)
 
 pr_add_headers(${PROJ_NAME} "include/")
 pr_add_sources(${PROJ_NAME} "src/")
@@ -34,14 +35,5 @@ if(UNIX)
 	target_link_libraries(${PROJ_NAME} PRIVATE dl)
 	target_link_libraries(${PROJ_NAME} PRIVATE stdc++fs)
 endif()
-
-include(FetchContent)
-FetchContent_Declare(
-	cpptrace
-	GIT_REPOSITORY https://github.com/jeremy-rifkin/cpptrace.git
-	GIT_TAG        v0.7.5
-)
-FetchContent_MakeAvailable(cpptrace)
-target_link_libraries(${PROJ_NAME} PRIVATE cpptrace::cpptrace)
 
 pr_finalize(${PROJ_NAME})
