@@ -23,6 +23,7 @@ namespace util::debug {
 		No,
 		TryAgain,
 		Continue,
+		Count,
 	};
 	enum class MessageBoxButtons : uint8_t {
 		Ok = 0,
@@ -34,6 +35,7 @@ namespace util::debug {
 		CancelTryAgainContinue,
 	};
 	DLLSHUTIL std::optional<MessageBoxButton> show_message_prompt(const std::string &msg, MessageBoxButtons bts, std::optional<std::string> title = {});
+	DLLSHUTIL void set_button_labels(const std::array<std::string, static_cast<uint32_t>(MessageBoxButton::Count)> &labels);
 };
 
 namespace util::debug {

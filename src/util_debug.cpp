@@ -7,9 +7,23 @@
 #include <vector>
 #include <array>
 #include <mutex>
+#include "sharedutils/magic_enum.hpp"
 #include "sharedutils/util.h"
 #include "sharedutils/util_string.h"
 #include <cpptrace/cpptrace.hpp>
+
+static std::array<std::string, static_cast<uint32_t>(util::debug::MessageBoxButton::Count)> g_buttonLabels = {
+  "Ok",
+  "Cancel",
+  "Abort",
+  "Retry",
+  "Ignore",
+  "Yes",
+  "No",
+  "Try Again",
+  "Continue",
+};
+void util::debug::set_button_labels(const std::array<std::string, static_cast<uint32_t>(MessageBoxButton::Count)> &labels) { g_buttonLabels = labels; }
 
 std::optional<util::debug::MessageBoxButton> util::debug::show_message_prompt(const std::string &msg, MessageBoxButtons bts, std::optional<std::string> title)
 {
@@ -116,7 +130,7 @@ std::optional<util::debug::MessageBoxButton> util::debug::show_message_prompt(co
 
 	auto getButtonText = [](MessageBoxButton button) -> std::string {
 		auto identifier = ustring::to_snake_case(std::string {magic_enum::enum_name(button)});
-		auto text = Locale::GetText("prompt_button_" + identifier);
+		auto text = g_buttonLabels[static_cast<uint32_t>(button)];
 		return text;
 	};
 	cmd << "--ok-label='" << getButtonText(buttons[0]) << "' ";
