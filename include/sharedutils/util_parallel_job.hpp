@@ -13,7 +13,11 @@
 #include <thread>
 #include <atomic>
 #include <mutex>
+#include <cinttypes>
+#include <limits>
 #include <any>
+
+#undef max
 
 namespace util {
 	enum class JobStatus : uint8_t {
