@@ -32,7 +32,7 @@
 #include <sys/reboot.h>
 #include <sys/prctl.h>
 // Required for util::is_dark_mode
-#include <gio/gio.h>
+// #include <gio/gio.h>
 #else
 #include "Shlwapi.h"
 #include <vector>
@@ -1000,12 +1000,13 @@ bool util::is_dark_mode()
 		return false;
 	return (value == 0);
 #else
-	GSettings *settings = g_settings_new("org.gnome.desktop.interface");
+	return false;
+	/*GSettings *settings = g_settings_new("org.gnome.desktop.interface");
 	gchar *theme = g_settings_get_string(settings, "gtk-theme");
 	bool dark = theme && g_str_has_suffix(theme, "-dark");
 	g_free(theme);
 	g_object_unref(settings);
-	return dark;
+	return dark;*/
 #endif
 }
 
