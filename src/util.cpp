@@ -31,6 +31,8 @@
 #include <linux/reboot.h>
 #include <sys/reboot.h>
 #include <sys/prctl.h>
+// Required for util::is_dark_mode
+#include <gio/gio.h>
 #else
 #include "Shlwapi.h"
 #include <vector>
@@ -983,6 +985,27 @@ void util::flash_window()
 	fi.uCount = 0;
 	fi.dwTimeout = 0;
 	FlashWindowEx(&fi);
+#endif
+}
+
+bool util::is_dark_mode()
+{
+#ifdef _WIN32
+	DWORD value = 1; // default to light
+	DWORD dataSize = sizeof(value);
+
+	LONG rc = RegGetValueW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize", L"AppsUseLightTheme", RRF_RT_REG_DWORD, nullptr, &value, &dataSize);
+
+	if(rc != ERROR_SUCCESS)
+		return false;
+	return (value == 0);
+#else
+	GSettings *settings = g_settings_new("org.gnome.desktop.interface");
+	gchar *theme = g_settings_get_string(settings, "gtk-theme");
+	bool dark = theme && g_str_has_suffix(theme, "-dark");
+	g_free(theme);
+	g_object_unref(settings);
+	return dark;
 #endif
 }
 
