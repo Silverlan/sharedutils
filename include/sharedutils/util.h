@@ -78,15 +78,15 @@ namespace util {
 	DLLSHUTIL Float get_scale_factor(Float val, Float range);
 	DLLSHUTIL Float get_scale_factor(Float val, Float min, Float max);
 #ifdef _WIN32
-	enum class DLLSHUTIL HKey : uint64_t {
-		ClassesRoot = reinterpret_cast<uint64_t>(HKEY_CLASSES_ROOT),
-		CurrentUser = reinterpret_cast<uint64_t>(HKEY_CURRENT_USER),
-		LocalMachine = reinterpret_cast<uint64_t>(HKEY_LOCAL_MACHINE),
-		Users = reinterpret_cast<uint64_t>(HKEY_USERS),
-#if(WINVER >= 0x0400)
-		CurrentConfig = reinterpret_cast<uint64_t>(HKEY_CURRENT_CONFIG),
-		DynData = reinterpret_cast<uint64_t>(HKEY_DYN_DATA),
-		CurrentUserLocalSettings = reinterpret_cast<uint64_t>(HKEY_CURRENT_USER_LOCAL_SETTINGS)
+	enum class HKey : uint64_t {
+		ClassesRoot = 0x80000000,  // HKEY_CLASSES_ROOT
+		CurrentUser = 0x80000001,  // HKEY_CURRENT_USER,
+		LocalMachine = 0x80000002, // HKEY_LOCAL_MACHINE,
+		Users = 0x80000003,        // HKEY_USERS,
+#if (WINVER >= 0x0400)
+		CurrentConfig = 0x80000005,            // HKEY_CURRENT_CONFIG,
+		DynData = 0x80000006,                  // HKEY_DYN_DATA,
+		CurrentUserLocalSettings = 0x80000007, // HKEY_CURRENT_USER_LOCAL_SETTINGS
 #endif
 	};
 	DLLSHUTIL bool get_registry_key_value(HKey key, const std::string &path, const std::string &strValueName, std::string &strValue);
