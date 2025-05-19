@@ -40,7 +40,7 @@ std::string ufile::IFile::ReadString()
 	unsigned char c;
 	std::string name = "";
 	c = Read<char>();
-	while(c != '\0' && !IsEOF(c) && !Eof()) {
+	while(c != '\0' && !Eof()) {
 		name += c;
 		c = Read<char>();
 	}
@@ -95,7 +95,7 @@ char *ufile::MemoryFile::GetMemoryDataPtr() { return reinterpret_cast<char *>(m_
 
 ////////
 
-ufile::VectorFile::VectorFile() : MemoryFile {m_data.data(), m_data.size()} {}
+ufile::VectorFile::VectorFile() : MemoryFile {nullptr, 0} {}
 ufile::VectorFile::VectorFile(size_t size) : VectorFile {} { Resize(size); }
 ufile::VectorFile::VectorFile(std::vector<uint8_t> &&data) : MemoryFile {data.data(), data.size()}, m_data {std::move(data)} {}
 const std::vector<uint8_t> &ufile::VectorFile::GetVector() const { return m_data; }

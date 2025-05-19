@@ -152,6 +152,10 @@ namespace ustring {
 		return N - 1;
 	}
 
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-literal-operator"
+#endif
 	namespace string_switch {
 		// See https://stackoverflow.com/a/46711735/2482983
 		constexpr uint32_t hash(const char *data, size_t const size) noexcept
@@ -185,6 +189,9 @@ namespace ustring {
 
 		constexpr inline long long int operator"" _(char const *p, size_t) { return ustring::string_switch_ci::hash(p, std::char_traits<char>::length(p)); }
 	}
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 }
 
 size_t ustring::find(const auto &strHaystack, const auto &strNeedle, bool caseSensitive)
