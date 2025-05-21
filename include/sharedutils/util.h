@@ -25,6 +25,9 @@
 #endif
 #include <sstream>
 
+#undef None
+#undef Success
+
 //namespace std {class thread;}; //scricter compiler options prevent such thing.
 using std::thread;
 namespace util {
@@ -37,14 +40,41 @@ namespace util {
 	DLLSHUTIL std::optional<std::string> get_library_file_path(const void *ptrToAnyStaticLibFunc);
 	DLLSHUTIL std::optional<std::string> get_path_to_library(const void *ptrToAnyStaticLibFunc);
 	DLLSHUTIL unsigned long long get_process_id();
+
+	struct DLLSHUTIL CommandInfo {
+		CommandInfo() = default;
+		CommandInfo(const std::string &cmd, const std::vector<std::string> &args, const std::optional<std::string> &workingDir = {}) : command(cmd), args(args), workingDir(workingDir) {}
+		CommandInfo(const std::string &cmd, const std::string &args, const std::optional<std::string> &workingDir = {});
+
+		std::string command;
+		std::vector<std::string> args;
+		std::optional<std::string> workingDir;
+		bool absoluteCommandPath = false;
+		bool useParentEnvironment = true;
+		std::string GetArguments() const;
+	};
+
+	struct DLLSHUTIL CommandResult {
+		enum class ExecutionResult {
+			None = 0,
+			Success,
+			Failure,
+			Timeout,
+			Invalid,
+		};
+		CommandResult() = default;
+		CommandResult(const std::string &output, int32_t exitCode) : output(output), exitCode(exitCode) {}
+		std::string output;
+		std::string errorMessage;
+		ExecutionResult executionResult = ExecutionResult::None;
+		int32_t exitCode = 0;
+	};
+
 	DLLSHUTIL bool is_process_running(unsigned long long id);
 	DLLSHUTIL bool is_process_running(const char *name);
-	DLLSHUTIL bool start_process(const char *program, bool bGlobalPath = false);
-	DLLSHUTIL bool start_process(const char *program, const std::string &args, bool bGlobalPath = false);
-	DLLSHUTIL bool start_process(const char *program, const std::vector<std::string> &args, bool bGlobalPath = false);
+	DLLSHUTIL bool start_process(const CommandInfo &cmdInfo);
+	DLLSHUTIL CommandResult start_and_wait_for_command(const CommandInfo &cmdInfo);
 #ifdef _WIN32
-	DLLSHUTIL bool start_and_wait_for_process(const char *program, unsigned int *exitCode = nullptr, bool bGlobalPath = false, std::string *optOutput = nullptr);
-
 	enum class SubSystem : uint8_t {
 		Console = 0,
 		GUI,
@@ -83,7 +113,7 @@ namespace util {
 		CurrentUser = 0x80000001,  // HKEY_CURRENT_USER,
 		LocalMachine = 0x80000002, // HKEY_LOCAL_MACHINE,
 		Users = 0x80000003,        // HKEY_USERS,
-#if (WINVER >= 0x0400)
+#if(WINVER >= 0x0400)
 		CurrentConfig = 0x80000005,            // HKEY_CURRENT_CONFIG,
 		DynData = 0x80000006,                  // HKEY_DYN_DATA,
 		CurrentUserLocalSettings = 0x80000007, // HKEY_CURRENT_USER_LOCAL_SETTINGS
@@ -108,9 +138,6 @@ namespace util {
 	DLLSHUTIL bool get_current_working_directory(std::string &cwd);
 	DLLSHUTIL std::string get_current_working_directory();
 	DLLSHUTIL bool set_current_working_directory(const std::string &path);
-#ifdef _WIN32
-	DLLSHUTIL bool start_and_wait_for_command(const char *cmd, const char *cwd = nullptr, unsigned int *exitCode = nullptr, std::string *optOutput = nullptr);
-#endif
 	DLLSHUTIL void open_url_in_browser(const std::string &url);
 	DLLSHUTIL void open_file_in_default_program(const std::string &filePath);
 	DLLSHUTIL void open_path_in_explorer(const std::string &path, const std::optional<std::string> &selectFile = {});

@@ -11,6 +11,7 @@
 #include "sharedutils/util_hash.hpp"
 #include "sharedutils/util_string_hash.hpp"
 #include "sharedutils/util_log.hpp"
+#include "sharedutils/util_path.hpp"
 #include <sstream>
 #include <iomanip>
 #include <cstring>
@@ -31,8 +32,9 @@
 #include <linux/reboot.h>
 #include <sys/reboot.h>
 #include <sys/prctl.h>
-// Required for util::is_dark_mode
-// #include <gio/gio.h>
+#include <sys/wait.h>
+#include <spawn.h>
+#include <fstream>
 #else
 #include "Shlwapi.h"
 #include <vector>
@@ -49,6 +51,17 @@ std::string util::LOG_NL = "\r\n";
 #else
 std::string util::LOG_NL = "\n";
 #endif
+
+std::string util::CommandInfo::GetArguments() const
+{
+	std::string argsStr;
+	for(const auto &arg : args) {
+		if(!argsStr.empty())
+			argsStr += " ";
+		argsStr += arg;
+	}
+	return argsStr;
+}
 
 std::string util::get_pretty_bytes(unsigned long long bytes)
 {
@@ -321,24 +334,23 @@ bool util::set_current_working_directory(const std::string &path)
 #endif
 	return true;
 }
-bool util::start_process(const char *program, bool bGlobalPath) { return start_process(program, "", bGlobalPath); }
-bool util::start_process(const char *program, const std::string &args, bool bGlobalPath)
+bool util::start_process(const CommandInfo &cmdInfo)
 {
-#ifdef __linux__
-	std::string path;
-	if(bGlobalPath == false) {
-		path = get_program_path();
-		path += "/";
+	std::string fullCmdPath = cmdInfo.command;
+	if(cmdInfo.absoluteCommandPath == false) {
+		fullCmdPath = get_program_path();
+		fullCmdPath += "/";
+		fullCmdPath += cmdInfo.command;
 	}
-	path += program;
-	if(access(path.c_str(), F_OK) == -1) {
+#ifdef __linux__
+	if(access(fullCmdPath.c_str(), F_OK) == -1) {
 		errno = ENOENT;
 		return false;
 	}
 	std::string cmd = "\"";
-	cmd += path.c_str();
+	cmd += fullCmdPath.c_str();
 	cmd += "\" ";
-	cmd += args;
+	cmd += cmdInfo.GetArguments();
 	cmd += " &";
 	auto r = system(cmd.c_str());
 	if(r == -1) {
@@ -347,19 +359,12 @@ bool util::start_process(const char *program, const std::string &args, bool bGlo
 	}
 	return true;
 #else
-	std::string path;
-	std::string file;
-	if(bGlobalPath == false) {
-		path = get_program_path();
-		file = program;
-	}
-	else {
-		path = ufile::get_path_from_filename(program);
-		if(path.empty() == false && (path.back() == '/' || path.back() == '\\'))
-			path = path.substr(0ull, path.length() - 1ull);
-		file = ufile::get_file_from_filename(program);
-	}
-	std::string pArgs = '\"' + path + '\"';
+	auto fp = util::FilePath(fullCmdPath);
+	auto path = fp.GetPath();
+	auto file = fp.GetFileName();
+
+	std::string pArgs = '\"' + std::string {path} + '\"';
+	auto args = cmdInfo.GetArguments();
 	if(!args.empty())
 		pArgs += " " + args;
 
@@ -368,33 +373,13 @@ bool util::start_process(const char *program, const std::string &args, bool bGlo
 	ZeroMemory(&si, sizeof(si));
 	si.cb = sizeof(si);
 	ZeroMemory(&pi, sizeof(pi));
-	std::string programPath = path;
+	std::string programPath = std::string {path};
 	programPath += "\\";
 	programPath += file;
 	auto fullPath = programPath + ' ' + args;
 	return (CreateProcess(nullptr, const_cast<char *>(fullPath.c_str()), nullptr, nullptr, TRUE, 0, nullptr, nullptr, &si, &pi) != 0) ? true : false;
 	//return (CreateProcess(programPath.c_str(),const_cast<char*>(pArgs.c_str()),nullptr,nullptr,TRUE,0,nullptr,nullptr,&si,&pi) != 0) ? true : false; // Does not work in some cases (See ZeroBrane)
 #endif
-}
-bool util::start_process(const char *program, const std::vector<std::string> &args, bool bGlobalPath)
-{
-	std::stringstream ss;
-	bool bFirst = true;
-	for(auto i = 0; i < args.size(); i++) {
-		if(!args.empty()) {
-			if(bFirst == false)
-				ss << " ";
-			else
-				bFirst = false;
-			std::string arg = args[i];
-			ustring::remove_whitespace(arg);
-			if(arg.size() > 1 && arg.front() == '"' && arg.back() == '"')
-				ss << arg;
-			else
-				ss << '"' << arg << '"';
-		}
-	}
-	return start_process(program, ss.str(), bGlobalPath);
 }
 
 bool util::set_env_variable(const std::string &varName, const std::string &value)
@@ -422,16 +407,15 @@ std::optional<std::string> util::get_env_variable(const std::string &varName)
 }
 
 #ifdef _WIN32
-static bool start_and_wait_for_command(const char *program, const char *cmd, const char *cwd, unsigned int *exitCode, bool bGlobalPath, std::string *optOutput)
+util::CommandResult util::start_and_wait_for_command(const CommandInfo &cmdInfo)
 {
 	std::string path;
-	if(program != nullptr) {
-		if(bGlobalPath == true)
-			path = program;
-		else {
-			path = util::get_program_path();
-			path += "\\";
-			path += program;
+	if(!cmdInfo.command.empty()) {
+		path = cmdInfo.command;
+		if(cmdInfo.absoluteCommandPath == false) {
+			path = get_program_path();
+			path += "/";
+			path += cmdInfo.command;
 		}
 	}
 	STARTUPINFO StartupInfo;
@@ -522,8 +506,6 @@ static bool start_and_wait_for_command(const char *program, const char *cmd, con
 	// CloseHandle(ProcessInfo.hProcess);
 	return true;
 }
-bool util::start_and_wait_for_command(const char *cmd, const char *cwd, unsigned int *exitCode, std::string *optOutput) { return ::start_and_wait_for_command(nullptr, cmd, cwd, exitCode, false, optOutput); }
-bool util::start_and_wait_for_process(const char *program, unsigned int *exitCode, bool bGlobalPath, std::string *optOutput) { return ::start_and_wait_for_command(program, nullptr, nullptr, exitCode, bGlobalPath, optOutput); }
 #pragma comment(lib, "Dbghelp.lib")
 #include <DbgHelp.h>
 util::SubSystem util::get_subsystem()
@@ -537,6 +519,77 @@ util::SubSystem util::get_subsystem()
 		return SubSystem::GUI;
 	}
 	return SubSystem::Unknown;
+}
+#else
+util::CommandResult util::start_and_wait_for_command(const CommandInfo &cmdInfo)
+{
+	int pipefd[2];
+	if(pipe(pipefd) == -1) {
+		util::CommandResult result {};
+		result.executionResult = util::CommandResult::ExecutionResult::Failure;
+		result.errorMessage = std::string("pipe failed: ") + std::strerror(errno);
+		return result;
+	}
+
+	posix_spawn_file_actions_t actions;
+	posix_spawn_file_actions_init(&actions);
+	posix_spawn_file_actions_addclose(&actions, pipefd[0]);
+	posix_spawn_file_actions_adddup2(&actions, pipefd[1], /*STDOUT_FILENO=*/1);
+
+	pid_t pid;
+	std::vector<const char *> argv;
+	argv.reserve(cmdInfo.args.size() + 2);
+	argv.push_back(cmdInfo.command.c_str());
+	for(const auto &arg : cmdInfo.args)
+		argv.push_back(arg.c_str());
+	argv.push_back(nullptr);
+
+	// Spawn the process
+	int status = posix_spawnp(&pid, argv[0], &actions,
+	  /*attrp=*/nullptr, const_cast<char *const *>(argv.data()), cmdInfo.useParentEnvironment ? environ : nullptr);
+
+	posix_spawn_file_actions_destroy(&actions);
+	close(pipefd[1]);
+
+	if(status != 0) {
+		close(pipefd[0]);
+		util::CommandResult result {};
+		result.executionResult = util::CommandResult::ExecutionResult::Failure;
+		result.errorMessage = std::string("posix_spawnp: ") + std::strerror(status);
+		return result;
+	}
+
+	std::string output;
+	std::array<char, 256> buf;
+	ssize_t n;
+	while((n = read(pipefd[0], buf.data(), buf.size())) > 0) {
+		output.append(buf.data(), n);
+	}
+	close(pipefd[0]);
+
+	if(waitpid(pid, &status, 0) == -1) {
+		util::CommandResult result {};
+		result.executionResult = util::CommandResult::ExecutionResult::Failure;
+		result.errorMessage = std::string("waitpid failed: ") + std::strerror(errno);
+		return result;
+	}
+	if(!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
+		util::CommandResult result {};
+		result.executionResult = util::CommandResult::ExecutionResult::Failure;
+		result.errorMessage = "command exited with error";
+		result.exitCode = WEXITSTATUS(status);
+		return result;
+	}
+
+	// Trim trailing newline(s)
+	while(!output.empty() && (output.back() == '\n' || output.back() == '\r'))
+		output.pop_back();
+
+	util::CommandResult result {};
+	result.output = output;
+	result.executionResult = util::CommandResult::ExecutionResult::Success;
+	result.exitCode = WEXITSTATUS(status);
+	return result;
 }
 #endif
 
@@ -1000,13 +1053,15 @@ bool util::is_dark_mode()
 		return false;
 	return (value == 0);
 #else
-	return false;
-	/*GSettings *settings = g_settings_new("org.gnome.desktop.interface");
-	gchar *theme = g_settings_get_string(settings, "gtk-theme");
-	bool dark = theme && g_str_has_suffix(theme, "-dark");
-	g_free(theme);
-	g_object_unref(settings);
-	return dark;*/
+	CommandInfo cmdInfo;
+	cmdInfo.command = "gsettings";
+	cmdInfo.args = {"get", "org.gnome.desktop.interface", "color-scheme"};
+	cmdInfo.useParentEnvironment = false;
+	auto res = util::start_and_wait_for_command(cmdInfo);
+	if(res.executionResult != util::CommandResult::ExecutionResult::Success)
+		return false;
+	ustring::remove_whitespace(res.output);
+	return res.output == "'prefer-dark'";
 #endif
 }
 
