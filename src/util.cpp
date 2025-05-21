@@ -425,7 +425,7 @@ util::CommandResult util::start_and_wait_for_command(const CommandInfo &cmdInfo)
 	//util::ScopeGuard sgStdIn {};
 	//util::ScopeGuard sgStdOut {};
 	HANDLE g_hChildStd_OUT_Rd;
-	if(optOutput) {
+	{
 		// See https://stackoverflow.com/a/54689395/2482983
 		SECURITY_ATTRIBUTES sa;
 		HANDLE g_hChildStd_IN_Rd, g_hChildStd_OUT_Wr, g_hChildStd_IN_Wr; //pipe handles
@@ -465,22 +465,27 @@ util::CommandResult util::start_and_wait_for_command(const CommandInfo &cmdInfo)
 	  TRUE,                                                                      //  handle inheritance flag
 	  0,                                                                         //  creation flags
 	  nullptr,                                                                   //  pointer to new environment block
-	  cwd,                                                                       //  pointer to current directory name
+	  cmdInfo.workingDir ? cmdInfo.workingDir->c_str() : nullptr,                //  pointer to current directory name
 	  &StartupInfo,                                                              //  pointer to STARTUPINFO
 	  &ProcessInfo                                                               //  pointer to PROCESS_INFORMATION
 	);
-	if(!hProcess)
-		return false;
+	if(!hProcess) {
+		util::CommandResult result {};
+		result.executionResult = util::CommandResult::ExecutionResult::Failure;
+		result.errorMessage = std::string("CreateProcess failed: ") + util::get_last_system_error_string();
+		return result;
+	}
 	auto r = WaitForSingleObject(ProcessInfo.hProcess,
 	  INFINITE // time-out interval in milliseconds
 	);
 	UNUSED(r);
 	DWORD code;
 	GetExitCodeProcess(ProcessInfo.hProcess, &code);
-	if(exitCode != nullptr)
-		*exitCode = code;
 
-	if(optOutput) {
+	util::CommandResult result {};
+	result.exitCode = code;
+	result.executionResult = util::CommandResult::ExecutionResult::Success;
+	{
 		DWORD read;  //bytes read
 		DWORD avail; //bytes available
 		std::vector<char> buf;
@@ -499,12 +504,12 @@ util::CommandResult util::start_and_wait_for_command(const CommandInfo &cmdInfo)
 					break;
 			}
 		}
-		*optOutput = {buf.data(), buf.size()};
+		result.output = std::string(buf.data(), buf.size());
 	}
 
 	// CloseHandle(ProcessInfo.hThread);
 	// CloseHandle(ProcessInfo.hProcess);
-	return true;
+	return result;
 }
 #pragma comment(lib, "Dbghelp.lib")
 #include <DbgHelp.h>
