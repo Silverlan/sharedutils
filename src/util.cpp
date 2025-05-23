@@ -458,8 +458,9 @@ util::CommandResult util::start_and_wait_for_command(const CommandInfo &cmdInfo)
 	//
 
 	PROCESS_INFORMATION ProcessInfo;
-	auto hProcess = CreateProcess((program != nullptr) ? path.c_str() : nullptr, //  pointer to name of executable module
-	  (LPSTR)cmd,                                                                //  pointer to command line string
+	auto args = cmdInfo.GetArguments();
+	auto hProcess = CreateProcess(!path.empty() ? path.c_str() : nullptr, //  pointer to name of executable module
+	  (LPSTR)args.c_str(),                                                        //  pointer to command line string
 	  nullptr,                                                                   //  pointer to process security attributes
 	  nullptr,                                                                   //  pointer to thread security attributes
 	  TRUE,                                                                      //  handle inheritance flag
