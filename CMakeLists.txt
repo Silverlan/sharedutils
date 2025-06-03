@@ -33,7 +33,6 @@ pr_add_compile_definitions(${PROJ_NAME} -DURI_STATIC_BUILD)
 if(UNIX)
 	target_link_libraries(${PROJ_NAME} PRIVATE "pthread")
 	target_link_libraries(${PROJ_NAME} PRIVATE dl)
-	target_link_libraries(${PROJ_NAME} PRIVATE stdc++fs)
 endif()
 
 pr_finalize(${PROJ_NAME})
