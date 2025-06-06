@@ -73,7 +73,7 @@ util::BaseHandle<TBaseClass, TInternalClass>::BaseHandle::BaseHandle() : m_baseP
 template<class TBaseClass, class TInternalClass>
 bool util::BaseHandle<TBaseClass, TInternalClass>::IsValid() const
 {
-	return (!m_bEmpty && get() != nullptr && m_basePointer.get()->target != nullptr) ? true : false;
+	return (!m_bEmpty && get() != nullptr) ? true : false;
 }
 
 template<class TBaseClass, class TInternalClass>
@@ -81,7 +81,8 @@ TInternalClass *util::BaseHandle<TBaseClass, TInternalClass>::get() const
 {
 	if(m_bEmpty || m_basePointer.get() == nullptr)
 		return nullptr;
-	return &*m_basePointer.get()->target;
+	auto &target = m_basePointer.get()->target;
+	return (target != nullptr) ? &*target : nullptr;
 }
 
 template<class TBaseClass, class TInternalClass>
