@@ -812,6 +812,26 @@ std::string util::get_date_time(const std::string &format)
 	return buf;
 }
 
+#ifdef __linux__
+// Quote a string so it’s safe to pass to /bin/sh
+static std::string shellQuote(const std::string &s) {
+    std::string q = "'";
+    for (char c : s) {
+        if (c == '\'')
+            q += "'\\''";
+        else
+            q += c;
+    }
+    q += "'";
+    return q;
+}
+
+// Try running `cmd`; returns true if it exited with status 0.
+static bool tryCmd(const std::string &cmd) {
+    return std::system((cmd + " > /dev/null 2>&1").c_str()) == 0;
+}
+#endif
+
 void util::open_path_in_explorer(const std::string &path, const std::optional<std::string> &selectFile)
 {
 #ifdef _WIN32
@@ -842,10 +862,29 @@ void util::open_path_in_explorer(const std::string &path, const std::optional<st
 		ILFree(pidl);
 	}
 #else
-	// TODO: This is untested!
-	std::string cmd = "xdg-open " + path;
-	system(cmd.c_str());
-	// TODO: Can we select the file as well?
+	auto fullPath = util::DirPath(path);
+	auto shouldSelect = selectFile.has_value();
+	if(shouldSelect)
+		fullPath = util::FilePath(fullPath, *selectFile);
+
+	auto strFullPath = fullPath.GetString();
+	if(shouldSelect && !strFullPath.empty() && strFullPath.back() == '/')
+		strFullPath.pop_back();
+
+	std::string arg {};
+	if(shouldSelect)
+		arg = "--select ";
+
+	const auto p = shellQuote(strFullPath);
+	if (tryCmd("nautilus " +arg +p)) return;
+	if (tryCmd("dolphin " +arg  +p)) return;
+	if (tryCmd("nemo " +p)) return;
+	if (tryCmd("thunar " +p)) return;
+	if (tryCmd("pcmanfm " +p)) return;
+
+	// Fallback
+    const auto &d = shellQuote(strFullPath);
+    tryCmd("xdg-open " + d);
 #endif
 }
 
