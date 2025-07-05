@@ -1,6 +1,5 @@
-/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+// SPDX-FileCopyrightText: (c) 2019 Silverlan <opensource@pragma-engine.com>
+// SPDX-License-Identifier: MIT
 
 #include "sharedutils/util.h"
 #include <mathutil/umath.h>
@@ -813,7 +812,7 @@ std::string util::get_date_time(const std::string &format)
 }
 
 #ifdef __linux__
-// Quote a string so it’s safe to pass to /bin/sh
+// Quote a string so it's safe to pass to /bin/sh
 static std::string shellQuote(const std::string &s) {
     std::string q = "'";
     for (char c : s) {
