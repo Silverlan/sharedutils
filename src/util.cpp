@@ -1097,15 +1097,20 @@ bool util::is_dark_mode()
 		return false;
 	return (value == 0);
 #else
-	CommandInfo cmdInfo;
-	cmdInfo.command = "gsettings";
-	cmdInfo.args = {"get", "org.gnome.desktop.interface", "color-scheme"};
-	cmdInfo.useParentEnvironment = false;
-	auto res = util::start_and_wait_for_command(cmdInfo);
-	if(res.executionResult != util::CommandResult::ExecutionResult::Success)
-		return false;
-	ustring::remove_whitespace(res.output);
-	return res.output == "'prefer-dark'";
+	auto check = [](const std::string &cmd, const std::vector<std::string> &args, const std::string &checkFor) -> bool {
+		CommandInfo cmdInfo;
+		cmdInfo.command = cmd;
+		cmdInfo.args = args;
+		cmdInfo.useParentEnvironment = false;
+		auto res = util::start_and_wait_for_command(cmdInfo);
+		if(res.executionResult != util::CommandResult::ExecutionResult::Success)
+			return false;
+		ustring::remove_whitespace(res.output);
+		return ustring::find(res.output,checkFor,false);
+	};
+	if (check("gsettings", {"get", "org.gnome.desktop.interface", "color-scheme"}, "'prefer-dark'"))
+		return true;
+	return check("gsettings", {"get", "org.cinnamon.desktop.interface", "gtk-theme"}, "dark");
 #endif
 }
 
