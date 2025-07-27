@@ -1131,7 +1131,10 @@ std::optional<std::string> util::get_system_language()
 	return iso_639_lang;
 #else
 	setlocale(LC_ALL, "");
-	std::string lan {getenv("LANG")};
+	std::string lan {};
+	auto *envLang = getenv("LANG");
+	if (envLang)
+		lan = envLang;
 	auto uscorePos = lan.find('_');
 	auto dotPos = lan.find('.');
 	if(uscorePos != std::string::npos)
