@@ -882,7 +882,8 @@ void util::open_path_in_explorer(const std::string &path, const std::optional<st
 	if (tryCmd("pcmanfm " +p)) return;
 
 	// Fallback
-    const auto &d = shellQuote(strFullPath);
+	// xdg-open cannot select the file, so we'll just open the directory containing it
+    const auto &d = shellQuote(util::DirPath(path).GetString());
     tryCmd("xdg-open " + d);
 #endif
 }
