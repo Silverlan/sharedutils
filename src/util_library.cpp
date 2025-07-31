@@ -86,8 +86,9 @@ std::shared_ptr<Library> Library::Load(const std::string &name, const std::vecto
 	}};
 
 	std::string soName = name;
-	ufile::remove_extension_from_filename(soName, std::vector<std::string> {"so"});
-	soName += ".so";
+	// Some libraries may have the format *.so.1 or similar
+	if (soName.length() >= 3 && soName.substr(soName.length() -3) != ".so" && soName.find(".so.") == std::string::npos)
+		soName += ".so";
 	auto hModule = dlopen(soName.c_str(), RTLD_LAZY | RTLD_GLOBAL);
 	if(hModule == nullptr) {
 		if(outErr != nullptr)
