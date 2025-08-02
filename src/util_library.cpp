@@ -33,7 +33,7 @@ std::shared_ptr<Library> Library::Get(const std::string &name, std::string *outE
 		return nullptr;
 	}
 #endif
-	auto lib = std::shared_ptr<Library>(new Library(hModule));
+	auto lib = std::shared_ptr<Library>(new Library(name, hModule));
 	lib->m_freeOnDestruct = false;
 	return lib;
 }
@@ -96,10 +96,10 @@ std::shared_ptr<Library> Library::Load(const std::string &name, const std::vecto
 		return nullptr;
 	}
 #endif
-	return std::shared_ptr<Library>(new Library(hModule));
+	return std::shared_ptr<Library>(new Library(name, hModule));
 }
 
-Library::Library(LibraryModule hModule) : m_module {hModule} {}
+Library::Library(const std::string &name, LibraryModule hModule) : m_module {hModule}, m_name{name} {}
 
 Library::~Library()
 {

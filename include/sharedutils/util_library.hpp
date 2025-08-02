@@ -33,9 +33,10 @@ namespace util {
 		Library &operator=(const Library &) = delete;
 		~Library();
 	  private:
-		Library(LibraryModule hModule);
+		Library(const std::string &name, LibraryModule hModule);
 		LibraryModule m_module = nullptr;
 		bool m_freeOnDestruct = true;
+		std::string m_name;
 	};
 };
 
