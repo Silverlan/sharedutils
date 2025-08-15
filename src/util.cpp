@@ -1037,6 +1037,21 @@ std::optional<std::string> util::get_thread_name()
 #endif
 }
 
+std::string util::make_clickable_link(const std::string& path, const std::string &displayPath, int line) {
+	std::string uri = "file://" + path + "#L" + std::to_string(line);
+
+	std::stringstream ss;
+	ss
+	  << "\033]8;;" << uri << "\007"
+	  << path << ":" << line
+	  << "\033]8;;\007";
+	return ss.str();
+}
+
+std::string util::make_clickable_link(const std::string& path, int line) {
+	return make_clickable_link(path, path, line);
+}
+
 uint64_t util::to_uint64(const std::string_view &str) { return strtoll(str.data(), nullptr, 10); }
 
 #ifdef _WIN32

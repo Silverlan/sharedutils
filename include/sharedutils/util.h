@@ -151,6 +151,9 @@ namespace util {
 	DLLSHUTIL bool is_uuid(const std::string &uuid);
 	DLLSHUTIL size_t get_uuid_hash(const Uuid &uuid);
 
+	DLLSHUTIL std::string make_clickable_link(const std::string& path, const std::string &displayPath, int line);
+	DLLSHUTIL std::string make_clickable_link(const std::string& path, int line);
+
 	template<typename T>
 	constexpr size_t size_of_container(const T &t)
 	{
