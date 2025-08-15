@@ -1043,7 +1043,7 @@ std::string util::make_clickable_link(const std::string& path, const std::string
 	std::stringstream ss;
 	ss
 	  << "\033]8;;" << uri << "\007"
-	  << path << ":" << line
+	  << displayPath << ":" << line
 	  << "\033]8;;\007";
 	return ss.str();
 }
