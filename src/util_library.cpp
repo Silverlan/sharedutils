@@ -12,8 +12,6 @@
 #include <dlfcn.h>
 #endif
 
-
-
 using namespace util;
 std::shared_ptr<Library> Library::Get(const std::string &name, std::string *outErr)
 {
@@ -87,7 +85,7 @@ std::shared_ptr<Library> Library::Load(const std::string &name, const std::vecto
 
 	std::string soName = name;
 	// Some libraries may have the format *.so.1 or similar
-	if (soName.length() >= 3 && soName.substr(soName.length() -3) != ".so" && soName.find(".so.") == std::string::npos)
+	if(soName.length() >= 3 && soName.substr(soName.length() - 3) != ".so" && soName.find(".so.") == std::string::npos)
 		soName += ".so";
 	auto hModule = dlopen(soName.c_str(), RTLD_LAZY | RTLD_GLOBAL);
 	if(hModule == nullptr) {
@@ -99,7 +97,7 @@ std::shared_ptr<Library> Library::Load(const std::string &name, const std::vecto
 	return std::shared_ptr<Library>(new Library(name, hModule));
 }
 
-Library::Library(const std::string &name, LibraryModule hModule) : m_module {hModule}, m_name{name} {}
+Library::Library(const std::string &name, LibraryModule hModule) : m_module {hModule}, m_name {name} {}
 
 Library::~Library()
 {

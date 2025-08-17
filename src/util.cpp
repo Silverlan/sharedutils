@@ -459,15 +459,15 @@ util::CommandResult util::start_and_wait_for_command(const CommandInfo &cmdInfo)
 	PROCESS_INFORMATION ProcessInfo;
 	auto args = cmdInfo.GetArguments();
 	auto hProcess = CreateProcess(!path.empty() ? path.c_str() : nullptr, //  pointer to name of executable module
-	  (LPSTR)args.c_str(),                                                        //  pointer to command line string
-	  nullptr,                                                                   //  pointer to process security attributes
-	  nullptr,                                                                   //  pointer to thread security attributes
-	  TRUE,                                                                      //  handle inheritance flag
-	  0,                                                                         //  creation flags
-	  nullptr,                                                                   //  pointer to new environment block
-	  cmdInfo.workingDir ? cmdInfo.workingDir->c_str() : nullptr,                //  pointer to current directory name
-	  &StartupInfo,                                                              //  pointer to STARTUPINFO
-	  &ProcessInfo                                                               //  pointer to PROCESS_INFORMATION
+	  (LPSTR)args.c_str(),                                                //  pointer to command line string
+	  nullptr,                                                            //  pointer to process security attributes
+	  nullptr,                                                            //  pointer to thread security attributes
+	  TRUE,                                                               //  handle inheritance flag
+	  0,                                                                  //  creation flags
+	  nullptr,                                                            //  pointer to new environment block
+	  cmdInfo.workingDir ? cmdInfo.workingDir->c_str() : nullptr,         //  pointer to current directory name
+	  &StartupInfo,                                                       //  pointer to STARTUPINFO
+	  &ProcessInfo                                                        //  pointer to PROCESS_INFORMATION
 	);
 	if(!hProcess) {
 		util::CommandResult result {};
@@ -813,22 +813,21 @@ std::string util::get_date_time(const std::string &format)
 
 #ifdef __linux__
 // Quote a string so it's safe to pass to /bin/sh
-static std::string shellQuote(const std::string &s) {
-    std::string q = "'";
-    for (char c : s) {
-        if (c == '\'')
-            q += "'\\''";
-        else
-            q += c;
-    }
-    q += "'";
-    return q;
+static std::string shellQuote(const std::string &s)
+{
+	std::string q = "'";
+	for(char c : s) {
+		if(c == '\'')
+			q += "'\\''";
+		else
+			q += c;
+	}
+	q += "'";
+	return q;
 }
 
 // Try running `cmd`; returns true if it exited with status 0.
-static bool tryCmd(const std::string &cmd) {
-    return std::system((cmd + " > /dev/null 2>&1").c_str()) == 0;
-}
+static bool tryCmd(const std::string &cmd) { return std::system((cmd + " > /dev/null 2>&1").c_str()) == 0; }
 #endif
 
 void util::open_path_in_explorer(const std::string &path, const std::optional<std::string> &selectFile)
@@ -875,16 +874,21 @@ void util::open_path_in_explorer(const std::string &path, const std::optional<st
 		arg = "--select ";
 
 	const auto p = shellQuote(strFullPath);
-	if (tryCmd("nautilus " +arg +p)) return;
-	if (tryCmd("dolphin " +arg  +p)) return;
-	if (tryCmd("nemo " +p)) return;
-	if (tryCmd("thunar " +p)) return;
-	if (tryCmd("pcmanfm " +p)) return;
+	if(tryCmd("nautilus " + arg + p))
+		return;
+	if(tryCmd("dolphin " + arg + p))
+		return;
+	if(tryCmd("nemo " + p))
+		return;
+	if(tryCmd("thunar " + p))
+		return;
+	if(tryCmd("pcmanfm " + p))
+		return;
 
 	// Fallback
 	// xdg-open cannot select the file, so we'll just open the directory containing it
-    const auto &d = shellQuote(util::DirPath(path).GetString());
-    tryCmd("xdg-open " + d);
+	const auto &d = shellQuote(util::DirPath(path).GetString());
+	tryCmd("xdg-open " + d);
 #endif
 }
 
@@ -1037,20 +1041,16 @@ std::optional<std::string> util::get_thread_name()
 #endif
 }
 
-std::string util::make_clickable_link(const std::string& path, const std::string &displayPath, int line) {
+std::string util::make_clickable_link(const std::string &path, const std::string &displayPath, int line)
+{
 	std::string uri = "file://" + path + "#L" + std::to_string(line);
 
 	std::stringstream ss;
-	ss
-	  << "\033]8;;" << uri << "\007"
-	  << displayPath << ":" << line
-	  << "\033]8;;\007";
+	ss << "\033]8;;" << uri << "\007" << displayPath << ":" << line << "\033]8;;\007";
 	return ss.str();
 }
 
-std::string util::make_clickable_link(const std::string& path, int line) {
-	return make_clickable_link(path, path, line);
-}
+std::string util::make_clickable_link(const std::string &path, int line) { return make_clickable_link(path, path, line); }
 
 uint64_t util::to_uint64(const std::string_view &str) { return strtoll(str.data(), nullptr, 10); }
 
@@ -1122,9 +1122,9 @@ bool util::is_dark_mode()
 		if(res.executionResult != util::CommandResult::ExecutionResult::Success)
 			return false;
 		ustring::remove_whitespace(res.output);
-		return ustring::find(res.output,checkFor,false);
+		return ustring::find(res.output, checkFor, false);
 	};
-	if (check("gsettings", {"get", "org.gnome.desktop.interface", "color-scheme"}, "'prefer-dark'"))
+	if(check("gsettings", {"get", "org.gnome.desktop.interface", "color-scheme"}, "'prefer-dark'"))
 		return true;
 	return check("gsettings", {"get", "org.cinnamon.desktop.interface", "gtk-theme"}, "dark");
 #endif
@@ -1149,7 +1149,7 @@ std::optional<std::string> util::get_system_language()
 	setlocale(LC_ALL, "");
 	std::string lan {};
 	auto *envLang = getenv("LANG");
-	if (envLang)
+	if(envLang)
 		lan = envLang;
 	auto uscorePos = lan.find('_');
 	auto dotPos = lan.find('.');
