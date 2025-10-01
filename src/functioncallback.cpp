@@ -3,8 +3,8 @@
 
 #include "sharedutils/functioncallback.h"
 
-bool TCallback::operator==(void *) { return false; }
-bool TCallback::operator!=(void *) { return true; }
+bool TCallback::operator==(void *) const { return false; }
+bool TCallback::operator!=(void *) const { return true; }
 void TCallback::operator()() {}
 void TCallback::Release() { delete this; }
 

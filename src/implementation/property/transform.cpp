@@ -1,7 +1,13 @@
 // SPDX-FileCopyrightText: (c) 2023 Silverlan <opensource@pragma-engine.com>
 // SPDX-License-Identifier: MIT
 
-#include "sharedutils/property/util_property_transform.hpp"
+module;
+
+#include "mathutil/uquat.h"
+
+module pragma.util;
+
+import :property_transform;
 
 using namespace util;
 

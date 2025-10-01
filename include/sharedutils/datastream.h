@@ -160,8 +160,12 @@ DataStreamBase &TDataStream<TDataStreamBase>::operator>>(std::string &str)
 }
 
 class DLLSHUTIL DataStream : public TDataStream<DataStreamBase> {
-  public:
-	using TDataStream<DataStreamBase>::TDataStream;
+public:
+	DataStream() : TDataStream<DataStreamBase>{} {}
+	DataStream(uint32_t size) : TDataStream<DataStreamBase>{size} {}
+	DataStream(void *data, uint32_t size) : TDataStream<DataStreamBase>{data, size} {}
+	DataStream(const DataStream &o) : TDataStream<DataStreamBase>{o} {}
+	DataStream(std::nullptr_t t) : TDataStream<DataStreamBase>{t} {}
 };
 
 DLLSHUTIL std::ostream &operator<<(std::ostream &out, const DataStream &o);

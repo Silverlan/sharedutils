@@ -36,6 +36,7 @@ namespace util {
 		bool operator!=(const BaseHandle &other) const;
 		bool operator==(const std::nullptr_t other) const;
 		bool operator!=(const std::nullptr_t other) const;
+		bool operator!() const noexcept { return !IsValid(); }
 		void Invalidate();
 		TInternalClass *operator->();
 		TInternalClass *get() const;
@@ -81,7 +82,10 @@ TInternalClass *util::BaseHandle<TBaseClass, TInternalClass>::get() const
 	if(m_bEmpty || m_basePointer.get() == nullptr)
 		return nullptr;
 	auto &target = m_basePointer.get()->target;
-	return (target != nullptr) ? &*target : nullptr;
+	if constexpr(std::equality_comparable<TBaseClass>)
+		return (target != nullptr) ? &*target : nullptr;
+	else
+		return (target.get() != nullptr) ? &*target : nullptr;
 }
 
 template<class TBaseClass, class TInternalClass>
@@ -105,23 +109,29 @@ bool util::BaseHandle<TBaseClass, TInternalClass>::unique() const
 template<class TBaseClass, class TInternalClass>
 bool util::BaseHandle<TBaseClass, TInternalClass>::operator==(const TBaseClass &other) const
 {
-	if(other == nullptr)
+	if(!other)
 		return !IsValid();
-	return (m_basePointer.get()->target == other) ? true : false;
+	if constexpr(std::equality_comparable<TBaseClass>)
+		return (m_basePointer.get()->target == other) ? true : false;
+	else
+		return m_basePointer.get()->target.get() == other.get();
 }
 
 template<class TBaseClass, class TInternalClass>
 bool util::BaseHandle<TBaseClass, TInternalClass>::operator!=(const TBaseClass &other) const
 {
-	if(other == nullptr)
+	if(!other)
 		return IsValid();
-	return (m_basePointer.get()->target != other) ? true : false;
+	if constexpr(std::equality_comparable<TBaseClass>)
+		return (m_basePointer.get()->target != other) ? true : false;
+	else
+		return (m_basePointer.get()->target.get() != other.get()) ? true : false;
 }
 
 template<class TBaseClass, class TInternalClass>
 bool util::BaseHandle<TBaseClass, TInternalClass>::operator==(const util::BaseHandle<TBaseClass, TInternalClass> &other) const
 {
-	if(other == nullptr)
+	if(!other)
 		return !IsValid();
 	return (get() == other.get()) ? true : false;
 }
@@ -129,7 +139,7 @@ bool util::BaseHandle<TBaseClass, TInternalClass>::operator==(const util::BaseHa
 template<class TBaseClass, class TInternalClass>
 bool util::BaseHandle<TBaseClass, TInternalClass>::operator!=(const util::BaseHandle<TBaseClass, TInternalClass> &other) const
 {
-	if(other == nullptr)
+	if(!other)
 		return IsValid();
 	return (get() != other.get()) ? true : false;
 }

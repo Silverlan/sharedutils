@@ -1,7 +1,14 @@
 // SPDX-FileCopyrightText: (c) 2019 Silverlan <opensource@pragma-engine.com>
 // SPDX-License-Identifier: MIT
 
-#include "sharedutils/property/util_property_color.hpp"
+module;
+
+#include "mathutil/uvec.h"
+#include "mathutil/color.h"
+
+module pragma.util;
+
+import :property_color;
 
 using namespace util;
 

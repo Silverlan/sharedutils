@@ -25,8 +25,10 @@ class DLLSHUTIL TCallback {
 	TCallback() = default;
 #endif
 	virtual ~TCallback() = default;
-	virtual bool operator==(void *p);
-	virtual bool operator!=(void *p);
+	virtual bool operator==(void *p) const;
+	virtual bool operator!=(void *p) const;
+	virtual bool operator==(const TCallback &other) const { return false; }
+	virtual bool operator!=(const TCallback &other) const { return true; }
 	virtual void operator()();
 #ifdef CALLBACK_SANITY_CHECK_ENABLED
 	size_t hashCode;
@@ -54,7 +56,8 @@ class Callback : public TCallback {
 
 class DLLSHUTIL CallbackHandle : public util::BaseHandle<std::shared_ptr<TCallback>, TCallback> {
   public:
-	using util::BaseHandle<std::shared_ptr<TCallback>, TCallback>::BaseHandle;
+	CallbackHandle() : BaseHandle {} {}
+	CallbackHandle(const std::shared_ptr<TCallback> &t) : BaseHandle {t} {}
 	void Remove();
 	void operator()();
 	template<typename... TARGS>

@@ -1,10 +1,15 @@
 // SPDX-FileCopyrightText: (c) 2019 Silverlan <opensource@pragma-engine.com>
 // SPDX-License-Identifier: MIT
 
-#include "sharedutils/netpacket.hpp"
+module;
+
 #include <iostream>
 #include <cstring>
 #include <array>
+
+module pragma.util;
+
+import :net_packet;
 
 #ifdef NWM_DISABLE_OPTIMIZATION
 #pragma optimize("", off)

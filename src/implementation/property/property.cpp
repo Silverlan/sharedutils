@@ -1,7 +1,11 @@
 // SPDX-FileCopyrightText: (c) 2019 Silverlan <opensource@pragma-engine.com>
 // SPDX-License-Identifier: MIT
 
-#include "sharedutils/property/util_property.hpp"
+module;
+
+module pragma.util;
+
+import :property;
 
 using namespace util;
 

@@ -15,8 +15,8 @@ pr_add_library(${PROJ_NAME} ${LIB_TYPE})
 pr_add_dependency(${PROJ_NAME} mathutil TARGET PUBLIC)
 pr_add_external_dependency(${PROJ_NAME} cpptrace LIBRARY PRIVATE)
 
+pr_init_module(${PROJ_NAME})
 pr_add_headers(${PROJ_NAME} "include/")
-pr_add_sources(${PROJ_NAME} "src/")
 
 if(${SHAREDUTILS_STATIC})
 	pr_add_compile_definitions(${PROJ_NAME} -DSHUTIL_STATIC)

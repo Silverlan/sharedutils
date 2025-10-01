@@ -3,7 +3,6 @@
 
 #include "sharedutils/util_file.h"
 #include "sharedutils/util_string.h"
-#include "sharedutils/property/util_property.hpp"
 
 bool ufile::get_extension(const std::string &f, std::string *ext)
 {

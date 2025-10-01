@@ -1,7 +1,14 @@
 // SPDX-FileCopyrightText: (c) 2019 Silverlan <opensource@pragma-engine.com>
 // SPDX-License-Identifier: MIT
 
-#include "sharedutils/property/util_property_euler_angles.hpp"
+module;
+
+#include "mathutil/eulerangles.h"
+#include <string>
+
+module pragma.util;
+
+import :property_euler_angles;
 
 using namespace util;
 
