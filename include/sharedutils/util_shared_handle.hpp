@@ -36,6 +36,9 @@ namespace util {
 		TSharedHandle(const TWeakSharedHandle<T> &) = delete;
 		inline ~TSharedHandle() {}
 		operator TWeakSharedHandle<T>() const;
+		explicit operator bool() const noexcept { return IsValid(); }
+		bool operator!() const noexcept { return !static_cast<bool>(*this); }
+
 		bool operator==(const TSharedHandle<T> &other) const;
 		bool operator!=(const TSharedHandle<T> &other) const { return !operator==(other); }
 		bool operator==(const T *other) const;
@@ -71,6 +74,9 @@ namespace util {
 			return static_cast<TT *>(get());
 		}
 
+		size_t use_count() const { return m_data.use_count(); }
+		bool unique() const { return use_count() == 1; }
+
 		const std::shared_ptr<PtrSharedHandleData> &GetInternalData() const;
 	  private:
 		std::shared_ptr<PtrSharedHandleData> m_data = nullptr;
@@ -100,6 +106,10 @@ namespace util {
 
 		TWeakSharedHandle<T> operator=(const TWeakSharedHandle<T> &other);
 		TWeakSharedHandle<T> operator=(const TSharedHandle<T> &other);
+
+		explicit operator bool() const noexcept { return IsValid(); }
+		bool operator!() const noexcept { return !static_cast<bool>(*this); }
+
 		bool operator==(const TWeakSharedHandle<T> &other) const;
 		bool operator!=(const TWeakSharedHandle<T> &other) const { return !operator==(other); }
 		bool operator==(const T *other) const;

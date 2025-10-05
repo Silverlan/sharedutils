@@ -4,7 +4,6 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include "sharedutils/def_handle.h"
 #include <string>
 
 export module pragma.util:property_string;

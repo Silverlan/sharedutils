@@ -5,10 +5,11 @@
 #define __FUNCTIONCALLBACK_H__
 
 #include "utildefinitions.h"
-#include "def_handle.h"
 #include <memory>
 #include <functional>
 #include <stdexcept>
+
+#define COMMA ,
 
 // #define CALLBACK_SANITY_CHECK_ENABLED
 
@@ -20,15 +21,17 @@ class DLLSHUTIL TCallback {
 	void Release();
   public:
 #ifdef CALLBACK_SANITY_CHECK_ENABLED
-	TCallback(size_t hashCode) : hashCode(hashCode) {}
+	TCallback(size_t hashCode);
 #else
-	TCallback() = default;
+	TCallback();
 #endif
-	virtual ~TCallback() = default;
+	TCallback(const TCallback &other);
+	virtual ~TCallback();
+	TCallback &operator=(const TCallback &other);
 	virtual bool operator==(void *p) const;
 	virtual bool operator!=(void *p) const;
-	virtual bool operator==(const TCallback &other) const { return false; }
-	virtual bool operator!=(const TCallback &other) const { return true; }
+	virtual bool operator==(const TCallback &other) const;
+	virtual bool operator!=(const TCallback &other) const;
 	virtual void operator()();
 #ifdef CALLBACK_SANITY_CHECK_ENABLED
 	size_t hashCode;
@@ -54,11 +57,48 @@ class Callback : public TCallback {
 	T operator()(TARGS... args) { return m_function(std::forward<TARGS>(args)...); }
 };
 
-class DLLSHUTIL CallbackHandle : public util::BaseHandle<std::shared_ptr<TCallback>, TCallback> {
+namespace util {
+	class DLLSHUTIL BaseCallbackHandle {
+		using TPtr = std::shared_ptr<TCallback>;
+		using TUnderlyingType = TCallback;
+	public:
+		BaseCallbackHandle();
+		BaseCallbackHandle(TPtr *t);
+		BaseCallbackHandle(const TPtr &t);
+		virtual ~BaseCallbackHandle();
+		bool IsValid() const;
+		bool operator==(const TPtr &other) const;
+		bool operator!=(const TPtr &other) const;
+		bool operator==(const BaseCallbackHandle &other) const;
+		bool operator!=(const BaseCallbackHandle &other) const;
+		bool operator==(const std::nullptr_t other) const;
+		bool operator!=(const std::nullptr_t other) const;
+		void Invalidate();
+		TUnderlyingType *operator->();
+		TUnderlyingType *get() const;
+		template<class T>
+		T *get() const;
+		int32_t use_count() const;
+		bool unique() const;
+	protected:
+		std::shared_ptr<TPtr> m_basePointer;
+		bool m_bEmpty;
+	};
+
+	template<class T>
+	T *BaseCallbackHandle::get() const {
+		return dynamic_cast<T *>(get());
+	}
+};
+
+class DLLSHUTIL CallbackHandle : public util::BaseCallbackHandle {
   public:
-	CallbackHandle() : BaseHandle {} {}
-	CallbackHandle(const std::shared_ptr<TCallback> &t) : BaseHandle {t} {}
+	CallbackHandle();
+	CallbackHandle(const CallbackHandle &other);
+	CallbackHandle(const std::shared_ptr<TCallback> &t);
+	~CallbackHandle() override;
 	void Remove();
+	CallbackHandle &operator=(const CallbackHandle &other);
 	void operator()();
 	template<typename... TARGS>
 	void operator()(TARGS... args);
