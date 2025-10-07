@@ -56,6 +56,16 @@ namespace util {
 		const T *GetRawPtr() const;
 		T *GetRawPtr();
 		void Remove();
+		void Invalidate() { Remove(); }
+		void Release() {
+			m_data = nullptr;
+			m_typedPtr = nullptr;
+		}
+		void SetPointer(const std::shared_ptr<T> &ptr)
+		{
+			m_data = std::make_shared<PtrSharedHandleData>(ptr);
+			m_typedPtr = ptr.get();
+		}
 
 		// Alias methods for compatibility with shared_ptr
 		bool valid() const { return IsValid(); }
