@@ -276,6 +276,9 @@ namespace util {
 	{
 		return vec.insert(std::upper_bound(vec.begin(), vec.end(), item, pred), item);
 	}
+
+	template<typename T, typename... Ts>
+	concept is_of_type = (std::same_as<std::remove_cvref_t<T>, Ts> || ...);
 }
 
 uint32_t util::to_uint(const std::string_view &str)
