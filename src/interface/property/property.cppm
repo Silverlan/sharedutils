@@ -37,14 +37,14 @@ export {
 			static std::shared_ptr<TProperty> Create(const T &value = {});
 			SimpleProperty() = default;
 			SimpleProperty(const T &init);
-			SimpleProperty(const SimpleProperty<TProperty, T> &prop);
+			SimpleProperty(const SimpleProperty &prop);
 			virtual ~SimpleProperty() override;
 			SimpleProperty &operator=(const T &val);
-			SimpleProperty &operator=(const SimpleProperty<TProperty, T> &other);
+			SimpleProperty &operator=(const SimpleProperty &other);
 			bool operator==(const T &val) const;
-			bool operator==(const SimpleProperty<TProperty, T> &prop) const;
+			bool operator==(const SimpleProperty &prop) const;
 			bool operator!=(const T &val) const;
-			bool operator!=(const SimpleProperty<TProperty, T> &prop) const;
+			bool operator!=(const SimpleProperty &prop) const;
 			operator const T &() const;
 			operator T &();
 			T &operator*();
@@ -76,8 +76,13 @@ export {
 
 		class DLLSHUTIL BoolProperty : public SimpleProperty<BoolProperty, bool> {
 		public:
-			using SimpleProperty<BoolProperty, bool>::SimpleProperty;
-			using SimpleProperty<BoolProperty, bool>::operator=;
+			BoolProperty();
+			BoolProperty(const bool &init);
+			BoolProperty(const BoolProperty &prop);
+
+			BoolProperty &operator=(const bool &val);
+			BoolProperty &operator=(const BoolProperty &other);
+
 			virtual void ApplyValue(const bool &newValue) override;
 		};
 		using PBoolProperty = std::shared_ptr<BoolProperty>;

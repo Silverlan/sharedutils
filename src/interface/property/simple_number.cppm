@@ -576,8 +576,19 @@ export {
 		template<typename TEnum>
 		class TEnumProperty : public SimpleNumberProperty<TEnumProperty<TEnum>, TEnum> {
 		public:
-			using SimpleNumberProperty<TEnumProperty<TEnum>, TEnum>::SimpleNumberProperty;
-			using SimpleNumberProperty<TEnumProperty<TEnum>, TEnum>::operator=;
+			TEnumProperty() : SimpleNumberProperty<TEnumProperty<TEnum>, TEnum>{} {}
+			TEnumProperty(const TEnum &init) : SimpleNumberProperty<TEnumProperty<TEnum>, TEnum>{init} {}
+			TEnumProperty(const TEnumProperty &prop) : SimpleNumberProperty<TEnumProperty<TEnum>, TEnum>{prop} {}
+			TEnumProperty &operator=(const TEnum &val)
+			{
+				SimpleNumberProperty<TEnumProperty<TEnum>, TEnum>::operator=(val);
+				return *this;
+			}
+			TEnumProperty &operator=(const TEnumProperty &other)
+			{
+				SimpleNumberProperty<TEnumProperty<TEnum>, TEnum>::operator=(other);
+				return *this;
+			}
 		};
 
 		template<typename TEnum>
