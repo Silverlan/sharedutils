@@ -1,8 +1,7 @@
 // SPDX-FileCopyrightText: (c) 2019 Silverlan <opensource@pragma-engine.com>
 // SPDX-License-Identifier: MIT
 
-#ifndef __UTIL_HASHABLE_HPP__
-#define __UTIL_HASHABLE_HPP__
+#pragma once
 
 #include "utildefinitions.h"
 #include <cinttypes>
@@ -24,5 +23,3 @@ class DLLSHUTIL Hashable {
 			}                                                                                                                                                                                                                                                                                    \
 		};                                                                                                                                                                                                                                                                                       \
 	}
-
-#endif

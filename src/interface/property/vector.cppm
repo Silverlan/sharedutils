@@ -4,11 +4,11 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include <mathutil/uvec.h>
 
 export module pragma.util:property_vector;
 
 export import :property;
+export import pragma.math;
 
 export {
 	#pragma warning(push)

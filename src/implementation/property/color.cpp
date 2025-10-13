@@ -3,9 +3,6 @@
 
 module;
 
-#include "mathutil/uvec.h"
-#include "mathutil/color.h"
-
 module pragma.util;
 
 import :property_color;

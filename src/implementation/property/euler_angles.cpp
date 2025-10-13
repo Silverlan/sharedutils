@@ -3,7 +3,6 @@
 
 module;
 
-#include "mathutil/eulerangles.h"
 #include <string>
 
 module pragma.util;

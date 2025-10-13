@@ -3,8 +3,6 @@
 
 module;
 
-#include "mathutil/uquat.h"
-
 module pragma.util;
 
 import :property_transform;

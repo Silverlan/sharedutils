@@ -4,11 +4,11 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include <mathutil/umat.h>
 
 export module pragma.util:property_matrix;
 
 export import :property;
+export import pragma.math;
 
 export {
 	#pragma warning(push)

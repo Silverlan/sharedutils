@@ -4,11 +4,11 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include "mathutil/uquat.h"
 
 export module pragma.util:property_quaternion;
 
 export import :property_vector;
+export import pragma.math;
 
 export {
 	namespace util {

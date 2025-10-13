@@ -4,12 +4,14 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include "sharedutils/functioncallback.h"
 #include <vector>
 #include <cinttypes>
-#include <mathutil/umath.h>
+#include <memory>
 
 export module pragma.util:property;
+
+export import :function_callback;
+export import pragma.math;
 
 export {
 	#pragma warning(push)
@@ -86,8 +88,12 @@ export {
 			virtual void ApplyValue(const bool &newValue) override;
 		};
 		using PBoolProperty = std::shared_ptr<BoolProperty>;
+		using namespace umath::scoped_enum::bitwise;
 	};
-	REGISTER_BASIC_BITWISE_OPERATORS(util::SimplePropertyFlags);
+	namespace umath::scoped_enum::bitwise {
+		template<>
+		struct enable_bitwise_operators<util::SimplePropertyFlags> : std::true_type {};
+	}
 	#pragma warning(pop)
 
 	template<class TProperty, class T>

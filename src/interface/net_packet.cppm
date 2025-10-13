@@ -7,9 +7,10 @@ module;
 #include <string>
 #include <memory>
 #include <vector>
-#include <sharedutils/datastream.h>
 
 export module pragma.util:net_packet;
+
+export import :data_stream;
 
 /*#ifdef _WIN32
 #define NWM_MAX_PACKET_SIZE SO_MAX_MSG_SIZE

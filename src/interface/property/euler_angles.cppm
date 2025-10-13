@@ -4,11 +4,12 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include <mathutil/color.h>
+#include <string>
 
 export module pragma.util:property_euler_angles;
 
 export import :property;
+export import pragma.math;
 
 export {
 	#pragma warning(push)

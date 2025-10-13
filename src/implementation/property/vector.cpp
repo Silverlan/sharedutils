@@ -3,8 +3,6 @@
 
 module;
 
-#include "mathutil/uvec.h"
-
 module pragma.util;
 
 import :property_vector;
