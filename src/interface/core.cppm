@@ -131,10 +131,6 @@ export {
 		template<typename T, typename C>
 		constexpr T declvalue(T C::*ptr);
 		constexpr uint64_t get_max_unsigned_integer(uint32_t bitCount) { return (1 << bitCount) - 1; }
-		template<typename T>
-		std::string to_hex_string(const T &o);
-		template<typename T>
-		uint64_t to_hex_number(const T &o);
 		DLLSHUTIL bool to_boolean(const std::string_view &str);
 		DLLSHUTIL bool get_current_working_directory(std::string &cwd);
 		DLLSHUTIL std::string get_current_working_directory();
