@@ -14,7 +14,7 @@ module;
 export module pragma.util:hash;
 
 // Source: https://stackoverflow.com/a/50978188/2482983
-namespace util {
+export namespace util {
 	using Hash = uint64_t;
 	template<typename T>
 	T xorshift(const T &n, int i)

@@ -4,6 +4,7 @@
 module;
 
 #include "mathutil/glmutil.h"
+#include <memory>
 
 module pragma.util;
 
