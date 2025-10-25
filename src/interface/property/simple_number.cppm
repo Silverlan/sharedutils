@@ -7,6 +7,8 @@ module;
 #include <cinttypes>
 #include <type_traits>
 
+#include <memory>
+
 export module pragma.util:property_simple_number;
 
 export import :property;
@@ -129,420 +131,422 @@ export {
 		};
 	};
 
-	template<class TProperty, class T>
-	util::SimpleNumberProperty<TProperty, T> &util::SimpleNumberProperty<TProperty, T>::operator=(const T &val) {return static_cast<util::SimpleNumberProperty<TProperty, T>&>(util::SimpleProperty<TProperty, T>::operator=(val));}
+	namespace util {
+		template<class TProperty, class T>
+		SimpleNumberProperty<TProperty, T> &SimpleNumberProperty<TProperty, T>::operator=(const T &val) {return static_cast<SimpleNumberProperty<TProperty, T>&>(SimpleProperty<TProperty, T>::operator=(val));}
 
-	template<class TProperty, class T>
-	util::SimpleNumberProperty<TProperty, T> &util::SimpleNumberProperty<TProperty, T>::operator=(const util::SimpleNumberProperty<TProperty, T> &other) {return static_cast<util::SimpleNumberProperty<TProperty, T>&>(util::SimpleProperty<TProperty, T>::operator=(other));}
+		template<class TProperty, class T>
+		SimpleNumberProperty<TProperty, T> &SimpleNumberProperty<TProperty, T>::operator=(const SimpleNumberProperty<TProperty, T> &other) {return static_cast<SimpleNumberProperty<TProperty, T>&>(SimpleProperty<TProperty, T>::operator=(other));}
 
-	template<class TProperty, class T>
-	util::SimpleNumberProperty<TProperty, T> &util::SimpleNumberProperty<TProperty, T>::operator+=(const T &val)
-	{
-		*this = GetValue() + val;
-		return *this;
-	}
+		template<class TProperty, class T>
+		SimpleNumberProperty<TProperty, T> &SimpleNumberProperty<TProperty, T>::operator+=(const T &val)
+		{
+			*this = GetValue() + val;
+			return *this;
+		}
 
-	template<class TProperty, class T>
-	util::SimpleNumberProperty<TProperty, T> &util::SimpleNumberProperty<TProperty, T>::operator+=(const SimpleNumberProperty<TProperty, T> &prop)
-	{
-		return *this += prop.GetValue();
-	}
+		template<class TProperty, class T>
+		SimpleNumberProperty<TProperty, T> &SimpleNumberProperty<TProperty, T>::operator+=(const SimpleNumberProperty<TProperty, T> &prop)
+		{
+			return *this += prop.GetValue();
+		}
 
-	template<class TProperty, class T>
-	util::SimpleNumberProperty<TProperty, T> &util::SimpleNumberProperty<TProperty, T>::operator-=(const T &val)
-	{
-		*this = GetValue() - val;
-		return *this;
-	}
+		template<class TProperty, class T>
+		SimpleNumberProperty<TProperty, T> &SimpleNumberProperty<TProperty, T>::operator-=(const T &val)
+		{
+			*this = GetValue() - val;
+			return *this;
+		}
 
-	template<class TProperty, class T>
-	util::SimpleNumberProperty<TProperty, T> &util::SimpleNumberProperty<TProperty, T>::operator-=(const SimpleNumberProperty<TProperty, T> &prop)
-	{
-		return *this -= prop.GetValue();
-	}
+		template<class TProperty, class T>
+		SimpleNumberProperty<TProperty, T> &SimpleNumberProperty<TProperty, T>::operator-=(const SimpleNumberProperty<TProperty, T> &prop)
+		{
+			return *this -= prop.GetValue();
+		}
 
-	template<class TProperty, class T>
-	util::SimpleNumberProperty<TProperty, T> &util::SimpleNumberProperty<TProperty, T>::operator*=(const T &val)
-	{
-		*this = GetValue() * val;
-		return *this;
-	}
+		template<class TProperty, class T>
+		SimpleNumberProperty<TProperty, T> &SimpleNumberProperty<TProperty, T>::operator*=(const T &val)
+		{
+			*this = GetValue() * val;
+			return *this;
+		}
 
-	template<class TProperty, class T>
-	util::SimpleNumberProperty<TProperty, T> &util::SimpleNumberProperty<TProperty, T>::operator*=(const SimpleNumberProperty<TProperty, T> &prop)
-	{
-		return *this *= prop.GetValue();
-	}
+		template<class TProperty, class T>
+		SimpleNumberProperty<TProperty, T> &SimpleNumberProperty<TProperty, T>::operator*=(const SimpleNumberProperty<TProperty, T> &prop)
+		{
+			return *this *= prop.GetValue();
+		}
 
-	template<class TProperty, class T>
-	util::SimpleNumberProperty<TProperty, T> &util::SimpleNumberProperty<TProperty, T>::operator/=(const T &val)
-	{
-		*this = GetValue() / val;
-		return *this;
-	}
+		template<class TProperty, class T>
+		SimpleNumberProperty<TProperty, T> &SimpleNumberProperty<TProperty, T>::operator/=(const T &val)
+		{
+			*this = GetValue() / val;
+			return *this;
+		}
 
-	template<class TProperty, class T>
-	util::SimpleNumberProperty<TProperty, T> &util::SimpleNumberProperty<TProperty, T>::operator/=(const SimpleNumberProperty<TProperty, T> &prop)
-	{
-		return *this /= prop.GetValue();
-	}
+		template<class TProperty, class T>
+		SimpleNumberProperty<TProperty, T> &SimpleNumberProperty<TProperty, T>::operator/=(const SimpleNumberProperty<TProperty, T> &prop)
+		{
+			return *this /= prop.GetValue();
+		}
 
-	template<class TProperty, class T>
-	template<typename, typename>
-	util::SimpleNumberProperty<TProperty, T> &util::SimpleNumberProperty<TProperty, T>::operator%=(const T &val)
-	{
-		*this = GetValue() % val;
-		return *this;
-	}
+		template<class TProperty, class T>
+		template<typename, typename>
+		SimpleNumberProperty<TProperty, T> &SimpleNumberProperty<TProperty, T>::operator%=(const T &val)
+		{
+			*this = GetValue() % val;
+			return *this;
+		}
 
-	template<class TProperty, class T>
-	template<typename, typename>
-	util::SimpleNumberProperty<TProperty, T> &util::SimpleNumberProperty<TProperty, T>::operator%=(const SimpleNumberProperty<TProperty, T> &prop)
-	{
-		return *this %= prop.GetValue();
-	}
+		template<class TProperty, class T>
+		template<typename, typename>
+		SimpleNumberProperty<TProperty, T> &SimpleNumberProperty<TProperty, T>::operator%=(const SimpleNumberProperty<TProperty, T> &prop)
+		{
+			return *this %= prop.GetValue();
+		}
 
-	template<class TProperty, class T>
-	template<typename, typename>
-	util::SimpleNumberProperty<TProperty, T> &util::SimpleNumberProperty<TProperty, T>::operator&=(const T &val)
-	{
-		*this = GetValue() & val;
-		return *this;
-	}
+		template<class TProperty, class T>
+		template<typename, typename>
+		SimpleNumberProperty<TProperty, T> &SimpleNumberProperty<TProperty, T>::operator&=(const T &val)
+		{
+			*this = GetValue() & val;
+			return *this;
+		}
 
-	template<class TProperty, class T>
-	template<typename, typename>
-	util::SimpleNumberProperty<TProperty, T> &util::SimpleNumberProperty<TProperty, T>::operator&=(const SimpleNumberProperty<TProperty, T> &prop)
-	{
-		return *this &= prop.GetValue();
-	}
+		template<class TProperty, class T>
+		template<typename, typename>
+		SimpleNumberProperty<TProperty, T> &SimpleNumberProperty<TProperty, T>::operator&=(const SimpleNumberProperty<TProperty, T> &prop)
+		{
+			return *this &= prop.GetValue();
+		}
 
-	template<class TProperty, class T>
-	template<typename, typename>
-	util::SimpleNumberProperty<TProperty, T> &util::SimpleNumberProperty<TProperty, T>::operator|=(const T &val)
-	{
-		*this = GetValue() | val;
-		return *this;
-	}
+		template<class TProperty, class T>
+		template<typename, typename>
+		SimpleNumberProperty<TProperty, T> &SimpleNumberProperty<TProperty, T>::operator|=(const T &val)
+		{
+			*this = GetValue() | val;
+			return *this;
+		}
 
-	template<class TProperty, class T>
-	template<typename, typename>
-	util::SimpleNumberProperty<TProperty, T> &util::SimpleNumberProperty<TProperty, T>::operator|=(const SimpleNumberProperty<TProperty, T> &prop)
-	{
-		return *this |= prop.GetValue();
-	}
+		template<class TProperty, class T>
+		template<typename, typename>
+		SimpleNumberProperty<TProperty, T> &SimpleNumberProperty<TProperty, T>::operator|=(const SimpleNumberProperty<TProperty, T> &prop)
+		{
+			return *this |= prop.GetValue();
+		}
 
-	template<class TProperty, class T>
-	template<typename, typename>
-	util::SimpleNumberProperty<TProperty, T> &util::SimpleNumberProperty<TProperty, T>::operator^=(const T &val)
-	{
-		*this = GetValue() ^ val;
-		return *this;
-	}
+		template<class TProperty, class T>
+		template<typename, typename>
+		SimpleNumberProperty<TProperty, T> &SimpleNumberProperty<TProperty, T>::operator^=(const T &val)
+		{
+			*this = GetValue() ^ val;
+			return *this;
+		}
 
-	template<class TProperty, class T>
-	template<typename, typename>
-	util::SimpleNumberProperty<TProperty, T> &util::SimpleNumberProperty<TProperty, T>::operator^=(const SimpleNumberProperty<TProperty, T> &prop)
-	{
-		return *this ^= prop.GetValue();
-	}
+		template<class TProperty, class T>
+		template<typename, typename>
+		SimpleNumberProperty<TProperty, T> &SimpleNumberProperty<TProperty, T>::operator^=(const SimpleNumberProperty<TProperty, T> &prop)
+		{
+			return *this ^= prop.GetValue();
+		}
 
-	template<class TProperty, class T>
-	template<typename, typename>
-	util::SimpleNumberProperty<TProperty, T> &util::SimpleNumberProperty<TProperty, T>::operator<<=(const T &val)
-	{
-		*this = GetValue() << val;
-		return *this;
-	}
+		template<class TProperty, class T>
+		template<typename, typename>
+		SimpleNumberProperty<TProperty, T> &SimpleNumberProperty<TProperty, T>::operator<<=(const T &val)
+		{
+			*this = GetValue() << val;
+			return *this;
+		}
 
-	template<class TProperty, class T>
-	template<typename, typename>
-	util::SimpleNumberProperty<TProperty, T> &util::SimpleNumberProperty<TProperty, T>::operator<<=(const SimpleNumberProperty<TProperty, T> &prop)
-	{
-		return *this <<= prop.GetValue();
-	}
+		template<class TProperty, class T>
+		template<typename, typename>
+		SimpleNumberProperty<TProperty, T> &SimpleNumberProperty<TProperty, T>::operator<<=(const SimpleNumberProperty<TProperty, T> &prop)
+		{
+			return *this <<= prop.GetValue();
+		}
 
-	template<class TProperty, class T>
-	template<typename, typename>
-	util::SimpleNumberProperty<TProperty, T> &util::SimpleNumberProperty<TProperty, T>::operator>>=(const T &val)
-	{
-		*this = GetValue() >> val;
-		return *this;
-	}
+		template<class TProperty, class T>
+		template<typename, typename>
+		SimpleNumberProperty<TProperty, T> &SimpleNumberProperty<TProperty, T>::operator>>=(const T &val)
+		{
+			*this = GetValue() >> val;
+			return *this;
+		}
 
-	template<class TProperty, class T>
-	template<typename, typename>
-	util::SimpleNumberProperty<TProperty, T> &util::SimpleNumberProperty<TProperty, T>::operator>>=(const SimpleNumberProperty<TProperty, T> &prop)
-	{
-		return *this >>= prop.GetValue();
-	}
+		template<class TProperty, class T>
+		template<typename, typename>
+		SimpleNumberProperty<TProperty, T> &SimpleNumberProperty<TProperty, T>::operator>>=(const SimpleNumberProperty<TProperty, T> &prop)
+		{
+			return *this >>= prop.GetValue();
+		}
 
-	template<class TProperty, class T>
-	util::SimpleNumberProperty<TProperty, T> &util::SimpleNumberProperty<TProperty, T>::operator++()
-	{
-		++GetValue();
-		return *this;
-	}
+		template<class TProperty, class T>
+		SimpleNumberProperty<TProperty, T> &SimpleNumberProperty<TProperty, T>::operator++()
+		{
+			++GetValue();
+			return *this;
+		}
 
-	template<class TProperty, class T>
-	util::SimpleNumberProperty<TProperty, T> &util::SimpleNumberProperty<TProperty, T>::operator--()
-	{
-		--GetValue();
-		return *this;
-	}
+		template<class TProperty, class T>
+		SimpleNumberProperty<TProperty, T> &SimpleNumberProperty<TProperty, T>::operator--()
+		{
+			--GetValue();
+			return *this;
+		}
 
-	template<class TProperty, class T>
-	T util::SimpleNumberProperty<TProperty, T>::operator++(int)
-	{
-		return GetValue()++;
-	}
+		template<class TProperty, class T>
+		T SimpleNumberProperty<TProperty, T>::operator++(int)
+		{
+			return GetValue()++;
+		}
 
-	template<class TProperty, class T>
-	T util::SimpleNumberProperty<TProperty, T>::operator--(int)
-	{
-		return GetValue()--;
-	}
+		template<class TProperty, class T>
+		T SimpleNumberProperty<TProperty, T>::operator--(int)
+		{
+			return GetValue()--;
+		}
 
-	template<class TProperty, class T>
-	T util::SimpleNumberProperty<TProperty, T>::operator+() const
-	{
-		return +GetValue();
-	}
+		template<class TProperty, class T>
+		T SimpleNumberProperty<TProperty, T>::operator+() const
+		{
+			return +GetValue();
+		}
 
-	template<class TProperty, class T>
-	template<typename, typename>
-	T util::SimpleNumberProperty<TProperty, T>::operator-() const
-	{
-		return -GetValue();
-	}
+		template<class TProperty, class T>
+		template<typename, typename>
+		T SimpleNumberProperty<TProperty, T>::operator-() const
+		{
+			return -GetValue();
+		}
 
-	template<class TProperty, class T>
-	T util::SimpleNumberProperty<TProperty, T>::operator+(const T &val) const
-	{
-		return GetValue() + val;
-	}
+		template<class TProperty, class T>
+		T SimpleNumberProperty<TProperty, T>::operator+(const T &val) const
+		{
+			return GetValue() + val;
+		}
 
-	template<class TProperty, class T>
-	T util::SimpleNumberProperty<TProperty, T>::operator+(const SimpleNumberProperty<TProperty, T> &prop) const
-	{
-		return *this + prop.GetValue();
-	}
+		template<class TProperty, class T>
+		T SimpleNumberProperty<TProperty, T>::operator+(const SimpleNumberProperty<TProperty, T> &prop) const
+		{
+			return *this + prop.GetValue();
+		}
 
-	template<class TProperty, class T>
-	T util::SimpleNumberProperty<TProperty, T>::operator-(const T &val) const
-	{
-		return GetValue() - val;
-	}
+		template<class TProperty, class T>
+		T SimpleNumberProperty<TProperty, T>::operator-(const T &val) const
+		{
+			return GetValue() - val;
+		}
 
-	template<class TProperty, class T>
-	T util::SimpleNumberProperty<TProperty, T>::operator-(const SimpleNumberProperty<TProperty, T> &prop) const
-	{
-		return *this - prop.GetValue();
-	}
+		template<class TProperty, class T>
+		T SimpleNumberProperty<TProperty, T>::operator-(const SimpleNumberProperty<TProperty, T> &prop) const
+		{
+			return *this - prop.GetValue();
+		}
 
-	template<class TProperty, class T>
-	T util::SimpleNumberProperty<TProperty, T>::operator*(const T &val) const
-	{
-		return GetValue() * val;
-	}
+		template<class TProperty, class T>
+		T SimpleNumberProperty<TProperty, T>::operator*(const T &val) const
+		{
+			return GetValue() * val;
+		}
 
-	template<class TProperty, class T>
-	T util::SimpleNumberProperty<TProperty, T>::operator*(const SimpleNumberProperty<TProperty, T> &prop) const
-	{
-		return *this * prop.GetValue();
-	}
+		template<class TProperty, class T>
+		T SimpleNumberProperty<TProperty, T>::operator*(const SimpleNumberProperty<TProperty, T> &prop) const
+		{
+			return *this * prop.GetValue();
+		}
 
-	template<class TProperty, class T>
-	T util::SimpleNumberProperty<TProperty, T>::operator/(const T &val) const
-	{
-		return GetValue() / val;
-	}
+		template<class TProperty, class T>
+		T SimpleNumberProperty<TProperty, T>::operator/(const T &val) const
+		{
+			return GetValue() / val;
+		}
 
-	template<class TProperty, class T>
-	T util::SimpleNumberProperty<TProperty, T>::operator/(const SimpleNumberProperty<TProperty, T> &prop) const
-	{
-		return *this / prop.GetValue();
-	}
+		template<class TProperty, class T>
+		T SimpleNumberProperty<TProperty, T>::operator/(const SimpleNumberProperty<TProperty, T> &prop) const
+		{
+			return *this / prop.GetValue();
+		}
 
-	template<class TProperty, class T>
-	template<typename, typename>
-	T util::SimpleNumberProperty<TProperty, T>::operator%(const T &val) const
-	{
-		return GetValue() % val;
-	}
+		template<class TProperty, class T>
+		template<typename, typename>
+		T SimpleNumberProperty<TProperty, T>::operator%(const T &val) const
+		{
+			return GetValue() % val;
+		}
 
-	template<class TProperty, class T>
-	template<typename, typename>
-	T util::SimpleNumberProperty<TProperty, T>::operator%(const SimpleNumberProperty<TProperty, T> &prop) const
-	{
-		return *this % prop.GetValue();
-	}
+		template<class TProperty, class T>
+		template<typename, typename>
+		T SimpleNumberProperty<TProperty, T>::operator%(const SimpleNumberProperty<TProperty, T> &prop) const
+		{
+			return *this % prop.GetValue();
+		}
 
-	template<class TProperty, class T>
-	template<typename, typename>
-	T util::SimpleNumberProperty<TProperty, T>::operator~() const
-	{
-		return ~GetValue();
-	}
+		template<class TProperty, class T>
+		template<typename, typename>
+		T SimpleNumberProperty<TProperty, T>::operator~() const
+		{
+			return ~GetValue();
+		}
 
-	template<class TProperty, class T>
-	template<typename, typename>
-	T util::SimpleNumberProperty<TProperty, T>::operator&(const T &val) const
-	{
-		return GetValue() & val;
-	}
+		template<class TProperty, class T>
+		template<typename, typename>
+		T SimpleNumberProperty<TProperty, T>::operator&(const T &val) const
+		{
+			return GetValue() & val;
+		}
 
-	template<class TProperty, class T>
-	template<typename, typename>
-	T util::SimpleNumberProperty<TProperty, T>::operator&(const SimpleNumberProperty<TProperty, T> &prop) const
-	{
-		return *this & prop.GetValue();
-	}
+		template<class TProperty, class T>
+		template<typename, typename>
+		T SimpleNumberProperty<TProperty, T>::operator&(const SimpleNumberProperty<TProperty, T> &prop) const
+		{
+			return *this & prop.GetValue();
+		}
 
-	template<class TProperty, class T>
-	template<typename, typename>
-	T util::SimpleNumberProperty<TProperty, T>::operator|(const T &val) const
-	{
-		return GetValue() | val;
-	}
+		template<class TProperty, class T>
+		template<typename, typename>
+		T SimpleNumberProperty<TProperty, T>::operator|(const T &val) const
+		{
+			return GetValue() | val;
+		}
 
-	template<class TProperty, class T>
-	template<typename, typename>
-	T util::SimpleNumberProperty<TProperty, T>::operator|(const SimpleNumberProperty<TProperty, T> &prop) const
-	{
-		return *this | prop.GetValue();
-	}
+		template<class TProperty, class T>
+		template<typename, typename>
+		T SimpleNumberProperty<TProperty, T>::operator|(const SimpleNumberProperty<TProperty, T> &prop) const
+		{
+			return *this | prop.GetValue();
+		}
 
-	template<class TProperty, class T>
-	template<typename, typename>
-	T util::SimpleNumberProperty<TProperty, T>::operator^(const T &val) const
-	{
-		return GetValue() ^ val;
-	}
+		template<class TProperty, class T>
+		template<typename, typename>
+		T SimpleNumberProperty<TProperty, T>::operator^(const T &val) const
+		{
+			return GetValue() ^ val;
+		}
 
-	template<class TProperty, class T>
-	template<typename, typename>
-	T util::SimpleNumberProperty<TProperty, T>::operator^(const SimpleNumberProperty<TProperty, T> &prop) const
-	{
-		return *this ^ prop.GetValue();
-	}
+		template<class TProperty, class T>
+		template<typename, typename>
+		T SimpleNumberProperty<TProperty, T>::operator^(const SimpleNumberProperty<TProperty, T> &prop) const
+		{
+			return *this ^ prop.GetValue();
+		}
 
-	template<class TProperty, class T>
-	template<typename, typename>
-	T util::SimpleNumberProperty<TProperty, T>::operator<<(const T &val) const
-	{
-		return GetValue() << val;
-	}
+		template<class TProperty, class T>
+		template<typename, typename>
+		T SimpleNumberProperty<TProperty, T>::operator<<(const T &val) const
+		{
+			return GetValue() << val;
+		}
 
-	template<class TProperty, class T>
-	template<typename, typename>
-	T util::SimpleNumberProperty<TProperty, T>::operator<<(const SimpleNumberProperty<TProperty, T> &prop) const
-	{
-		return *this << prop.GetValue();
-	}
+		template<class TProperty, class T>
+		template<typename, typename>
+		T SimpleNumberProperty<TProperty, T>::operator<<(const SimpleNumberProperty<TProperty, T> &prop) const
+		{
+			return *this << prop.GetValue();
+		}
 
-	template<class TProperty, class T>
-	template<typename, typename>
-	T util::SimpleNumberProperty<TProperty, T>::operator>>(const T &val) const
-	{
-		return GetValue() >> val;
-	}
+		template<class TProperty, class T>
+		template<typename, typename>
+		T SimpleNumberProperty<TProperty, T>::operator>>(const T &val) const
+		{
+			return GetValue() >> val;
+		}
 
-	template<class TProperty, class T>
-	template<typename, typename>
-	T util::SimpleNumberProperty<TProperty, T>::operator>>(const SimpleNumberProperty<TProperty, T> &prop) const
-	{
-		return *this >> prop.GetValue();
-	}
+		template<class TProperty, class T>
+		template<typename, typename>
+		T SimpleNumberProperty<TProperty, T>::operator>>(const SimpleNumberProperty<TProperty, T> &prop) const
+		{
+			return *this >> prop.GetValue();
+		}
 
-	template<class TProperty, class T>
-	bool util::SimpleNumberProperty<TProperty, T>::operator!() const
-	{
-		return !GetValue();
-	}
+		template<class TProperty, class T>
+		bool SimpleNumberProperty<TProperty, T>::operator!() const
+		{
+			return !GetValue();
+		}
 
-	template<class TProperty, class T>
-	bool util::SimpleNumberProperty<TProperty, T>::operator&&(const T &val) const
-	{
-		return (GetValue() && val);
-	}
+		template<class TProperty, class T>
+		bool SimpleNumberProperty<TProperty, T>::operator&&(const T &val) const
+		{
+			return (GetValue() && val);
+		}
 
-	template<class TProperty, class T>
-	bool util::SimpleNumberProperty<TProperty, T>::operator&&(const SimpleNumberProperty<TProperty, T> &prop) const
-	{
-		return (*this && prop.GetValue());
-	}
+		template<class TProperty, class T>
+		bool SimpleNumberProperty<TProperty, T>::operator&&(const SimpleNumberProperty<TProperty, T> &prop) const
+		{
+			return (*this && prop.GetValue());
+		}
 
-	template<class TProperty, class T>
-	bool util::SimpleNumberProperty<TProperty, T>::operator||(const T &val) const
-	{
-		return (GetValue() || val);
-	}
+		template<class TProperty, class T>
+		bool SimpleNumberProperty<TProperty, T>::operator||(const T &val) const
+		{
+			return (GetValue() || val);
+		}
 
-	template<class TProperty, class T>
-	bool util::SimpleNumberProperty<TProperty, T>::operator||(const SimpleNumberProperty<TProperty, T> &prop) const
-	{
-		return (*this || prop.GetValue());
-	}
+		template<class TProperty, class T>
+		bool SimpleNumberProperty<TProperty, T>::operator||(const SimpleNumberProperty<TProperty, T> &prop) const
+		{
+			return (*this || prop.GetValue());
+		}
 
-	template<class TProperty, class T>
-	bool util::SimpleNumberProperty<TProperty, T>::operator<(const T &val) const
-	{
-		return (GetValue() < val);
-	}
+		template<class TProperty, class T>
+		bool SimpleNumberProperty<TProperty, T>::operator<(const T &val) const
+		{
+			return (GetValue() < val);
+		}
 
-	template<class TProperty, class T>
-	bool util::SimpleNumberProperty<TProperty, T>::operator<(const SimpleProperty<TProperty, T> &prop) const
-	{
-		return (*this < prop.GetValue());
-	}
+		template<class TProperty, class T>
+		bool SimpleNumberProperty<TProperty, T>::operator<(const SimpleProperty<TProperty, T> &prop) const
+		{
+			return (*this < prop.GetValue());
+		}
 
-	template<class TProperty, class T>
-	bool util::SimpleNumberProperty<TProperty, T>::operator>(const T &val) const
-	{
-		return (GetValue() > val);
-	}
+		template<class TProperty, class T>
+		bool SimpleNumberProperty<TProperty, T>::operator>(const T &val) const
+		{
+			return (GetValue() > val);
+		}
 
-	template<class TProperty, class T>
-	bool util::SimpleNumberProperty<TProperty, T>::operator>(const SimpleProperty<TProperty, T> &prop) const
-	{
-		return (*this > prop.GetValue());
-	}
+		template<class TProperty, class T>
+		bool SimpleNumberProperty<TProperty, T>::operator>(const SimpleProperty<TProperty, T> &prop) const
+		{
+			return (*this > prop.GetValue());
+		}
 
-	template<class TProperty, class T>
-	bool util::SimpleNumberProperty<TProperty, T>::operator<=(const T &val) const
-	{
-		return (GetValue() <= val);
-	}
+		template<class TProperty, class T>
+		bool SimpleNumberProperty<TProperty, T>::operator<=(const T &val) const
+		{
+			return (GetValue() <= val);
+		}
 
-	template<class TProperty, class T>
-	bool util::SimpleNumberProperty<TProperty, T>::operator<=(const SimpleProperty<TProperty, T> &prop) const
-	{
-		return (*this <= prop.GetValue());
-	}
+		template<class TProperty, class T>
+		bool SimpleNumberProperty<TProperty, T>::operator<=(const SimpleProperty<TProperty, T> &prop) const
+		{
+			return (*this <= prop.GetValue());
+		}
 
-	template<class TProperty, class T>
-	bool util::SimpleNumberProperty<TProperty, T>::operator>=(const T &val) const
-	{
-		return (GetValue() >= val);
-	}
+		template<class TProperty, class T>
+		bool SimpleNumberProperty<TProperty, T>::operator>=(const T &val) const
+		{
+			return (GetValue() >= val);
+		}
 
-	template<class TProperty, class T>
-	bool util::SimpleNumberProperty<TProperty, T>::operator>=(const SimpleProperty<TProperty, T> &prop) const
-	{
-		return (*this >= prop.GetValue());
-	}
+		template<class TProperty, class T>
+		bool SimpleNumberProperty<TProperty, T>::operator>=(const SimpleProperty<TProperty, T> &prop) const
+		{
+			return (*this >= prop.GetValue());
+		}
 
-	template<class TProperty, class T>
-	util::SimpleNumberProperty<TProperty, T>::operator const T &() const
-	{
-		return SimpleProperty<TProperty, T>::operator const T &();
-	}
+		template<class TProperty, class T>
+		SimpleNumberProperty<TProperty, T>::operator const T &() const
+		{
+			return SimpleProperty<TProperty, T>::operator const T &();
+		}
 
-	template<class TProperty, class T>
-	util::SimpleNumberProperty<TProperty, T>::operator T &()
-	{
-		return SimpleProperty<TProperty, T>::operator T &();
+		template<class TProperty, class T>
+		SimpleNumberProperty<TProperty, T>::operator T &()
+		{
+			return SimpleProperty<TProperty, T>::operator T &();
+		}
 	}
 	#pragma warning(pop)
 

@@ -3,6 +3,12 @@
 
 module;
 
+#include <string>
+
+#include <optional>
+
+#include <functional>
+
 #include <limits>
 #include <algorithm>
 #include <mutex>

@@ -5,6 +5,8 @@ module;
 
 #include "sharedutils/utildefinitions.h"
 
+#include <memory>
+
 export module pragma.util:property_matrix;
 
 export import :property;
@@ -119,36 +121,38 @@ export {
 	};
 	#pragma warning(pop)
 
-	template<class TMatrixProperty, class TMatrix>
-	util::SimpleMatrixProperty<TMatrixProperty, TMatrix>::SimpleMatrixProperty() : SimpleProperty<TMatrixProperty, TMatrix>()
-	{
-	}
-	template<class TMatrixProperty, class TMatrix>
-	util::SimpleMatrixProperty<TMatrixProperty, TMatrix>::SimpleMatrixProperty(const TMatrix &v) : SimpleProperty<TMatrixProperty, TMatrix>(v)
-	{
-	}
-	template<class TMatrixProperty, class TMatrix>
-	util::SimpleMatrixProperty<TMatrixProperty, TMatrix> &util::SimpleMatrixProperty<TMatrixProperty, TMatrix>::operator/=(float f)
-	{
-		this->m_value /= f;
-		return *this;
-	}
-	template<class TMatrixProperty, class TMatrix>
-	util::SimpleMatrixProperty<TMatrixProperty, TMatrix> &util::SimpleMatrixProperty<TMatrixProperty, TMatrix>::operator*=(float f)
-	{
-		this->m_value *= f;
-		return *this;
-	}
-	template<class TMatrixProperty, class TMatrix>
-	util::SimpleMatrixProperty<TMatrixProperty, TMatrix> &util::SimpleMatrixProperty<TMatrixProperty, TMatrix>::operator+=(const TMatrix &other)
-	{
-		this->m_value += other;
-		return *this;
-	}
-	template<class TMatrixProperty, class TMatrix>
-	util::SimpleMatrixProperty<TMatrixProperty, TMatrix> &util::SimpleMatrixProperty<TMatrixProperty, TMatrix>::operator-=(const TMatrix &other)
-	{
-		this->m_value -= other;
-		return *this;
+	namespace util {
+		template<class TMatrixProperty, class TMatrix>
+		SimpleMatrixProperty<TMatrixProperty, TMatrix>::SimpleMatrixProperty() : SimpleProperty<TMatrixProperty, TMatrix>()
+		{
+		}
+		template<class TMatrixProperty, class TMatrix>
+		SimpleMatrixProperty<TMatrixProperty, TMatrix>::SimpleMatrixProperty(const TMatrix &v) : SimpleProperty<TMatrixProperty, TMatrix>(v)
+		{
+		}
+		template<class TMatrixProperty, class TMatrix>
+		SimpleMatrixProperty<TMatrixProperty, TMatrix> &SimpleMatrixProperty<TMatrixProperty, TMatrix>::operator/=(float f)
+		{
+			this->m_value /= f;
+			return *this;
+		}
+		template<class TMatrixProperty, class TMatrix>
+		SimpleMatrixProperty<TMatrixProperty, TMatrix> &SimpleMatrixProperty<TMatrixProperty, TMatrix>::operator*=(float f)
+		{
+			this->m_value *= f;
+			return *this;
+		}
+		template<class TMatrixProperty, class TMatrix>
+		SimpleMatrixProperty<TMatrixProperty, TMatrix> &SimpleMatrixProperty<TMatrixProperty, TMatrix>::operator+=(const TMatrix &other)
+		{
+			this->m_value += other;
+			return *this;
+		}
+		template<class TMatrixProperty, class TMatrix>
+		SimpleMatrixProperty<TMatrixProperty, TMatrix> &SimpleMatrixProperty<TMatrixProperty, TMatrix>::operator-=(const TMatrix &other)
+		{
+			this->m_value -= other;
+			return *this;
+		}
 	}
 }

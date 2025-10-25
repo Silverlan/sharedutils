@@ -31,52 +31,51 @@ export {
 		private:
 			mutable std::weak_ptr<T> m_ptr = {};
 		};
+		template<class T>
+		WeakHandle<T>::WeakHandle(const std::shared_ptr<T> &o) : m_ptr(o)
+		{
+		}
+
+		template<class T>
+		const T &WeakHandle<T>::operator*() const
+		{
+			return const_cast<WeakHandle<T> *>(this)->operator*();
+		}
+		template<class T>
+		T &WeakHandle<T>::operator*()
+		{
+			return *get();
+		}
+		template<class T>
+		const T *WeakHandle<T>::operator->() const
+		{
+			return const_cast<WeakHandle<T> *>(this)->operator->();
+		}
+		template<class T>
+		T *WeakHandle<T>::operator->()
+		{
+			return get();
+		}
+
+		template<class T>
+		bool WeakHandle<T>::expired() const
+		{
+			return m_ptr.expired();
+		}
+		template<class T>
+		bool WeakHandle<T>::valid() const
+		{
+			return !m_ptr.expired();
+		}
+		template<class T>
+		T *WeakHandle<T>::get() const
+		{
+			return m_ptr.lock().get();
+		}
+		template<class T>
+		void WeakHandle<T>::reset()
+		{
+			m_ptr = {};
+		}
 	};
-
-	template<class T>
-	util::WeakHandle<T>::WeakHandle(const std::shared_ptr<T> &o) : m_ptr(o)
-	{
-	}
-
-	template<class T>
-	const T &util::WeakHandle<T>::operator*() const
-	{
-		return const_cast<util::WeakHandle<T> *>(this)->operator*();
-	}
-	template<class T>
-	T &util::WeakHandle<T>::operator*()
-	{
-		return *get();
-	}
-	template<class T>
-	const T *util::WeakHandle<T>::operator->() const
-	{
-		return const_cast<util::WeakHandle<T> *>(this)->operator->();
-	}
-	template<class T>
-	T *util::WeakHandle<T>::operator->()
-	{
-		return get();
-	}
-
-	template<class T>
-	bool util::WeakHandle<T>::expired() const
-	{
-		return m_ptr.expired();
-	}
-	template<class T>
-	bool util::WeakHandle<T>::valid() const
-	{
-		return !m_ptr.expired();
-	}
-	template<class T>
-	T *util::WeakHandle<T>::get() const
-	{
-		return m_ptr.lock().get();
-	}
-	template<class T>
-	void util::WeakHandle<T>::reset()
-	{
-		m_ptr = {};
-	}
 }

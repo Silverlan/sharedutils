@@ -26,19 +26,18 @@ export {
 			ScopeGuard &operator=(Callable &&undo_func);
 			ScopeGuard &operator=(ScopeGuard &&other);
 		};
+		template<class Callable>
+		util::ScopeGuard &ScopeGuard::operator=(Callable &&undo_func)
+		{
+			if(f != nullptr)
+				f();
+			f = std::forward<Callable>(undo_func);
+			return *this;
+		}
+
+		template<class Callable>
+		ScopeGuard::ScopeGuard(Callable &&undo_func) : f(std::forward<Callable>(undo_func))
+		{
+		}
 	};
-
-	template<class Callable>
-	util::ScopeGuard &util::ScopeGuard::operator=(Callable &&undo_func)
-	{
-		if(f != nullptr)
-			f();
-		f = std::forward<Callable>(undo_func);
-		return *this;
-	}
-
-	template<class Callable>
-	util::ScopeGuard::ScopeGuard(Callable &&undo_func) : f(std::forward<Callable>(undo_func))
-	{
-	}
 }

@@ -3,6 +3,11 @@
 
 module;
 
+#include <optional>
+
+#include <vector>
+#include <functional>
+
 #include <cassert>
 #include <utility>
 #include <memory>

@@ -3,6 +3,10 @@
 
 module;
 
+#include <optional>
+
+#include <functional>
+
 #include <filesystem>
 #include <algorithm>
 #ifdef __linux__

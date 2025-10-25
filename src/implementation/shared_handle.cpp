@@ -3,6 +3,8 @@
 
 module;
 
+#include <memory>
+
 module pragma.util;
 
 import :shared_handle;

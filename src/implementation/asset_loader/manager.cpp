@@ -3,6 +3,10 @@
 
 module;
 
+#include <thread>
+
+#include <optional>
+
 #include <cctype>
 #include <cassert>
 #include <mutex>

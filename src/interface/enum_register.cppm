@@ -8,6 +8,10 @@ module;
 #include <mutex>
 #include <cinttypes>
 
+#include <string>
+
+#include <functional>
+
 export module pragma.util:enum_register;
 
 export import :function_callback;

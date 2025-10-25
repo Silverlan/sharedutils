@@ -3,6 +3,8 @@
 
 module;
 
+#include <cinttypes>
+
 module pragma.util;
 
 import :property_vector;

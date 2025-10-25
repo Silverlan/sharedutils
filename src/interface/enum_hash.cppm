@@ -4,6 +4,7 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
+#include <stddef.h>
 #include <cstring>
 
 export module pragma.util:enum_hash;
@@ -15,11 +16,12 @@ export {
 			template<typename T>
 			std::size_t operator()(T t) const;
 		};
-	};
 
-	template<typename T>
-	std::size_t util::EnumHash::operator()(T t) const
-	{
-		return static_cast<std::size_t>(t);
-	}
+
+		template<typename T>
+		std::size_t EnumHash::operator()(T t) const
+		{
+			return static_cast<std::size_t>(t);
+		}
+	};
 }

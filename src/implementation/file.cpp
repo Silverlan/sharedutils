@@ -3,6 +3,11 @@
 
 module;
 
+#include <optional>
+#include <string>
+
+#include <functional>
+
 module pragma.util;
 
 import :file;

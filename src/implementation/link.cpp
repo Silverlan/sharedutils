@@ -3,6 +3,8 @@
 
 module;
 
+#include <functional>
+
 #ifdef _WIN32
 #include <windows.h>
 #include <winnls.h>
@@ -12,6 +14,9 @@ module;
 #include <shlguid.h>
 #include <strsafe.h>
 #include <array>
+#include <filesystem>
+#elif __linux__
+#include <unistd.h>
 #include <filesystem>
 #endif
 
@@ -156,8 +161,6 @@ bool util::link_exists(const std::string &lnkPath)
 	return std::filesystem::exists(fullLnkPath);
 }
 #else
-#include <unistd.h>
-#include <filesystem>
 
 bool util::create_link(const std::string &srcPath, const std::string &lnkPath) { return symlink(srcPath.c_str(), lnkPath.c_str()) == 0; }
 bool util::resolve_link(const std::string &lnkPath, std::string &outResolvedPath)

@@ -7,6 +7,8 @@ module;
 #include <vector>
 #include <memory>
 
+#include <functional>
+
 export module pragma.util:overridable;
 
 export import :function_callback;

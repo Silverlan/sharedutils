@@ -7,6 +7,11 @@ module;
 #include <optional>
 #include <string>
 
+#include <cinttypes>
+#include <memory>
+
+#include <functional>
+
 export module pragma.util:asset_loader.file_processor;
 
 export import :asset_loader.format_handler;

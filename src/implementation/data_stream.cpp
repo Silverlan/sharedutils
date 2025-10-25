@@ -3,6 +3,12 @@
 
 module;
 
+#include <memory>
+
+#include <cinttypes>
+
+#include <functional>
+
 #include <cstring>
 #include <iostream>
 #include <stdexcept>
@@ -11,23 +17,23 @@ module pragma.util;
 
 import :data_stream;
 
-DataStreamBase::DataStreamBase(uint32_t size, uint32_t headerSize) : m_data(new std::vector<uint8_t>()), m_offset(0), m_size(new uint32_t(size)), m_dataSize(size), m_headerSize(headerSize)
+util::DataStreamBase::DataStreamBase(uint32_t size, uint32_t headerSize) : m_data(new std::vector<uint8_t>()), m_offset(0), m_size(new uint32_t(size)), m_dataSize(size), m_headerSize(headerSize)
 {
 	m_data->resize(headerSize);
 	m_rawData = m_data.get()->data() + headerSize;
 }
 
-DataStreamBase::DataStreamBase() : m_data(new std::vector<uint8_t>()), m_offset(0), m_size(nullptr), m_dataSize(0) { m_rawData = m_data.get()->data(); }
+util::DataStreamBase::DataStreamBase() : m_data(new std::vector<uint8_t>()), m_offset(0), m_size(nullptr), m_dataSize(0) { m_rawData = m_data.get()->data(); }
 
-DataStreamBase::DataStreamBase(void *data, uint32_t size) : m_data(nullptr), m_rawData(static_cast<uint8_t *>(data)), m_size(std::make_unique<uint32_t>(size)), m_dataSize(size) {}
+util::DataStreamBase::DataStreamBase(void *data, uint32_t size) : m_data(nullptr), m_rawData(static_cast<uint8_t *>(data)), m_size(std::make_unique<uint32_t>(size)), m_dataSize(size) {}
 
-DataStreamBase::~DataStreamBase()
+util::DataStreamBase::~DataStreamBase()
 {
 	m_data = nullptr;
 	m_size = nullptr;
 }
 
-void DataStreamBase::SetHeaderSize(uint32_t sz)
+void util::DataStreamBase::SetHeaderSize(uint32_t sz)
 {
 	if(m_data == nullptr)
 		throw std::logic_error("Unable to change header size for external memory data!");
@@ -36,21 +42,21 @@ void DataStreamBase::SetHeaderSize(uint32_t sz)
 	m_rawData = m_data.get()->data() + m_headerSize;
 }
 
-uint32_t DataStreamBase::GetHeaderSize() const { return m_headerSize; }
-void DataStreamBase::SetHeaderData(const void *data)
+uint32_t util::DataStreamBase::GetHeaderSize() const { return m_headerSize; }
+void util::DataStreamBase::SetHeaderData(const void *data)
 {
 	if(m_data->size() < GetHeaderSize())
 		throw std::out_of_range("Header data out of data stream range!");
 	memcpy(m_data->data(), data, GetHeaderSize());
 }
-void DataStreamBase::Reserve(uint32_t size)
+void util::DataStreamBase::Reserve(uint32_t size)
 {
 	if(m_data == nullptr)
 		return;
 	m_data->reserve(size);
 }
 
-void DataStreamBase::Resize(uint32_t sz, bool bForceResize)
+void util::DataStreamBase::Resize(uint32_t sz, bool bForceResize)
 {
 	if(m_data == nullptr || (bForceResize == false && sz + m_headerSize <= m_data->size()))
 		return;
@@ -60,7 +66,7 @@ void DataStreamBase::Resize(uint32_t sz, bool bForceResize)
 		m_offset = static_cast<uint32_t>(m_data->size() - m_headerSize);
 }
 
-void DataStreamBase::Write(const uint8_t *c, uint32_t size)
+void util::DataStreamBase::Write(const uint8_t *c, uint32_t size)
 {
 	Resize(m_offset + size);
 	size = GetClampedSize(size);
@@ -70,7 +76,7 @@ void DataStreamBase::Write(const uint8_t *c, uint32_t size)
 	m_offset += size;
 	m_dataSize = umath::max(m_dataSize, m_offset);
 }
-void DataStreamBase::Write(const uint8_t *c, uint32_t size, uint32_t pos)
+void util::DataStreamBase::Write(const uint8_t *c, uint32_t size, uint32_t pos)
 {
 	Resize(pos + size);
 	size = GetClampedSize(size);
@@ -79,26 +85,26 @@ void DataStreamBase::Write(const uint8_t *c, uint32_t size, uint32_t pos)
 	memcpy(&m_rawData[pos], &c[0], size);
 	m_dataSize = umath::max(m_dataSize, pos + size);
 }
-DataStreamBase &DataStreamBase::operator<<(const std::string &str)
+util::DataStreamBase &util::DataStreamBase::operator<<(const std::string &str)
 {
 	WriteString(str);
 	return *this;
 }
-DataStreamBase &DataStreamBase::operator<<(const char *str)
+util::DataStreamBase &util::DataStreamBase::operator<<(const char *str)
 {
 	WriteString(str);
 	return *this;
 }
-void DataStreamBase::SetOffset(uint32_t offset) { m_offset = offset; }
+void util::DataStreamBase::SetOffset(uint32_t offset) { m_offset = offset; }
 
-void DataStreamBase::SetMessageSize(uint32_t size)
+void util::DataStreamBase::SetMessageSize(uint32_t size)
 {
 	if(m_size == nullptr)
 		m_size = std::make_unique<uint32_t>();
 	*m_size = size;
 }
 
-void DataStreamBase::Invalidate()
+void util::DataStreamBase::Invalidate()
 {
 	if(m_size != nullptr)
 		*m_size = 0;
@@ -106,17 +112,17 @@ void DataStreamBase::Invalidate()
 	m_offset = 0;
 }
 
-uint8_t *DataStreamBase::GetData(bool bIncludeHeaderData) { return (bIncludeHeaderData == false) ? m_rawData : (m_rawData - GetHeaderSize()); }
-uint32_t DataStreamBase::GetDataSize() const { return m_dataSize; }
-uint32_t DataStreamBase::GetInternalSize() const { return static_cast<uint32_t>((m_data != nullptr) ? m_data->size() : m_dataSize); }
-uint32_t DataStreamBase::GetClampedSize(uint32_t sz) const { return GetClampedSize(sz, m_offset); }
-uint32_t DataStreamBase::GetClampedSize(uint32_t sz, uint32_t offset) const
+uint8_t *util::DataStreamBase::GetData(bool bIncludeHeaderData) { return (bIncludeHeaderData == false) ? m_rawData : (m_rawData - GetHeaderSize()); }
+uint32_t util::DataStreamBase::GetDataSize() const { return m_dataSize; }
+uint32_t util::DataStreamBase::GetInternalSize() const { return static_cast<uint32_t>((m_data != nullptr) ? m_data->size() : m_dataSize); }
+uint32_t util::DataStreamBase::GetClampedSize(uint32_t sz) const { return GetClampedSize(sz, m_offset); }
+uint32_t util::DataStreamBase::GetClampedSize(uint32_t sz, uint32_t offset) const
 {
 	auto dataSize = (m_data != nullptr) ? (m_data->size() - m_headerSize) : m_dataSize;
 	return static_cast<uint32_t>(((offset + sz) >= dataSize) ? (dataSize - offset) : sz);
 }
 
-void DataStreamBase::WriteString(const std::string &str, Bool bNullTerminated)
+void util::DataStreamBase::WriteString(const std::string &str, Bool bNullTerminated)
 {
 	auto len = str.length();
 	Resize(static_cast<uint32_t>(m_offset + len + 1));
@@ -131,13 +137,13 @@ void DataStreamBase::WriteString(const std::string &str, Bool bNullTerminated)
 	m_dataSize = umath::max(m_dataSize, m_offset);
 }
 
-void DataStreamBase::WriteString(const char *str, Bool bNullTerminated)
+void util::DataStreamBase::WriteString(const char *str, Bool bNullTerminated)
 {
 	std::string s(str);
 	WriteString(s, bNullTerminated);
 }
 
-void DataStreamBase::AdjustSize(uint32_t offset, uint32_t &sz)
+void util::DataStreamBase::AdjustSize(uint32_t offset, uint32_t &sz)
 {
 	if(m_data == nullptr)
 		return;
@@ -150,7 +156,7 @@ void DataStreamBase::AdjustSize(uint32_t offset, uint32_t &sz)
 		sz = static_cast<uint32_t>(szData) - offset;
 }
 
-void DataStreamBase::Read(void *dst, uint32_t size)
+void util::DataStreamBase::Read(void *dst, uint32_t size)
 {
 	if(Eof()) {
 		memset(dst, 0, size);
@@ -166,9 +172,9 @@ void DataStreamBase::Read(void *dst, uint32_t size)
 	m_offset += size;
 }
 
-bool DataStreamBase::Eof() { return (m_offset >= ((m_data != nullptr) ? m_data->size() : m_dataSize)) ? true : false; }
+bool util::DataStreamBase::Eof() { return (m_offset >= ((m_data != nullptr) ? m_data->size() : m_dataSize)) ? true : false; }
 
-std::string DataStreamBase::ReadUntil(const std::string &pattern)
+std::string util::DataStreamBase::ReadUntil(const std::string &pattern)
 {
 	if(Eof() || pattern.empty())
 		return "";
@@ -188,8 +194,8 @@ std::string DataStreamBase::ReadUntil(const std::string &pattern)
 	} while(match < lenPattern && !Eof());
 	return r;
 }
-std::string DataStreamBase::ReadLine() { return ReadUntil("\n"); }
-std::string DataStreamBase::ReadString()
+std::string util::DataStreamBase::ReadLine() { return ReadUntil("\n"); }
+std::string util::DataStreamBase::ReadString()
 {
 	if(Eof())
 		return "";
@@ -204,7 +210,7 @@ std::string DataStreamBase::ReadString()
 	}
 	return r;
 }
-std::string DataStreamBase::ReadString(UInt32 len)
+std::string util::DataStreamBase::ReadString(UInt32 len)
 {
 	if(Eof() || len == 0)
 		return "";
@@ -219,21 +225,21 @@ std::string DataStreamBase::ReadString(UInt32 len)
 	}
 	return r;
 }
-DataStreamBase &DataStreamBase::operator>>(std::string &str)
+util::DataStreamBase &util::DataStreamBase::operator>>(std::string &str)
 {
 	str = ReadString();
 	return *this;
 }
 
-uint32_t DataStreamBase::GetSize() const
+uint32_t util::DataStreamBase::GetSize() const
 {
 	if(m_size != nullptr)
 		return *m_size;
 	return m_offset;
 }
-uint32_t DataStreamBase::GetOffset() const { return m_offset; }
+uint32_t util::DataStreamBase::GetOffset() const { return m_offset; }
 
-std::ostream &operator<<(std::ostream &out, const DataStream &o)
+std::ostream &operator<<(std::ostream &out, const util::DataStream &o)
 {
 	out << "DataStream";
 	out << "[Size:" << o->GetSize() << "]";

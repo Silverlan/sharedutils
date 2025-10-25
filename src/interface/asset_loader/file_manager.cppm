@@ -7,6 +7,10 @@ module;
 #include <memory>
 #include <string>
 
+#include <optional>
+#include <vector>
+#include <functional>
+
 export module pragma.util:asset_loader.file_manager;
 
 export import :asset_loader.format_handler;

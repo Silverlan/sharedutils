@@ -6,6 +6,8 @@ module;
 #include "sharedutils/utildefinitions.h"
 #include <string>
 
+#include <memory>
+
 export module pragma.util:property_euler_angles;
 
 export import :property;

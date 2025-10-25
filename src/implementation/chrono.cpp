@@ -3,6 +3,10 @@
 
 module;
 
+#include <optional>
+
+#include <functional>
+
 #include <cinttypes>
 #include <chrono>
 

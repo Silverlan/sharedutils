@@ -42,13 +42,12 @@ export {
 			bool m_freeOnDestruct = true;
 			std::string m_name;
 		};
+		template<typename TFunc>
+		TFunc Library::FindSymbolAddress(const std::string &name) const
+		{
+			return reinterpret_cast<TFunc>(FindSymbolAddress(name));
+		}
 	};
-
-	template<typename TFunc>
-	TFunc util::Library::FindSymbolAddress(const std::string &name) const
-	{
-		return reinterpret_cast<TFunc>(FindSymbolAddress(name));
-	}
 }
 
 #endif

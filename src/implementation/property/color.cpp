@@ -3,6 +3,8 @@
 
 module;
 
+#include <string>
+
 module pragma.util;
 
 import :property_color;

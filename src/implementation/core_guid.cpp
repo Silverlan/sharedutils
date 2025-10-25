@@ -20,6 +20,10 @@ THE SOFTWARE.
 
 module;
 
+#include <optional>
+
+#include <functional>
+
 #include <cstring>
 #include <cstdio>
 #include <string>

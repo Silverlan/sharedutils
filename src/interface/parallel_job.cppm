@@ -169,55 +169,55 @@ export {
 
 		template<typename TJob, typename... TARGS>
 		ParallelJob<typename TJob::RESULT_TYPE> create_parallel_job(TARGS &&...args);
+
+		template<typename TJob, typename... TARGS>
+		ParallelJob<typename TJob::RESULT_TYPE> create_parallel_job(TARGS &&...args)
+		{
+			auto job = std::shared_ptr<TJob> {new TJob {std::forward<TARGS>(args)...}, [](TJob *job) {
+												// These have to ben run before the destructor!
+												job->Cancel();
+												job->Wait();
+
+												delete job;
+											}};
+			if(job->IsValid() == false)
+				return {};
+			return ParallelJob<typename TJob::RESULT_TYPE> {*job};
+		}
+
+		template<typename T>
+		ParallelJob<T>::ParallelJob(ParallelWorker<T> &worker) : BaseParallelJob {worker}
+		{
+		}
+
+		template<typename T>
+		ParallelJob<T>::ParallelJob() : BaseParallelJob {}
+		{
+		}
+
+		template<typename T>
+		T ParallelJob<T>::GetResult()
+		{
+			return static_cast<ParallelWorker<T> &>(*m_worker).GetResult();
+		}
+
+		template<typename T>
+		ParallelWorker<T> &ParallelJob<T>::GetWorker()
+		{
+			return static_cast<ParallelWorker<T> &>(*m_worker);
+		}
+		template<typename T>
+		const ParallelWorker<T> &ParallelJob<T>::GetWorker() const
+		{
+			return const_cast<ParallelJob<T> *>(this)->GetWorker();
+		}
+
+		template<typename T>
+		ParallelJob<T>::operator ParallelJobWrapper()
+		{
+			return ParallelJobWrapper::Create(*this);
+		}
 	};
 
 	DLLSHUTIL std::ostream &operator<<(std::ostream &out, const util::BaseParallelJob &o);
-
-	template<typename TJob, typename... TARGS>
-	util::ParallelJob<typename TJob::RESULT_TYPE> util::create_parallel_job(TARGS &&...args)
-	{
-		auto job = std::shared_ptr<TJob> {new TJob {std::forward<TARGS>(args)...}, [](TJob *job) {
-											// These have to ben run before the destructor!
-											job->Cancel();
-											job->Wait();
-
-											delete job;
-										}};
-		if(job->IsValid() == false)
-			return {};
-		return util::ParallelJob<typename TJob::RESULT_TYPE> {*job};
-	}
-
-	template<typename T>
-	util::ParallelJob<T>::ParallelJob(ParallelWorker<T> &worker) : BaseParallelJob {worker}
-	{
-	}
-
-	template<typename T>
-	util::ParallelJob<T>::ParallelJob() : BaseParallelJob {}
-	{
-	}
-
-	template<typename T>
-	T util::ParallelJob<T>::GetResult()
-	{
-		return static_cast<ParallelWorker<T> &>(*m_worker).GetResult();
-	}
-
-	template<typename T>
-	util::ParallelWorker<T> &util::ParallelJob<T>::GetWorker()
-	{
-		return static_cast<ParallelWorker<T> &>(*m_worker);
-	}
-	template<typename T>
-	const util::ParallelWorker<T> &util::ParallelJob<T>::GetWorker() const
-	{
-		return const_cast<util::ParallelJob<T> *>(this)->GetWorker();
-	}
-
-	template<typename T>
-	util::ParallelJob<T>::operator util::ParallelJobWrapper()
-	{
-		return ParallelJobWrapper::Create(*this);
-	}
 }

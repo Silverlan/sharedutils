@@ -49,20 +49,20 @@ export {
 			std::chrono::seconds GetStageProfilingTimeS(uint32_t stage) const;
 			const std::unordered_map<uint32_t, std::shared_ptr<Stage>> &GetProfilingStages() const;
 		};
+
+		template<class T>
+		long long CPUTimer::GetDeltaTime() const
+		{
+			return std::chrono::duration_cast<T>(GetDeltaTime()).count();
+		}
+
+		template<class T>
+		T CPUProfiler::GetStageProfilingTime(uint32_t stage) const
+		{
+			auto it = m_stages.find(stage);
+			if(it == m_stages.end())
+				return T(0);
+			return std::chrono::duration_cast<T>(it->second->duration);
+		}
 	};
-
-	template<class T>
-	long long util::CPUTimer::GetDeltaTime() const
-	{
-		return std::chrono::duration_cast<T>(GetDeltaTime()).count();
-	}
-
-	template<class T>
-	T util::CPUProfiler::GetStageProfilingTime(uint32_t stage) const
-	{
-		auto it = m_stages.find(stage);
-		if(it == m_stages.end())
-			return T(0);
-		return std::chrono::duration_cast<T>(it->second->duration);
-	}
 }

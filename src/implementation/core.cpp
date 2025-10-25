@@ -3,6 +3,8 @@
 
 module;
 
+#include <functional>
+
 #include <sstream>
 #include <iomanip>
 #include <cstring>

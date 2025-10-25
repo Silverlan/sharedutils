@@ -33,6 +33,8 @@
 
 module;
 
+#include <functional>
+
 #include <algorithm>
 #include <stdexcept>
 

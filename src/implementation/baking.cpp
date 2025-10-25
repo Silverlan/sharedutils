@@ -1,5 +1,9 @@
 module;
 
+#include <cinttypes>
+
+#include <functional>
+
 #include <cmath>
 #include <cfloat>
 

@@ -6,6 +6,9 @@ module;
 #include "sharedutils/utildefinitions.h"
 #include <string>
 #include <memory>
+#include <functional>
+
+#include <optional>
 
 export module pragma.util:asset_loader.format_loader;
 

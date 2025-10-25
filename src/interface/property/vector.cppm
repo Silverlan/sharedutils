@@ -5,6 +5,8 @@ module;
 
 #include "sharedutils/utildefinitions.h"
 
+#include <memory>
+
 export module pragma.util:property_vector;
 
 export import :property;
@@ -96,36 +98,38 @@ export {
 	};
 	#pragma warning(pop)
 
-	template<class TVectorProperty, class TVector>
-	util::SimpleVectorProperty<TVectorProperty, TVector>::SimpleVectorProperty() : SimpleProperty<TVectorProperty, TVector>()
-	{
-	}
-	template<class TVectorProperty, class TVector>
-	util::SimpleVectorProperty<TVectorProperty, TVector>::SimpleVectorProperty(const TVector &v) : SimpleProperty<TVectorProperty, TVector>(v)
-	{
-	}
-	template<class TVectorProperty, class TVector>
-	util::SimpleVectorProperty<TVectorProperty, TVector> &util::SimpleVectorProperty<TVectorProperty, TVector>::operator/=(float f)
-	{
-		this->m_value /= f;
-		return *this;
-	}
-	template<class TVectorProperty, class TVector>
-	util::SimpleVectorProperty<TVectorProperty, TVector> &util::SimpleVectorProperty<TVectorProperty, TVector>::operator*=(float f)
-	{
-		this->m_value *= f;
-		return *this;
-	}
-	template<class TVectorProperty, class TVector>
-	util::SimpleVectorProperty<TVectorProperty, TVector> &util::SimpleVectorProperty<TVectorProperty, TVector>::operator+=(const TVector &other)
-	{
-		this->m_value += other;
-		return *this;
-	}
-	template<class TVectorProperty, class TVector>
-	util::SimpleVectorProperty<TVectorProperty, TVector> &util::SimpleVectorProperty<TVectorProperty, TVector>::operator-=(const TVector &other)
-	{
-		this->m_value -= other;
-		return *this;
+	namespace util {
+		template<class TVectorProperty, class TVector>
+		SimpleVectorProperty<TVectorProperty, TVector>::SimpleVectorProperty() : SimpleProperty<TVectorProperty, TVector>()
+		{
+		}
+		template<class TVectorProperty, class TVector>
+		SimpleVectorProperty<TVectorProperty, TVector>::SimpleVectorProperty(const TVector &v) : SimpleProperty<TVectorProperty, TVector>(v)
+		{
+		}
+		template<class TVectorProperty, class TVector>
+		SimpleVectorProperty<TVectorProperty, TVector> &SimpleVectorProperty<TVectorProperty, TVector>::operator/=(float f)
+		{
+			this->m_value /= f;
+			return *this;
+		}
+		template<class TVectorProperty, class TVector>
+		SimpleVectorProperty<TVectorProperty, TVector> &SimpleVectorProperty<TVectorProperty, TVector>::operator*=(float f)
+		{
+			this->m_value *= f;
+			return *this;
+		}
+		template<class TVectorProperty, class TVector>
+		SimpleVectorProperty<TVectorProperty, TVector> &SimpleVectorProperty<TVectorProperty, TVector>::operator+=(const TVector &other)
+		{
+			this->m_value += other;
+			return *this;
+		}
+		template<class TVectorProperty, class TVector>
+		SimpleVectorProperty<TVectorProperty, TVector> &SimpleVectorProperty<TVectorProperty, TVector>::operator-=(const TVector &other)
+		{
+			this->m_value -= other;
+			return *this;
+		}
 	}
 }

@@ -3,6 +3,9 @@
 
 module;
 
+#include <cinttypes>
+#include <string>
+
 #include <algorithm>
 
 module pragma.util;

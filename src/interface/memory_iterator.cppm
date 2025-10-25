@@ -42,66 +42,65 @@ export {
 			T *m_base = nullptr;
 			size_t m_count = 0;
 		};
+		template<class T>
+		MemoryIteratorBase<T>::MemoryIteratorBase(T &value) : m_value {&value}
+		{
+		}
+
+		template<class T>
+		const MemoryIteratorBase<T>::value_type &MemoryIteratorBase<T>::operator++()
+		{
+			m_value++;
+			return *m_value;
+		}
+		template<class T>
+		const MemoryIteratorBase<T>::value_type &MemoryIteratorBase<T>::operator++(int)
+		{
+			m_value++;
+			return *m_value;
+		}
+		template<class T>
+		const MemoryIteratorBase<T>::value_type &MemoryIteratorBase<T>::operator--()
+		{
+			m_value--;
+			return *m_value;
+		}
+		template<class T>
+		const MemoryIteratorBase<T>::value_type &MemoryIteratorBase<T>::operator--(int)
+		{
+			m_value--;
+			return *m_value;
+		}
+		template<class T>
+		const MemoryIteratorBase<T>::value_type &MemoryIteratorBase<T>::operator*() const
+		{
+			return *m_value;
+		}
+
+		template<class T>
+		bool MemoryIteratorBase<T>::operator==(const MemoryIteratorBase<T> &other) const
+		{
+			return m_value == other.m_value;
+		}
+		template<class T>
+		bool MemoryIteratorBase<T>::operator!=(const MemoryIteratorBase<T> &other) const
+		{
+			return !operator==(other);
+		}
+
+		template<class T>
+		TMemoryIterator<T>::TMemoryIterator(T *t, size_t count) : m_base {t}, m_count {count}
+		{
+		}
+		template<class T>
+		MemoryIteratorBase<T> TMemoryIterator<T>::begin() const
+		{
+			return MemoryIteratorBase<T> {*m_base};
+		}
+		template<class T>
+		MemoryIteratorBase<T> TMemoryIterator<T>::end() const
+		{
+			return MemoryIteratorBase<T> {*(m_base + m_count)};
+		}
 	};
-
-	template<class T>
-	util::MemoryIteratorBase<T>::MemoryIteratorBase(T &value) : m_value {&value}
-	{
-	}
-
-	template<class T>
-	const util::MemoryIteratorBase<T>::value_type &util::MemoryIteratorBase<T>::operator++()
-	{
-		m_value++;
-		return *m_value;
-	}
-	template<class T>
-	const util::MemoryIteratorBase<T>::value_type &util::MemoryIteratorBase<T>::operator++(int)
-	{
-		m_value++;
-		return *m_value;
-	}
-	template<class T>
-	const util::MemoryIteratorBase<T>::value_type &util::MemoryIteratorBase<T>::operator--()
-	{
-		m_value--;
-		return *m_value;
-	}
-	template<class T>
-	const util::MemoryIteratorBase<T>::value_type &util::MemoryIteratorBase<T>::operator--(int)
-	{
-		m_value--;
-		return *m_value;
-	}
-	template<class T>
-	const util::MemoryIteratorBase<T>::value_type &util::MemoryIteratorBase<T>::operator*() const
-	{
-		return *m_value;
-	}
-
-	template<class T>
-	bool util::MemoryIteratorBase<T>::operator==(const MemoryIteratorBase<T> &other) const
-	{
-		return m_value == other.m_value;
-	}
-	template<class T>
-	bool util::MemoryIteratorBase<T>::operator!=(const MemoryIteratorBase<T> &other) const
-	{
-		return !operator==(other);
-	}
-
-	template<class T>
-	util::TMemoryIterator<T>::TMemoryIterator(T *t, size_t count) : m_base {t}, m_count {count}
-	{
-	}
-	template<class T>
-	util::MemoryIteratorBase<T> util::TMemoryIterator<T>::begin() const
-	{
-		return MemoryIteratorBase<T> {*m_base};
-	}
-	template<class T>
-	util::MemoryIteratorBase<T> util::TMemoryIterator<T>::end() const
-	{
-		return MemoryIteratorBase<T> {*(m_base + m_count)};
-	}
 }

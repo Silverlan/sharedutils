@@ -3,6 +3,10 @@
 
 module;
 
+#include <optional>
+
+#include <functional>
+
 #include <iostream>
 #include <algorithm>
 #include <thread>

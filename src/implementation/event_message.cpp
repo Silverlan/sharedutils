@@ -3,6 +3,12 @@
 
 module;
 
+#include <string>
+
+#include <optional>
+
+#include <functional>
+
 module pragma.util;
 
 import :event_message;
@@ -14,15 +20,15 @@ std::string EventMessage::GetMessage() const
 		return "";
 	return ptr->GetMessage();
 }
-DataStreamBase *EventMessage::operator->()
+util::DataStreamBase *EventMessage::operator->()
 {
 	auto *ptr = get();
 	return ptr->get();
 }
 
-DataStreamBase &EventMessage::operator<<(const std::string &str) { return (*this->get()) << str; }
-DataStreamBase &EventMessage::operator<<(const char *str) { return (*this->get()) << str; }
-DataStreamBase &EventMessage::operator>>(std::string &str) { return (*this->get()) << str; }
+util::DataStreamBase &EventMessage::operator<<(const std::string &str) { return (*this->get()) << str; }
+util::DataStreamBase &EventMessage::operator<<(const char *str) { return (*this->get()) << str; }
+util::DataStreamBase &EventMessage::operator>>(std::string &str) { return (*this->get()) << str; }
 
 ///////////////////////
 

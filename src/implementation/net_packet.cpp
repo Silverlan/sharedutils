@@ -3,6 +3,10 @@
 
 module;
 
+#include <cinttypes>
+
+#include <functional>
+
 #include <iostream>
 #include <cstring>
 #include <array>

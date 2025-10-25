@@ -16,6 +16,8 @@
 
 module;
 
+#include <functional>
+
 #if defined(_MSC_VER) && (_MSC_VER < 1600)
 
 typedef unsigned char uint8_t;

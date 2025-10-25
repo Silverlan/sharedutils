@@ -3,6 +3,8 @@
 
 module;
 
+#include <thread>
+#include <memory>
 #include <algorithm>
 #include <functional>
 #include "sharedutils/magic_enum.hpp"

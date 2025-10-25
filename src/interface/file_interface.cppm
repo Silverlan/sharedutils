@@ -10,6 +10,8 @@ module;
 #include <vector>
 #include <sstream>
 
+#include <memory>
+
 export module pragma.util:file_interface;
 
 export namespace ufile {

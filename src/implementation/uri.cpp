@@ -1,5 +1,7 @@
 module;
 
+#include <functional>
+
 #include "sharedutils/utildefinitions.h"
 #include <uriparser/Uri.h>
 #include <limits>
