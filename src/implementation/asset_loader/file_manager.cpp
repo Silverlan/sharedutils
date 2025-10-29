@@ -13,6 +13,7 @@ module;
 #include <memory>
 #include <mutex>
 #include <string>
+#include <algorithm>
 
 module pragma.util;
 
