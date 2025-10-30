@@ -4,10 +4,6 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include <vector>
-#include <cinttypes>
-#include <memory>
-#include <functional>
 
 export module pragma.util:property;
 

@@ -4,23 +4,11 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include <string>
-#include <vector>
-#include <array>
-#include <unordered_map>
-#include <memory>
-#include <thread>
-#include <functional>
-#include <optional>
-#include <charconv>
-#include <algorithm>
 #ifdef _WIN32
 #include <Windows.h>
 #include <winreg.h>
 #else
-#include <ios>
 #endif
-#include <sstream>
 
 export module pragma.util:core;
 

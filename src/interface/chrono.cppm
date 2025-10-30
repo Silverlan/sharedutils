@@ -4,9 +4,10 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include <chrono>
 
 export module pragma.util:chrono;
+
+export import std.compat;
 
 export {
 	using ChronoTimePoint = std::chrono::time_point<std::chrono::steady_clock>;

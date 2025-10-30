@@ -3,9 +3,10 @@
 
 module;
 
-#include <memory>
 
 export module pragma.util:disarmable_deleter;
+
+export import std.compat;
 
 export namespace util {
 	template<typename T, typename Deleter = typename std::default_delete<T>>

@@ -3,9 +3,10 @@
 
 module;
 
-#include <iterator>
 
 export module pragma.util:memory_iterator;
+
+export import std.compat;
 
 export {
 	namespace util {

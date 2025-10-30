@@ -4,13 +4,8 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include <optional>
-#include <string>
 
-#include <cinttypes>
-#include <memory>
 
-#include <functional>
 
 export module pragma.util:asset_loader.file_processor;
 

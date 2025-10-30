@@ -4,10 +4,10 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include <string>
-#include <memory>
 
 export module pragma.util:shader_info;
+
+export import std.compat;
 
 export namespace util {
 	class DLLSHUTIL ShaderInfo {

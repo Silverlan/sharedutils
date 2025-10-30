@@ -4,17 +4,14 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include <memory>
-#include <string>
-#include <vector>
-#include <optional>
-#include <functional>
 #ifdef _WIN32
 #include <Windows.h>
 #include <DbgHelp.h>
 #endif
 
 export module pragma.util:debug;
+
+export import std.compat;
 
 export {
 	namespace util::debug {

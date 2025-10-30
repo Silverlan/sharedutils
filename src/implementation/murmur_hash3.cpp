@@ -16,7 +16,6 @@
 
 module;
 
-#include <functional>
 
 #if defined(_MSC_VER) && (_MSC_VER < 1600)
 
@@ -28,7 +27,6 @@ typedef unsigned __int64 uint64_t;
 
 #else	// defined(_MSC_VER)
 
-#include <stdint.h>
 
 #endif // !defined(_MSC_VER)
 
@@ -36,7 +34,6 @@ typedef unsigned __int64 uint64_t;
 
 #define FORCE_INLINE	__forceinline
 
-#include <stdlib.h>
 
 #endif
 

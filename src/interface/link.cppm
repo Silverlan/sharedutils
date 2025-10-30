@@ -4,9 +4,10 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include <string>
 
 export module pragma.util:link;
+
+export import std.compat;
 
 export namespace util {
 	DLLSHUTIL bool create_link(const std::string &srcPath, const std::string &lnkPath);

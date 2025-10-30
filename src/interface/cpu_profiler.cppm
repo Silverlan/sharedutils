@@ -4,12 +4,10 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include <unordered_map>
-#include <memory>
-#include <chrono>
-#include <cinttypes>
 
 export module pragma.util:cpu_profiler;
+
+export import std.compat;
 
 export {
 	namespace util {

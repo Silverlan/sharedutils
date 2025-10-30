@@ -3,9 +3,7 @@
 
 module;
 
-#include <cinttypes>
 
-#include <functional>
 
 module pragma.util;
 

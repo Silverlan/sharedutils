@@ -5,9 +5,6 @@ module;
 
 #include "sharedutils/utildefinitions.h"
 #if defined(_WIN32) || defined(__linux__)
-#include <string>
-#include <memory>
-#include <vector>
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -15,6 +12,8 @@ module;
 #endif
 
 export module pragma.util:library;
+
+export import std.compat;
 
 #if defined(_WIN32) || defined(__linux__)
 export {

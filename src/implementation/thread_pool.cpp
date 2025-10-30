@@ -3,10 +3,7 @@
 
 module;
 
-#include <string>
 
-#include <mutex>
-#include <functional>
 
 module pragma.util;
 

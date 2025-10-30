@@ -4,9 +4,10 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include <memory>
 
 export module pragma.util:virtual_shared_from_this;
+
+export import std.compat;
 
 // Source: http://stackoverflow.com/a/16083526/2482983
 #pragma warning(push)

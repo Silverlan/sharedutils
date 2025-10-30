@@ -3,10 +3,7 @@
 
 module;
 
-#include <vector>
-#include <memory>
 
-#include <cstring>
 #include "sharedutils/magic_enum.hpp"
 
 module pragma.util;

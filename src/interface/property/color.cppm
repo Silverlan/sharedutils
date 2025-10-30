@@ -4,9 +4,7 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include <string>
 
-#include <memory>
 
 export module pragma.util:property_color;
 

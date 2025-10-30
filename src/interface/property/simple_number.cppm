@@ -4,10 +4,7 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include <cinttypes>
-#include <type_traits>
 
-#include <memory>
 
 export module pragma.util:property_simple_number;
 

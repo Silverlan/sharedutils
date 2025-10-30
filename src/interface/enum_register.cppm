@@ -4,13 +4,8 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include <vector>
-#include <mutex>
-#include <cinttypes>
 
-#include <string>
 
-#include <functional>
 
 export module pragma.util:enum_register;
 

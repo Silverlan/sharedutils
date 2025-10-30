@@ -4,11 +4,10 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include <cinttypes>
-#include <functional>
-#include <string>
 
 export module pragma.util:log;
+
+export import std.compat;
 
 export namespace util {
 	enum class LogSeverity : uint32_t {

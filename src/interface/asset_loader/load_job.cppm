@@ -4,12 +4,10 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include <cinttypes>
-#include <string>
-#include <memory>
-#include <chrono>
 
 export module pragma.util:asset_loader.load_job;
+
+export import std.compat;
 
 export namespace util {
 	using AssetLoadJobId = uint64_t;

@@ -4,8 +4,6 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include <memory>
-#include <vector>
 
 export module pragma.util:hair;
 

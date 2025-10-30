@@ -4,11 +4,6 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include <string>
-#include <memory>
-#include <vector>
-#include <cstddef>
-#include <cstring>
 
 export module pragma.util:data_stream;
 

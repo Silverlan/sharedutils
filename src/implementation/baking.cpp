@@ -1,11 +1,7 @@
 module;
 
-#include <cinttypes>
 
-#include <functional>
 
-#include <cmath>
-#include <cfloat>
 
 module pragma.util;
 
@@ -14,7 +10,7 @@ import :baking;
 static void bake_differentials(util::baking::BakeDataView &bd, const util::baking::Uv &uv1, const util::baking::Uv &uv2, const util::baking::Uv &uv3)
 {
 	auto A = (uv2[0] - uv1[0]) * (uv3[1] - uv1[1]) - (uv3[0] - uv1[0]) * (uv2[1] - uv1[1]);
-	if(fabsf(A) > FLT_EPSILON) {
+	if(fabsf(A) > std::numeric_limits<float>::epsilon()) {
 		A = 0.5f / A;
 
 		bd.duDx = (uv2[1] - uv3[1]) * A;
@@ -72,7 +68,7 @@ static void zbuf_add_to_span(util::baking::detail::BakeSpanData &zspan, const ut
 		return;
 
 	xx1 = maxv[1] - minv[1];
-	if(xx1 > FLT_EPSILON) {
+	if(xx1 > std::numeric_limits<float>::epsilon()) {
 		dx0 = (minv[0] - maxv[0]) / xx1;
 		xs0 = dx0 * (minv[1] - my2) + minv[0];
 	}

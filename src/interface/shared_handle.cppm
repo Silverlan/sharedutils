@@ -4,10 +4,10 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include <memory>
-#include <functional>
 
 export module pragma.util:shared_handle;
+
+export import std.compat;
 
 export {
 	namespace util {

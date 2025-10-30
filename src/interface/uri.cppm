@@ -2,14 +2,11 @@ module;
 
 #include "sharedutils/utildefinitions.h"
 
-#include <string>
-#include <array>
-#include <cinttypes>
-#include <unordered_map>
 #include "uriparser/Uri.h"
-#include <cstdint>
 
 export module pragma.util:uri;
+
+export import std.compat;
 
 // See https://stackoverflow.com/a/11040947/2482983
 export namespace uriparser {

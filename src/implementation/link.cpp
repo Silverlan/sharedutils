@@ -3,7 +3,6 @@
 
 module;
 
-#include <functional>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -13,11 +12,8 @@ module;
 #include <objidl.h>
 #include <shlguid.h>
 #include <strsafe.h>
-#include <array>
-#include <filesystem>
 #elif __linux__
 #include <unistd.h>
-#include <filesystem>
 #endif
 
 module pragma.util;
@@ -165,11 +161,11 @@ bool util::link_exists(const std::string &lnkPath)
 bool util::create_link(const std::string &srcPath, const std::string &lnkPath) { return symlink(srcPath.c_str(), lnkPath.c_str()) == 0; }
 bool util::resolve_link(const std::string &lnkPath, std::string &outResolvedPath)
 {
-	auto *resolvedPath = realpath(lnkPath.c_str(), nullptr);
-	if(resolvedPath == nullptr)
+	std::error_code ec;
+	std::filesystem::path resolved_path = std::filesystem::canonical(lnkPath, ec); // resolves symlinks, requires target exists
+	if (ec)
 		return false;
-	outResolvedPath = resolvedPath;
-	free(resolvedPath);
+	outResolvedPath = resolved_path.string();
 	return true;
 }
 bool util::link_exists(const std::string &lnkPath) { return std::filesystem::exists(lnkPath); }

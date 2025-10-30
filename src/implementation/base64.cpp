@@ -33,10 +33,7 @@
 
 module;
 
-#include <functional>
 
-#include <algorithm>
-#include <stdexcept>
 
 module pragma.util;
 

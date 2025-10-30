@@ -3,12 +3,7 @@
 
 module;
 
-#include <functional>
 
-#include <sstream>
-#include <iomanip>
-#include <cstring>
-#include <random>
 #ifdef __linux__
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -16,10 +11,7 @@ module;
 #include <dirent.h>
 #include <signal.h>
 #include <glob.h>
-#include <stdlib.h>
-#include <string.h>
 #include <pthread.h>
-#include <stdio.h>
 #include <dlfcn.h>
 #include <unistd.h>
 #include <linux/reboot.h>
@@ -27,18 +19,15 @@ module;
 #include <sys/prctl.h>
 #include <sys/wait.h>
 #include <spawn.h>
-#include <fstream>
 #else
 #include <Windows.h>
 #include <DbgHelp.h>
 #include "Shlwapi.h"
-#include <vector>
 #include <TlHelp32.h>
 #include <comutil.h>
 #include <direct.h>
 #include <Shlobj_core.h>
 #endif
-#include <thread>
 #include "sharedutils/uuid.h"
 
 module pragma.util;

@@ -4,18 +4,11 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include <memory>
-#include <vector>
-#include <optional>
-#include <functional>
-#include <thread>
-#include <atomic>
-#include <mutex>
-#include <cinttypes>
-#include <limits>
 #include <any>
 
 export module pragma.util:parallel_job;
+
+export import std.compat;
 
 #undef max
 

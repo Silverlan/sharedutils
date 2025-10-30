@@ -4,12 +4,10 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include <unordered_map>
-#include <vector>
-#include <string>
-#include <functional>
 
 export module pragma.util:command_manager;
+
+export import std.compat;
 
 export namespace util {
 	class DLLSHUTIL CommandManager {

@@ -3,9 +3,10 @@
 
 module;
 
-#include <algorithm>
 
 export module pragma.util:string_literal;
+
+export import std.compat;
 
 export namespace util {
 	template<size_t N>

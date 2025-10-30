@@ -4,8 +4,6 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include <cinttypes>
-#include <functional>
 
 export module pragma.util:asset_loader.load_info;
 

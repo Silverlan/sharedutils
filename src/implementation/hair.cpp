@@ -3,12 +3,9 @@
 
 module;
 
-#include <optional>
 
-#include <functional>
 
 #include "mathutil/glmutil.h"
-#include <memory>
 
 module pragma.util;
 

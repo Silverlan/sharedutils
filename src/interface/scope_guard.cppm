@@ -4,9 +4,10 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include <functional>
 
 export module pragma.util:scope_guard;
+
+export import std.compat;
 
 export {
 	namespace util {

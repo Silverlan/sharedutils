@@ -4,11 +4,10 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include <unordered_map>
-#include <string>
-#include <string_view>
 
 export module pragma.util:string_map;
+
+export import std.compat;
 
 export namespace util {
 	// See https://en.cppreference.com/w/cpp/container/unordered_map/find

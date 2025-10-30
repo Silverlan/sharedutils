@@ -3,14 +3,11 @@
 
 module;
 
-#include <vector>
-#include <queue>
-#include <memory>
-#include <cinttypes>
 
-#include <algorithm>
 
 export module pragma.util:indexed_vector;
+
+export import std.compat;
 
 export {
 	namespace util {

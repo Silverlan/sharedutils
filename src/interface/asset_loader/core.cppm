@@ -5,14 +5,6 @@ module;
 
 #include "sharedutils/utildefinitions.h"
 #include "sharedutils/ctpl_stl.h"
-#include <string>
-#include <memory>
-#include <optional>
-#include <functional>
-#include <unordered_set>
-#include <mutex>
-#include <queue>
-#include <unordered_map>
 
 export module pragma.util:asset_loader.core;
 

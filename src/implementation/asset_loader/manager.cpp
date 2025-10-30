@@ -3,18 +3,7 @@
 
 module;
 
-#include <thread>
-
-#include <optional>
-
-#include <cctype>
 #include <cassert>
-#include <mutex>
-#include <string>
-#include <string_view>
-#include <memory>
-#include <functional>
-#include <iostream>
 
 module pragma.util;
 

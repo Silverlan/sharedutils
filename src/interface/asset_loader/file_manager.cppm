@@ -4,12 +4,7 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include <memory>
-#include <string>
 
-#include <optional>
-#include <vector>
-#include <functional>
 
 export module pragma.util:asset_loader.file_manager;
 

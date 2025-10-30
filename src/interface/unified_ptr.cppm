@@ -4,9 +4,10 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include <memory>
 
 export module pragma.util:unified_ptr;
+
+export import std.compat;
 
 export {
 	template<class T>

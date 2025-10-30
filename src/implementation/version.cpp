@@ -3,13 +3,9 @@
 
 module;
 
-#include <memory>
 
-#include <optional>
 
-#include <functional>
 
-#include <string>
 
 module pragma.util;
 

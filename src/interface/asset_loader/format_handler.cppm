@@ -4,11 +4,8 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include <string>
 
-#include <memory>
 
-#include <optional>
 
 export module pragma.util:asset_loader.format_handler;
 

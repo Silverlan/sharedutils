@@ -1,12 +1,10 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include <functional>
-#include <cinttypes>
-#include <vector>
-#include <array>
 
 export module pragma.util:baking;
+
+export import std.compat;
 
 export namespace util::baking {
 	struct DLLSHUTIL BakePixel {

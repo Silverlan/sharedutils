@@ -5,7 +5,6 @@ module;
 
 #include "sharedutils/utildefinitions.h"
 
-#include <memory>
 
 export module pragma.util:property_vector;
 

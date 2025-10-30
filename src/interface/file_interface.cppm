@@ -4,15 +4,11 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include <cinttypes>
-#include <optional>
-#include <string>
-#include <vector>
-#include <sstream>
 
-#include <memory>
 
 export module pragma.util:file_interface;
+
+export import std.compat;
 
 export namespace ufile {
 	struct DLLSHUTIL IFile {

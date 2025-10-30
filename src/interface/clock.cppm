@@ -4,10 +4,10 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include <chrono>
-#include <cinttypes>
 
 export module pragma.util:clock;
+
+export import std.compat;
 
 export namespace util {
 	using Clock = std::chrono::steady_clock;

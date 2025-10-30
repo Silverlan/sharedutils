@@ -3,15 +3,9 @@
 
 module;
 
-#include <memory>
 
-#include <cinttypes>
 
-#include <functional>
 
-#include <cstring>
-#include <iostream>
-#include <stdexcept>
 
 module pragma.util;
 

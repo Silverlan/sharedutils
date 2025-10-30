@@ -4,13 +4,10 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include <cinttypes>
-#include <optional>
-#include <string>
-#include <functional>
-#include <memory>
 
 export module pragma.util:asset_loader.processor;
+
+export import std.compat;
 
 export namespace util {
 	class DLLSHUTIL IAssetProcessor {

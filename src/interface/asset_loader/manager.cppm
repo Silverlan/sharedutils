@@ -4,15 +4,6 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include <unordered_map>
-#include <unordered_set>
-#include <optional>
-#include <string>
-#include <vector>
-#include <mutex>
-#include <queue>
-#include <thread>
-#include <memory>
 
 export module pragma.util:asset_loader.manager;
 

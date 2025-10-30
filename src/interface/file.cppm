@@ -4,12 +4,10 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include <string>
-#include <vector>
-#include <optional>
-#include <algorithm>
 
 export module pragma.util:file;
+
+export import std.compat;
 
 export namespace ufile {
 	DLLSHUTIL bool get_extension(const std::string &f, std::string *ext);

@@ -4,11 +4,10 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include <memory>
-#include <functional>
-#include <stdexcept>
 
 export module pragma.util:function_callback;
+
+export import std.compat;
 
 #define COMMA ,
 

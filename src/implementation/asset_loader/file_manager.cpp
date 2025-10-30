@@ -3,17 +3,7 @@
 
 module;
 
-#include <optional>
-
-#include <vector>
-#include <functional>
-
 #include <cassert>
-#include <utility>
-#include <memory>
-#include <mutex>
-#include <string>
-#include <algorithm>
 
 module pragma.util;
 

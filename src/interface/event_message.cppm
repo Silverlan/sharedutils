@@ -4,8 +4,6 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include <memory>
-#include <string>
 
 export module pragma.util:event_message;
 

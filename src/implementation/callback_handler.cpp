@@ -3,12 +3,8 @@
 
 module;
 
-#include <string>
 
-#include <functional>
 
-#include <algorithm>
-#include <assert.h>
 
 module pragma.util;
 

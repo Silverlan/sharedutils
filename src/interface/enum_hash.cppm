@@ -4,10 +4,10 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include <stddef.h>
-#include <cstring>
 
 export module pragma.util:enum_hash;
+
+export import std.compat;
 
 export {
 	namespace util {

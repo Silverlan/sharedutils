@@ -4,8 +4,6 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include <iostream>
-#include <string>
 
 #ifdef __linux__
 #undef major
@@ -13,6 +11,8 @@ module;
 #endif
 
 export module pragma.util:version;
+
+export import std.compat;
 
 export {
 	namespace util {

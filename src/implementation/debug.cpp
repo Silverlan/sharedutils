@@ -5,13 +5,7 @@ module;
 
 #include "sharedutils/magic_enum.hpp"
 
-#include <functional>
 
-#include <sstream>
-#include <vector>
-#include <array>
-#include <mutex>
-#include <optional>
 #include <cpptrace/cpptrace.hpp>
 #ifdef _WIN32
 #include <Windows.h>

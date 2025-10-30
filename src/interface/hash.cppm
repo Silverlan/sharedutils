@@ -4,14 +4,10 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include <limits>
-#include <utility>
-#include <stddef.h>
-#include <type_traits>
-#include <cstdint>
-#include <functional>
 
 export module pragma.util:hash;
+
+export import std.compat;
 
 // Source: https://stackoverflow.com/a/50978188/2482983
 export namespace util {

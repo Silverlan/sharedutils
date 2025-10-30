@@ -4,8 +4,6 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-#include <string>
-#include <cinttypes>
 
 export module pragma.util:markup_file;
 

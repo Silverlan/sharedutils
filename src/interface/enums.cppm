@@ -3,9 +3,10 @@
 
 module;
 
-#include <cinttypes>
 
 export module pragma.util:enums;
+
+export import std.compat;
 
 export {
 	namespace util {

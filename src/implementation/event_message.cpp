@@ -3,11 +3,8 @@
 
 module;
 
-#include <string>
 
-#include <optional>
 
-#include <functional>
 
 module pragma.util;
 
