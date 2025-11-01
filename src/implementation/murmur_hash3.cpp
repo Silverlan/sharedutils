@@ -34,6 +34,7 @@ typedef unsigned __int64 uint64_t;
 
 #define FORCE_INLINE	__forceinline
 
+#include <stdlib.h>
 
 #endif
 

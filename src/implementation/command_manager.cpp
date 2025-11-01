@@ -3,8 +3,6 @@
 
 module;
 
-
-
 #ifdef _WIN32
 #include <Windows.h>
 #endif
@@ -21,7 +19,7 @@ std::vector<std::function<void(std::vector<std::string> &)>> CommandManager::m_f
 void CommandManager::RegisterCommand(const char *cmd, const std::function<void(std::vector<std::string> &)> &f)
 {
 	std::string scmd = cmd;
-	std::transform(scmd.begin(), scmd.end(), scmd.begin(), ::tolower);
+	std::transform(scmd.begin(), scmd.end(), scmd.begin(), [](unsigned char c) -> char { return static_cast<char>(std::tolower(c)); });
 	m_cmds.push_back(scmd);
 	m_functions.push_back(f);
 }
@@ -37,7 +35,7 @@ bool CommandManager::Input(std::string *cmdOut, const std::function<void(const s
 	std::string cmd = args.front();
 	if(cmd.empty())
 		return true;
-	std::transform(cmd.begin(), cmd.end(), cmd.begin(), ::tolower);
+	std::transform(cmd.begin(), cmd.end(), cmd.begin(), [](unsigned char c) -> char { return static_cast<char>(std::tolower(c)); });
 	if(cmdOut != nullptr)
 		*cmdOut = cmd;
 	args.erase(args.begin());
