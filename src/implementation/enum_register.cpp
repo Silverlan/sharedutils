@@ -11,11 +11,10 @@ module pragma.util;
 
 import :enum_register;
 
-decltype(util::EnumRegister::InvalidEnum) util::EnumRegister::InvalidEnum = std::numeric_limits<decltype(util::EnumRegister::InvalidEnum)>::max();
 uint32_t util::EnumRegister::RegisterEnum(const std::string &name)
 {
 	if(name.empty())
-		return InvalidEnum;
+		return INVALID_ENUM;
 	std::scoped_lock lock {m_enumMutex};
 	auto it = std::find(m_enums.begin(), m_enums.end(), name);
 	if(it != m_enums.end())
@@ -45,7 +44,7 @@ bool util::EnumRegister::GetEnumValue(const std::string &name, uint32_t &val) co
 }
 uint32_t util::EnumRegister::GetEnumValue(const std::string &name) const
 {
-	auto r = InvalidEnum;
+	auto r = INVALID_ENUM;
 	GetEnumValue(name, r);
 	return r;
 }

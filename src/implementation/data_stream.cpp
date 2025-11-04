@@ -233,7 +233,7 @@ uint32_t util::DataStreamBase::GetSize() const
 }
 uint32_t util::DataStreamBase::GetOffset() const { return m_offset; }
 
-std::ostream &operator<<(std::ostream &out, const util::DataStream &o)
+std::ostream &util::operator<<(std::ostream &out, const util::DataStream &o)
 {
 	out << "DataStream";
 	out << "[Size:" << o->GetSize() << "]";

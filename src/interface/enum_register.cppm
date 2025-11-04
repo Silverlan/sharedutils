@@ -4,14 +4,17 @@
 module;
 
 #include "sharedutils/utildefinitions.h"
-
+#include <limits>
 
 
 export module pragma.util:enum_register;
 
 export import :function_callback;
 
+#undef max
+
 export namespace util {
+	CONSTEXPR_COMPAT uint32_t INVALID_ENUM = std::numeric_limits<uint32_t>::max();
 	class DLLSHUTIL EnumRegister {
 	  public:
 		uint32_t RegisterEnum(const std::string &name);
@@ -20,7 +23,6 @@ export namespace util {
 		const std::string *GetEnumName(uint32_t val) const;
 		const std::vector<std::string> &GetEnums() const;
 		CallbackHandle CallOnRegister(const std::function<void(std::reference_wrapper<const std::string>, uint32_t)> &f);
-		static const uint32_t InvalidEnum;
 
 		void Lock();
 		void Unlock();
