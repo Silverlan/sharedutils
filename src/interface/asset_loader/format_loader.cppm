@@ -5,7 +5,6 @@ module;
 
 #include "definitions.hpp"
 
-
 export module pragma.util:asset_loader.format_loader;
 
 export import :asset_loader.core;

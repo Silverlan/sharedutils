@@ -12,10 +12,10 @@ export import std.compat;
 export {
 	namespace util {
 		class DLLSHUTIL CPUTimer {
-		private:
+		  private:
 			std::chrono::high_resolution_clock::time_point m_start;
 			std::chrono::high_resolution_clock::time_point m_end;
-		public:
+		  public:
 			CPUTimer();
 			void Begin();
 			void End();
@@ -28,15 +28,15 @@ export {
 		};
 
 		class DLLSHUTIL CPUProfiler {
-		public:
+		  public:
 			struct DLLSHUTIL Stage {
 				Stage();
 				std::chrono::high_resolution_clock::time_point start;
 				std::chrono::nanoseconds duration;
 			};
-		private:
+		  private:
 			std::unordered_map<uint32_t, std::shared_ptr<Stage>> m_stages;
-		public:
+		  public:
 			CPUProfiler();
 			const Stage &StartStageProfiling(uint32_t stage);
 			std::chrono::nanoseconds EndStageProfiling(uint32_t stage, bool addDuration = false);

@@ -3,8 +3,6 @@
 
 module;
 
-
-
 module pragma.util;
 
 import :markup_file;

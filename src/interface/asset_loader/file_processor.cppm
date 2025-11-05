@@ -5,8 +5,6 @@ module;
 
 #include "definitions.hpp"
 
-
-
 export module pragma.util:asset_loader.file_processor;
 
 export import :asset_loader.format_handler;

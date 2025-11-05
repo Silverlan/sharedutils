@@ -9,9 +9,9 @@ import :property;
 
 using namespace util;
 
-util::BoolProperty::BoolProperty() : SimpleProperty<BoolProperty, bool>{} {}
-util::BoolProperty::BoolProperty(const bool &init) : SimpleProperty<BoolProperty, bool>{init} {}
-util::BoolProperty::BoolProperty(const BoolProperty &prop) : SimpleProperty<BoolProperty, bool>{prop} {}
+util::BoolProperty::BoolProperty() : SimpleProperty<BoolProperty, bool> {} {}
+util::BoolProperty::BoolProperty(const bool &init) : SimpleProperty<BoolProperty, bool> {init} {}
+util::BoolProperty::BoolProperty(const BoolProperty &prop) : SimpleProperty<BoolProperty, bool> {prop} {}
 
 void util::BaseProperty::AddCallback(const CallbackHandle &hCallback) { m_callbacks.push_back(hCallback); }
 

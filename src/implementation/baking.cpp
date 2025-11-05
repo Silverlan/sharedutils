@@ -1,8 +1,5 @@
 module;
 
-
-
-
 module pragma.util;
 
 import :baking;

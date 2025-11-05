@@ -5,39 +5,44 @@ module;
 
 #include "definitions.hpp"
 
-
 export module pragma.util:property_transform;
 
 export import :property;
 export import pragma.math;
 
 export {
-	#pragma warning(push)
-	#pragma warning(disable : 4251)
+#pragma warning(push)
+#pragma warning(disable : 4251)
 	namespace util {
 		class DLLSHUTIL TransformProperty : public SimpleProperty<TransformProperty, umath::Transform> {
-		public:
+		  public:
 			TransformProperty();
 			TransformProperty(const umath::Transform &t);
 			TransformProperty(const Vector3 &pos, const Quat &rot);
 			TransformProperty &operator*=(const umath::Transform &other);
 
 			template<class TProperty, class T>
-			TransformProperty &operator=(const T &val) { return static_cast<TransformProperty&>(SimpleProperty<TransformProperty, umath::Transform>::operator=(val)); }
+			TransformProperty &operator=(const T &val)
+			{
+				return static_cast<TransformProperty &>(SimpleProperty<TransformProperty, umath::Transform>::operator=(val));
+			}
 		};
 		using PTransformProperty = std::shared_ptr<TransformProperty>;
 
 		class DLLSHUTIL ScaledTransformProperty : public SimpleProperty<ScaledTransformProperty, umath::ScaledTransform> {
-		public:
+		  public:
 			ScaledTransformProperty();
 			ScaledTransformProperty(const umath::ScaledTransform &t);
 			ScaledTransformProperty(const Vector3 &pos, const Quat &rot, const Vector3 &scale);
 			ScaledTransformProperty &operator*=(const umath::ScaledTransform &other);
 
 			template<class TProperty, class T>
-			ScaledTransformProperty &operator=(const T &val) { return static_cast<ScaledTransformProperty&>(SimpleProperty<ScaledTransformProperty, umath::ScaledTransform>::operator=(val)); }
+			ScaledTransformProperty &operator=(const T &val)
+			{
+				return static_cast<ScaledTransformProperty &>(SimpleProperty<ScaledTransformProperty, umath::ScaledTransform>::operator=(val));
+			}
 		};
 		using PScaledTransformProperty = std::shared_ptr<ScaledTransformProperty>;
 	};
-	#pragma warning(pop)
+#pragma warning(pop)
 }

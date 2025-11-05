@@ -3,8 +3,6 @@
 
 module;
 
-
-
 export module pragma.util:indexed_vector;
 
 export import std.compat;
@@ -13,7 +11,7 @@ export {
 	namespace util {
 		template<typename T, class TPtr = std::shared_ptr<T>>
 		class IndexedVector {
-		public:
+		  public:
 			using Index = uint32_t;
 			using Size = size_t;
 			IndexedVector() = default;
@@ -27,7 +25,7 @@ export {
 			T *Get(Index idx);
 			const T *Get(Index idx) const;
 			void Clear();
-		private:
+		  private:
 			std::vector<TPtr> m_data = {};
 			std::queue<Index> m_freeIndices = {};
 		};

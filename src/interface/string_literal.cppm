@@ -3,7 +3,6 @@
 
 module;
 
-
 export module pragma.util:string_literal;
 
 export import std.compat;

@@ -12,11 +12,11 @@ export import std.compat;
 export {
 	namespace util {
 		class DLLSHUTIL PtrSharedHandleData {
-		public:
+		  public:
 			PtrSharedHandleData(const std::shared_ptr<void> &data);
 			void Invalidate();
 			void *GetData();
-		private:
+		  private:
 			std::shared_ptr<void> m_data = nullptr;
 		};
 
@@ -27,7 +27,7 @@ export {
 
 		template<typename T>
 		class TSharedHandle {
-		public:
+		  public:
 			using value_type = T;
 			friend TWeakSharedHandle<T>;
 			TSharedHandle(const TSharedHandle<T> &) = default;
@@ -59,7 +59,8 @@ export {
 			T *GetRawPtr();
 			void Remove();
 			void Invalidate() { Remove(); }
-			void Release() {
+			void Release()
+			{
 				m_data = nullptr;
 				m_typedPtr = nullptr;
 			}
@@ -90,7 +91,7 @@ export {
 			bool unique() const { return use_count() == 1; }
 
 			const std::shared_ptr<PtrSharedHandleData> &GetInternalData() const;
-		private:
+		  private:
 			std::shared_ptr<PtrSharedHandleData> m_data = nullptr;
 			T *m_typedPtr = nullptr;
 		};
@@ -104,7 +105,7 @@ export {
 
 		template<typename T>
 		class TWeakSharedHandle {
-		public:
+		  public:
 			using value_type = T;
 			template<class TSrc, class TDst>
 			friend TWeakSharedHandle<TDst> weak_shared_handle_cast(const TWeakSharedHandle<TSrc> &handle);
@@ -159,7 +160,7 @@ export {
 			}
 
 			std::shared_ptr<PtrSharedHandleData> GetInternalData() const;
-		private:
+		  private:
 			TWeakSharedHandle(const std::shared_ptr<PtrSharedHandleData> &data, T *typedDataPtr);
 			std::weak_ptr<PtrSharedHandleData> m_data = {};
 			T *m_typedPtr = nullptr;
@@ -202,14 +203,16 @@ export {
 			return IsValid();
 		}
 		template<typename T>
-		bool TSharedHandle<T>::operator==(const TSharedHandle<T> &other) const {
-			if (!m_data)
+		bool TSharedHandle<T>::operator==(const TSharedHandle<T> &other) const
+		{
+			if(!m_data)
 				return !other.m_data;
 			return m_data->GetData() == other.m_data->GetData();
 		}
 		template<typename T>
-		bool TSharedHandle<T>::operator==(const T *other) const {
-			if (!m_data)
+		bool TSharedHandle<T>::operator==(const T *other) const
+		{
+			if(!m_data)
 				return !other;
 			return m_data->GetData() == other;
 		}
@@ -329,14 +332,16 @@ export {
 			return *this;
 		}
 		template<typename T>
-		bool TWeakSharedHandle<T>::operator==(const TWeakSharedHandle<T> &other) const {
-			if (m_data.expired())
+		bool TWeakSharedHandle<T>::operator==(const TWeakSharedHandle<T> &other) const
+		{
+			if(m_data.expired())
 				return other.m_data.expired();
 			return m_data.lock()->GetData() == other.m_data.lock()->GetData();
 		}
 		template<typename T>
-		bool TWeakSharedHandle<T>::operator==(const T *other) const {
-			if (m_data.expired())
+		bool TWeakSharedHandle<T>::operator==(const T *other) const
+		{
+			if(m_data.expired())
 				return !other;
 			return m_data.lock()->GetData() == other;
 		}

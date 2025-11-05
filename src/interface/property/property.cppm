@@ -11,14 +11,14 @@ export import :function_callback;
 export import pragma.math;
 
 export {
-	#pragma warning(push)
-	#pragma warning(disable : 4251)
+#pragma warning(push)
+#pragma warning(disable : 4251)
 	namespace util {
 		class DLLSHUTIL BaseProperty {
-		public:
+		  public:
 			void AddCallback(const CallbackHandle &hCallback);
 			virtual ~BaseProperty() = default;
-		protected:
+		  protected:
 			BaseProperty() = default;
 			std::vector<CallbackHandle> m_callbacks;
 		};
@@ -32,7 +32,7 @@ export {
 		};
 		template<class TProperty, class T>
 		class SimpleProperty : public BaseProperty, public std::enable_shared_from_this<SimpleProperty<TProperty, T>> {
-		public:
+		  public:
 			static std::shared_ptr<TProperty> Create(const T &value = {});
 			SimpleProperty() = default;
 			SimpleProperty(const T &init);
@@ -64,7 +64,7 @@ export {
 			template<class TPropertyOther, class TOther>
 			void Link(SimpleProperty<TPropertyOther, TOther> &other);
 			void Unlink();
-		protected:
+		  protected:
 			virtual void ApplyValue(const T &newValue);
 			void OnChanged(const T &oldValue, const T &newValue);
 			T m_value = {};
@@ -74,7 +74,7 @@ export {
 		};
 
 		class DLLSHUTIL BoolProperty : public SimpleProperty<BoolProperty, bool> {
-		public:
+		  public:
 			BoolProperty();
 			BoolProperty(const bool &init);
 			BoolProperty(const BoolProperty &prop);
@@ -92,7 +92,7 @@ export {
 		template<>
 		struct enable_bitwise_operators<util::SimplePropertyFlags> : std::true_type {};
 	}
-	#pragma warning(pop)
+#pragma warning(pop)
 
 	namespace util {
 		template<class TProperty, class T>

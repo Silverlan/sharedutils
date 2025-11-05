@@ -50,4 +50,4 @@ export namespace util {
 		using TExtensibleEnum<uint32_t>::TExtensibleEnum;
 	};
 };
-	//DEFINE_STD_HASH_SPECIALIZATION(util::ExtensibleEnum);
+//DEFINE_STD_HASH_SPECIALIZATION(util::ExtensibleEnum);

@@ -3,7 +3,6 @@
 
 module;
 
-
 export module pragma.util:disarmable_deleter;
 
 export import std.compat;

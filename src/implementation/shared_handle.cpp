@@ -3,7 +3,6 @@
 
 module;
 
-
 module pragma.util;
 
 import :shared_handle;

@@ -16,9 +16,9 @@ export import std.compat;
 
 export {
 	namespace util {
-	#ifdef _WIN32
-	#pragma pack(push, 1)
-	#endif
+#ifdef _WIN32
+#pragma pack(push, 1)
+#endif
 		struct DLLSHUTIL Version {
 			Version(unsigned int _major, unsigned int _minor, unsigned int _revision);
 			Version(unsigned int _major, unsigned int _minor);
@@ -37,13 +37,13 @@ export {
 			bool operator>=(const Version &other) const;
 			bool operator<=(const Version &other) const;
 		}
-	#ifdef __linux__
+#ifdef __linux__
 		__attribute__((packed))
-	#endif
+#endif
 		;
-	#ifdef _WIN32
-	#pragma pack(pop)
-	#endif
+#ifdef _WIN32
+#pragma pack(pop)
+#endif
 	}
 
 	DLLSHUTIL std::ostream &operator<<(std::ostream &out, const util::Version &version);

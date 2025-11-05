@@ -14,7 +14,7 @@ export {
 		class DataStreamBase;
 		template<class TDataStreamBase>
 		class TDataStream {
-		public:
+		  public:
 			TDataStream();
 			TDataStream(uint32_t size);
 			TDataStream(void *data, uint32_t size);
@@ -41,7 +41,7 @@ export {
 			template<class T>
 			DataStreamBase &operator>>(T &v);
 			DataStreamBase &operator>>(std::string &str);
-		private:
+		  private:
 			std::shared_ptr<TDataStreamBase> m_baseStreamObject = nullptr;
 		};
 
@@ -160,23 +160,23 @@ export {
 		}
 
 		class DLLSHUTIL DataStream : public TDataStream<DataStreamBase> {
-		public:
-			DataStream() : TDataStream<DataStreamBase>{} {}
-			DataStream(uint32_t size) : TDataStream<DataStreamBase>{size} {}
-			DataStream(void *data, uint32_t size) : TDataStream<DataStreamBase>{data, size} {}
-			DataStream(const DataStream &o) : TDataStream<DataStreamBase>{o} {}
-			DataStream(std::nullptr_t t) : TDataStream<DataStreamBase>{t} {}
+		  public:
+			DataStream() : TDataStream<DataStreamBase> {} {}
+			DataStream(uint32_t size) : TDataStream<DataStreamBase> {size} {}
+			DataStream(void *data, uint32_t size) : TDataStream<DataStreamBase> {data, size} {}
+			DataStream(const DataStream &o) : TDataStream<DataStreamBase> {o} {}
+			DataStream(std::nullptr_t t) : TDataStream<DataStreamBase> {t} {}
 		};
 
 		DLLSHUTIL std::ostream &operator<<(std::ostream &out, const DataStream &o);
 
-		#pragma warning(push)
-		#pragma warning(disable : 4251)
+#pragma warning(push)
+#pragma warning(disable : 4251)
 		class DLLSHUTIL DataStreamBase {
-		public:
+		  public:
 			template<class>
 			friend class TDataStream;
-		protected:
+		  protected:
 			DataStreamBase();
 			DataStreamBase(uint32_t size, uint32_t headerSize = 0);
 			DataStreamBase(void *data, uint32_t size);
@@ -191,7 +191,7 @@ export {
 			bool Eof();
 			void AdjustSize(uint32_t offset, uint32_t &sz);
 			void SetHeaderSize(uint32_t sz);
-		public:
+		  public:
 			virtual ~DataStreamBase();
 			void Write(const uint8_t *c, uint32_t size);
 			void Write(const uint8_t *c, uint32_t size, uint32_t pos);
@@ -232,7 +232,7 @@ export {
 			void SetHeaderData(const void *data);
 			void Reserve(uint32_t size);
 		};
-		#pragma warning(pop)
+#pragma warning(pop)
 
 		template<class T>
 		void DataStreamBase::Write(T *v, uint32_t *pos)

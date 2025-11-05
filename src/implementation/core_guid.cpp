@@ -20,9 +20,6 @@ THE SOFTWARE.
 
 module;
 
-
-
-
 module pragma.util;
 
 import :core;

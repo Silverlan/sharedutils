@@ -5,27 +5,26 @@ module;
 
 #include "definitions.hpp"
 
-
 export module pragma.util:property_simple_number;
 
 export import :property;
 
 export {
-	#pragma warning(push)
-	#pragma warning(disable : 4544)
+#pragma warning(push)
+#pragma warning(disable : 4544)
 	namespace util {
 		template<class TProperty, class T>
 		class SimpleNumberProperty : public SimpleProperty<TProperty, T> {
-		public:
-			SimpleNumberProperty() : SimpleProperty<TProperty, T>{} {}
-			SimpleNumberProperty(const T &init) : SimpleProperty<TProperty, T>{init} {}
-			SimpleNumberProperty(const SimpleNumberProperty &prop) : SimpleProperty<TProperty, T>{prop} {}
+		  public:
+			SimpleNumberProperty() : SimpleProperty<TProperty, T> {} {}
+			SimpleNumberProperty(const T &init) : SimpleProperty<TProperty, T> {init} {}
+			SimpleNumberProperty(const SimpleNumberProperty &prop) : SimpleProperty<TProperty, T> {prop} {}
 			SimpleNumberProperty &operator=(const T &val);
 			SimpleNumberProperty &operator=(const SimpleNumberProperty &other);
-			T &operator*() {return SimpleProperty<TProperty, T>::operator*();}
-			const T &operator*() const {return SimpleProperty<TProperty, T>::operator*();}
-			const T &GetValue() const {return SimpleProperty<TProperty, T>::GetValue();}
-			T &GetValue() {return SimpleProperty<TProperty, T>::GetValue();}
+			T &operator*() { return SimpleProperty<TProperty, T>::operator*(); }
+			const T &operator*() const { return SimpleProperty<TProperty, T>::operator*(); }
+			const T &GetValue() const { return SimpleProperty<TProperty, T>::GetValue(); }
+			T &GetValue() { return SimpleProperty<TProperty, T>::GetValue(); }
 
 			// Assignment
 			SimpleNumberProperty &operator+=(const T &val);
@@ -130,10 +129,16 @@ export {
 
 	namespace util {
 		template<class TProperty, class T>
-		SimpleNumberProperty<TProperty, T> &SimpleNumberProperty<TProperty, T>::operator=(const T &val) {return static_cast<SimpleNumberProperty<TProperty, T>&>(SimpleProperty<TProperty, T>::operator=(val));}
+		SimpleNumberProperty<TProperty, T> &SimpleNumberProperty<TProperty, T>::operator=(const T &val)
+		{
+			return static_cast<SimpleNumberProperty<TProperty, T> &>(SimpleProperty<TProperty, T>::operator=(val));
+		}
 
 		template<class TProperty, class T>
-		SimpleNumberProperty<TProperty, T> &SimpleNumberProperty<TProperty, T>::operator=(const SimpleNumberProperty<TProperty, T> &other) {return static_cast<SimpleNumberProperty<TProperty, T>&>(SimpleProperty<TProperty, T>::operator=(other));}
+		SimpleNumberProperty<TProperty, T> &SimpleNumberProperty<TProperty, T>::operator=(const SimpleNumberProperty<TProperty, T> &other)
+		{
+			return static_cast<SimpleNumberProperty<TProperty, T> &>(SimpleProperty<TProperty, T>::operator=(other));
+		}
 
 		template<class TProperty, class T>
 		SimpleNumberProperty<TProperty, T> &SimpleNumberProperty<TProperty, T>::operator+=(const T &val)
@@ -545,22 +550,22 @@ export {
 			return SimpleProperty<TProperty, T>::operator T &();
 		}
 	}
-	#pragma warning(pop)
+#pragma warning(pop)
 
-	#define DEFINE_SIMPLE_NUMBER_PROPERTY(name, type)                                                                                                                                                                                                                                                \
-		class DLLSHUTIL name##Property : public SimpleNumberProperty<name##Property, type> {                                                                                                                                                                                                         \
-		public:                                                                                                                                                                                                                                                                                    \
-	name##Property() : SimpleNumberProperty<name##Property, type>{} {} \
-	name##Property(const type &init) : SimpleNumberProperty<name##Property, type>{init} {} \
-	name##Property(const SimpleNumberProperty<name##Property, type> &prop) : SimpleNumberProperty<name##Property, type>{prop} {} \
-	\
-	name##Property &operator=(const type &val) { return static_cast<name##Property&>(SimpleNumberProperty<name##Property, type>::operator=(val)); } \
-	name##Property &operator=(const name##Property &other) { return static_cast<name##Property&>(SimpleNumberProperty<name##Property, type>::operator=(other)); } \
-		};                                                                                                                                                                                                                                                                                           \
-		using P##name##Property = std::shared_ptr<name##Property>;
+#define DEFINE_SIMPLE_NUMBER_PROPERTY(name, type)                                                                                                                                                                                                                                                \
+	class DLLSHUTIL name##Property : public SimpleNumberProperty<name##Property, type> {                                                                                                                                                                                                         \
+	  public:                                                                                                                                                                                                                                                                                    \
+		name##Property() : SimpleNumberProperty<name##Property, type> {} {}                                                                                                                                                                                                                      \
+		name##Property(const type &init) : SimpleNumberProperty<name##Property, type> {init} {}                                                                                                                                                                                                  \
+		name##Property(const SimpleNumberProperty<name##Property, type> &prop) : SimpleNumberProperty<name##Property, type> {prop} {}                                                                                                                                                            \
+                                                                                                                                                                                                                                                                                                 \
+		name##Property &operator=(const type &val) { return static_cast<name##Property &>(SimpleNumberProperty<name##Property, type>::operator=(val)); }                                                                                                                                         \
+		name##Property &operator=(const name##Property &other) { return static_cast<name##Property &>(SimpleNumberProperty<name##Property, type>::operator=(other)); }                                                                                                                           \
+	};                                                                                                                                                                                                                                                                                           \
+	using P##name##Property = std::shared_ptr<name##Property>;
 
-	#pragma warning(push)
-	#pragma warning(disable : 4251)
+#pragma warning(push)
+#pragma warning(disable : 4251)
 	namespace util {
 		DEFINE_SIMPLE_NUMBER_PROPERTY(Int8, int8_t);
 		DEFINE_SIMPLE_NUMBER_PROPERTY(UInt8, uint8_t);
@@ -577,10 +582,10 @@ export {
 
 		template<typename TEnum>
 		class TEnumProperty : public SimpleNumberProperty<TEnumProperty<TEnum>, TEnum> {
-		public:
-			TEnumProperty() : SimpleNumberProperty<TEnumProperty<TEnum>, TEnum>{} {}
-			TEnumProperty(const TEnum &init) : SimpleNumberProperty<TEnumProperty<TEnum>, TEnum>{init} {}
-			TEnumProperty(const TEnumProperty &prop) : SimpleNumberProperty<TEnumProperty<TEnum>, TEnum>{prop} {}
+		  public:
+			TEnumProperty() : SimpleNumberProperty<TEnumProperty<TEnum>, TEnum> {} {}
+			TEnumProperty(const TEnum &init) : SimpleNumberProperty<TEnumProperty<TEnum>, TEnum> {init} {}
+			TEnumProperty(const TEnumProperty &prop) : SimpleNumberProperty<TEnumProperty<TEnum>, TEnum> {prop} {}
 			TEnumProperty &operator=(const TEnum &val)
 			{
 				SimpleNumberProperty<TEnumProperty<TEnum>, TEnum>::operator=(val);
@@ -596,5 +601,5 @@ export {
 		template<typename TEnum>
 		using PEnumProperty = std::shared_ptr<TEnumProperty<TEnum>>;
 	};
-	#pragma warning(pop)
+#pragma warning(pop)
 }

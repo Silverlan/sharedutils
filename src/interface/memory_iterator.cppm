@@ -3,7 +3,6 @@
 
 module;
 
-
 export module pragma.util:memory_iterator;
 
 export import std.compat;
@@ -12,7 +11,7 @@ export {
 	namespace util {
 		template<class T>
 		class MemoryIteratorBase {
-		public:
+		  public:
 			using iterator_category = std::forward_iterator_tag;
 			using value_type = T;
 			using difference_type = value_type;
@@ -29,17 +28,17 @@ export {
 
 			bool operator==(const MemoryIteratorBase<T> &other) const;
 			bool operator!=(const MemoryIteratorBase<T> &other) const;
-		private:
+		  private:
 			T *m_value = nullptr;
 		};
 
 		template<class T>
 		class TMemoryIterator {
-		public:
+		  public:
 			TMemoryIterator(T *t, size_t count);
 			MemoryIteratorBase<T> begin() const;
 			MemoryIteratorBase<T> end() const;
-		private:
+		  private:
 			T *m_base = nullptr;
 			size_t m_count = 0;
 		};

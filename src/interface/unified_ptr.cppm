@@ -13,9 +13,9 @@ export {
 	template<class T>
 	class UnifiedPtr;
 	class DLLSHUTIL UnifiedBasePtr {
-	protected:
+	  protected:
 		UnifiedBasePtr() = default;
-	public:
+	  public:
 		virtual ~UnifiedBasePtr() = default;
 		template<class T>
 		T *GetData() const
@@ -35,12 +35,8 @@ export {
 
 	template<class T>
 	class UnifiedPtr : public UnifiedBasePtr, public std::unique_ptr<T> {
-	public:
-		UnifiedPtr(const T &t) : UnifiedBasePtr(), std::unique_ptr<T>(t)
-		{
-		}
-		UnifiedPtr(T *t) : UnifiedPtr<T>(new T(t))
-		{
-		}
+	  public:
+		UnifiedPtr(const T &t) : UnifiedBasePtr(), std::unique_ptr<T>(t) {}
+		UnifiedPtr(T *t) : UnifiedPtr<T>(new T(t)) {}
 	};
 }

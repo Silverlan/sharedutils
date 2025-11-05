@@ -12,9 +12,9 @@ export import std.compat;
 export {
 	namespace util {
 		class DLLSHUTIL ScopeGuard {
-		private:
+		  private:
 			std::function<void()> f;
-		public:
+		  public:
 			template<class Callable>
 			ScopeGuard(Callable &&undo_func);
 			ScopeGuard(ScopeGuard &&other);

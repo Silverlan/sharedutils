@@ -24,13 +24,13 @@ export {
 	constexpr size_t NWM_MAX_PACKET_SIZE = (0x2003 - NWM_PACKET_HEADER_EXTENDED_SIZE);
 
 	class DLLSHUTIL NWMPacket : public util::DataStreamBase {
-	private:
+	  private:
 		bool m_bClient = false;
 		uint64_t m_tActivated = 0;
 
 		NWMPacket(void *, uint32_t) {};
 		friend util::TDataStream<NWMPacket>;
-	public:
+	  public:
 		NWMPacket();
 		NWMPacket(uint32_t size);
 		virtual void Resize(uint32_t sz, bool bForceResize = false) override;
@@ -43,9 +43,9 @@ export {
 	};
 
 	class DLLSHUTIL NetPacket : public util::TDataStream<NWMPacket> {
-	protected:
+	  protected:
 		uint32_t m_messageID;
-	public:
+	  public:
 		NetPacket(const NetPacket &o);
 		NetPacket(std::nullptr_t t);
 		NetPacket();

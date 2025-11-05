@@ -5,7 +5,6 @@ module;
 
 #include "definitions.hpp"
 
-
 export module pragma.util:property_quaternion;
 
 export import :property_vector;
@@ -14,7 +13,7 @@ export import pragma.math;
 export {
 	namespace util {
 		class DLLSHUTIL QuatProperty : public SimpleVectorProperty<QuatProperty, Quat> {
-		public:
+		  public:
 			QuatProperty() = default;
 			QuatProperty(const Quat &v);
 			QuatProperty(float w, float x, float y, float z);
@@ -24,7 +23,10 @@ export {
 			QuatProperty &operator*=(const Quat &other);
 
 			template<class TProperty, class T>
-			QuatProperty &operator=(const T &val) { return static_cast<QuatProperty&>(SimpleProperty<QuatProperty, Quat>::operator=(val)); }
+			QuatProperty &operator=(const T &val)
+			{
+				return static_cast<QuatProperty &>(SimpleProperty<QuatProperty, Quat>::operator=(val));
+			}
 		};
 		using PQuatProperty = std::shared_ptr<QuatProperty>;
 	};

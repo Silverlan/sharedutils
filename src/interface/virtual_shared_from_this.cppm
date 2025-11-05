@@ -22,7 +22,7 @@ namespace util {
 	export {
 		template<class T>
 		class inheritable_enable_shared_from_this : virtual public impl::MultipleInheritableEnableSharedFromThis {
-		public:
+		  public:
 			std::shared_ptr<T> shared_from_this() { return std::dynamic_pointer_cast<T>(MultipleInheritableEnableSharedFromThis::shared_from_this()); }
 			/* Utility method to easily downcast.
 			* Useful when a child doesn't inherit directly from enable_shared_from_this

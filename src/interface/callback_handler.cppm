@@ -11,11 +11,11 @@ export import :function_callback;
 
 export {
 	namespace util {
-		#pragma warning(push)
-		#pragma warning(disable : 4251)
+#pragma warning(push)
+#pragma warning(disable : 4251)
 		template<typename T>
 		class TCallbackHandler {
-		public:
+		  public:
 			TCallbackHandler();
 			virtual ~TCallbackHandler();
 			CallbackHandle AddCallback(const T &identifier, const CallbackHandle &hCallback);
@@ -36,18 +36,18 @@ export {
 			CallbackReturnType CallCallbacks(const T &identifier, TRet *ret, TARGS... args);
 			template<class TRet, typename... TARGS>
 			CallbackReturnType CallCallbacksWithOptionalReturn(const T &identifier, TRet &ret, TARGS... args);
-		protected:
+		  protected:
 			struct CallbackInfo {
 				CallbackInfo();
 				uint32_t callDepth;
 				std::vector<CallbackHandle> callbacks;
-		#ifdef CALLBACK_SANITY_CHECK_ENABLED
+#ifdef CALLBACK_SANITY_CHECK_ENABLED
 				size_t hashCode = std::numeric_limits<size_t>::max();
-		#endif
+#endif
 			};
 			std::unordered_map<T, CallbackInfo> m_callbacks;
 			virtual T TranslateIdentifier(const T &identifier) const;
-		private:
+		  private:
 			std::shared_ptr<bool> m_bAlive;
 			struct StackInfo {
 				StackInfo(const T &n, const CallbackHandle &hCb);
@@ -60,10 +60,10 @@ export {
 		};
 
 		class DLLSHUTIL CallbackHandler : public TCallbackHandler<std::string> {
-		protected:
+		  protected:
 			virtual std::string TranslateIdentifier(const std::string &identifier) const override;
 		};
-		#pragma warning(pop)
+#pragma warning(pop)
 
 		template<typename T>
 		TCallbackHandler<T>::CallbackInfo::CallbackInfo() : callDepth(0)
@@ -113,10 +113,10 @@ export {
 			auto it = m_callbacks.find(identifier);
 			if(it == m_callbacks.end())
 				it = m_callbacks.insert(typename decltype(m_callbacks)::value_type(identifier, {})).first;
-		#ifdef CALLBACK_SANITY_CHECK_ENABLED
+#ifdef CALLBACK_SANITY_CHECK_ENABLED
 			if(hCallback.get()->hashCode != typeid(std::function<void(void)>).hash_code() && it->second.hashCode != hCallback.get()->hashCode)
 				throw std::invalid_argument("Attempted to add callback with template arguments that are incompatible with registered callback!");
-		#endif
+#endif
 			else if(it->second.callDepth > 0) {
 				m_callbackQueue.push_back({identifier, hCallback});
 				return m_callbackQueue.back().hCallback;
@@ -142,10 +142,10 @@ export {
 			auto it = m_callbacks.find(identifier);
 			if(it == m_callbacks.end())
 				return;
-		#ifdef CALLBACK_SANITY_CHECK_ENABLED
+#ifdef CALLBACK_SANITY_CHECK_ENABLED
 			if(it->second.hashCode != typeid(std::function<void(void)>).hash_code())
 				throw std::invalid_argument("CallCallbacks template arguments differ from arguments that were used when the callback was registered!");
-		#endif
+#endif
 			auto bAlive = std::weak_ptr<bool>(m_bAlive); // We need to keep this reference, in case 'this' was invalidated during a callback
 			auto &callbackInfo = it->second;
 			++callbackInfo.callDepth;
@@ -153,10 +153,10 @@ export {
 			for(auto itCb = callbacks.begin(); bAlive.expired() == false && itCb != callbacks.end();) {
 				auto &hCallback = *itCb;
 				if(hCallback.IsValid()) {
-		#ifdef CALLBACK_SANITY_CHECK_ENABLED
+#ifdef CALLBACK_SANITY_CHECK_ENABLED
 					if(hCallback.get()->hashCode != typeid(std::function<void(void)>).hash_code() && hCallback.get()->hashCode != it->second.hashCode)
 						throw std::invalid_argument("Callback template arguments differ from arguments that were used when the callback was registered!");
-		#endif
+#endif
 					++itCb;
 					hCallback();
 				}
@@ -167,10 +167,10 @@ export {
 				return;
 			if(--callbackInfo.callDepth == 0)
 				ProcessCallbackStack(identifier);
-		#ifndef CALLBACK_SANITY_CHECK_ENABLED
+#ifndef CALLBACK_SANITY_CHECK_ENABLED
 			if(callbacks.empty())
 				m_callbacks.erase(it);
-		#endif
+#endif
 		}
 
 		template<typename T>
@@ -181,10 +181,10 @@ export {
 			auto it = m_callbacks.find(identifier);
 			if(it == m_callbacks.end())
 				return;
-		#ifdef CALLBACK_SANITY_CHECK_ENABLED
+#ifdef CALLBACK_SANITY_CHECK_ENABLED
 			if(it->second.hashCode != typeid(std::function<void(TARGS...)>).hash_code())
 				throw std::invalid_argument("CallCallbacks template arguments differ from arguments that were used when the callback was registered!");
-		#endif
+#endif
 			auto bAlive = std::weak_ptr<bool>(m_bAlive); // We need to keep this reference, in case 'this' was invalidated during a callback
 			auto &callbackInfo = it->second;
 			++callbackInfo.callDepth;
@@ -192,10 +192,10 @@ export {
 			for(auto itCb = callbacks.begin(); bAlive.expired() == false && itCb != callbacks.end();) {
 				auto &hCallback = *itCb;
 				if(hCallback.IsValid()) {
-		#ifdef CALLBACK_SANITY_CHECK_ENABLED
+#ifdef CALLBACK_SANITY_CHECK_ENABLED
 					if(hCallback.get()->hashCode != typeid(std::function<void(void)>).hash_code() && hCallback.get()->hashCode != it->second.hashCode)
 						throw std::invalid_argument("Callback template arguments differ from arguments that were used when the callback was registered!");
-		#endif
+#endif
 					++itCb;
 					hCallback(std::forward<TARGS>(args)...);
 				}
@@ -206,10 +206,10 @@ export {
 				return;
 			if(--callbackInfo.callDepth == 0)
 				ProcessCallbackStack(identifier);
-		#ifndef CALLBACK_SANITY_CHECK_ENABLED
+#ifndef CALLBACK_SANITY_CHECK_ENABLED
 			if(callbacks.empty())
 				m_callbacks.erase(it);
-		#endif
+#endif
 		}
 
 		template<typename T>
@@ -220,10 +220,10 @@ export {
 			auto it = m_callbacks.find(identifier);
 			if(it == m_callbacks.end())
 				return TRet();
-		#ifdef CALLBACK_SANITY_CHECK_ENABLED
+#ifdef CALLBACK_SANITY_CHECK_ENABLED
 			if(it->second.hashCode != typeid(std::function<TRet(TARGS...)>).hash_code())
 				throw std::invalid_argument("CallCallbacks template arguments differ from arguments that were used when the callback was registered!");
-		#endif
+#endif
 			auto bAlive = std::weak_ptr<bool>(m_bAlive); // We need to keep this reference, in case 'this' was invalidated during a callback
 			auto &callbackInfo = it->second;
 			++callbackInfo.callDepth;
@@ -231,10 +231,10 @@ export {
 			for(auto itCb = callbacks.begin(); bAlive.expired() == false && itCb != callbacks.end();) {
 				auto &hCallback = *itCb;
 				if(hCallback.IsValid()) {
-		#ifdef CALLBACK_SANITY_CHECK_ENABLED
+#ifdef CALLBACK_SANITY_CHECK_ENABLED
 					if(hCallback.get()->hashCode != typeid(std::function<void(void)>).hash_code() && hCallback.get()->hashCode != it->second.hashCode)
 						throw std::invalid_argument("Callback template arguments differ from arguments that were used when the callback was registered!");
-		#endif
+#endif
 					++itCb;
 					if(!std::is_void<TRet>())
 						return hCallback.template Call<TRet>(std::forward<TARGS>(args)...);
@@ -248,10 +248,10 @@ export {
 				return TRet();
 			if(--callbackInfo.callDepth == 0)
 				ProcessCallbackStack(identifier);
-		#ifndef CALLBACK_SANITY_CHECK_ENABLED
+#ifndef CALLBACK_SANITY_CHECK_ENABLED
 			if(callbacks.empty())
 				m_callbacks.erase(it);
-		#endif
+#endif
 			return TRet();
 		}
 
@@ -263,10 +263,10 @@ export {
 			auto it = m_callbacks.find(identifier);
 			if(it == m_callbacks.end())
 				return CallbackReturnType::NoReturnValue;
-		#ifdef CALLBACK_SANITY_CHECK_ENABLED
+#ifdef CALLBACK_SANITY_CHECK_ENABLED
 			if(it->second.hashCode != typeid(std::function<CallbackReturnType(TRet *, TARGS...)>).hash_code())
 				throw std::invalid_argument("CallCallbacks template arguments differ from arguments that were used when the callback was registered!");
-		#endif
+#endif
 			auto bAlive = std::weak_ptr<bool>(m_bAlive); // We need to keep this reference, in case 'this' was invalidated during a callback
 			auto &callbackInfo = it->second;
 			++callbackInfo.callDepth;
@@ -274,10 +274,10 @@ export {
 			for(auto itCb = callbacks.begin(); bAlive.expired() == false && itCb != callbacks.end();) {
 				auto &hCallback = *itCb;
 				if(hCallback.IsValid()) {
-		#ifdef CALLBACK_SANITY_CHECK_ENABLED
+#ifdef CALLBACK_SANITY_CHECK_ENABLED
 					if(hCallback.get()->hashCode != typeid(std::function<void(void)>).hash_code() && hCallback.get()->hashCode != it->second.hashCode)
 						throw std::invalid_argument("Callback template arguments differ from arguments that were used when the callback was registered!");
-		#endif
+#endif
 					++itCb;
 					if(hCallback.template Call<TRet>(ret, std::forward<TARGS>(args)...) == CallbackReturnType::HasReturnValue) {
 						if(bAlive.expired() == false && --callbackInfo.callDepth == 0)
@@ -292,10 +292,10 @@ export {
 				return CallbackReturnType::NoReturnValue;
 			if(--callbackInfo.callDepth == 0)
 				ProcessCallbackStack(identifier);
-		#ifndef CALLBACK_SANITY_CHECK_ENABLED
+#ifndef CALLBACK_SANITY_CHECK_ENABLED
 			if(callbacks.empty())
 				m_callbacks.erase(it);
-		#endif
+#endif
 			return CallbackReturnType::NoReturnValue;
 		}
 
@@ -310,13 +310,13 @@ export {
 		template<class TRet, typename... TARGS>
 		void TCallbackHandler<T>::RegisterCallback(const T &pidentifier)
 		{
-		#ifdef CALLBACK_SANITY_CHECK_ENABLED
+#ifdef CALLBACK_SANITY_CHECK_ENABLED
 			auto identifier = TranslateIdentifier(pidentifier);
 			auto it = m_callbacks.find(identifier);
 			if(it == m_callbacks.end())
 				it = m_callbacks.insert(std::make_pair(identifier, CallbackInfo {})).first;
 			it->second.hashCode = typeid(std::function<TRet(TARGS...)>).hash_code();
-		#endif
+#endif
 		}
 
 		template<typename T>

@@ -48,9 +48,9 @@ export {
 	namespace _impl {
 		DLLSHUTIL bool util_assert(const std::string &file, uint32_t line, const std::string &message = "", bool bAllowExit = true);
 	};
-	#define UTIL_ASSERT(f, ...) (void)((f) || !_impl::util_assert(__FILE__, __LINE__, ##__VA_ARGS__))
+#define UTIL_ASSERT(f, ...) (void)((f) || !_impl::util_assert(__FILE__, __LINE__, ##__VA_ARGS__))
 
-	#ifdef _WIN32
+#ifdef _WIN32
 
 	namespace util {
 		struct DLLSHUTIL Symbol {
@@ -66,5 +66,5 @@ export {
 		DLLSHUTIL std::vector<Symbol> get_stack_backtrace(uint32_t maxIterations = 100);
 	};
 
-	#endif
+#endif
 }

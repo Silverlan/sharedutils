@@ -17,7 +17,6 @@ export {
 			std::size_t operator()(T t) const;
 		};
 
-
 		template<typename T>
 		std::size_t EnumHash::operator()(T t) const
 		{

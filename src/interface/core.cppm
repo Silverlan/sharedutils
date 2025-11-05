@@ -63,23 +63,23 @@ export {
 		DLLSHUTIL bool is_process_running(const char *name);
 		DLLSHUTIL bool start_process(const CommandInfo &cmdInfo);
 		DLLSHUTIL CommandResult start_and_wait_for_command(const CommandInfo &cmdInfo);
-	#ifdef _WIN32
+#ifdef _WIN32
 		enum class SubSystem : uint8_t {
 			Console = 0,
 			GUI,
 			Unknown,
 		};
 		DLLSHUTIL SubSystem get_subsystem();
-	#endif
+#endif
 		DLLSHUTIL std::string get_last_system_error_string();
 		DLLSHUTIL void set_prevent_os_sleep_mode(bool prevent);
 		DLLSHUTIL bool is_x64_system();
 		DLLSHUTIL bool is_x86_system();
 		DLLSHUTIL bool is_windows_system();
 		DLLSHUTIL bool is_linux_system();
-	#ifdef _WIN32
+#ifdef _WIN32
 		DLLSHUTIL std::unordered_map<std::string, std::string> get_launch_parameters();
-	#endif
+#endif
 		DLLSHUTIL std::unordered_map<std::string, std::string> get_launch_parameters(int argc, char *argv[]);
 		template<class T>
 		T to_number(const std::string_view &str);
@@ -96,22 +96,22 @@ export {
 		DLLSHUTIL Float get_faded_time_factor(Float cur, Float dur, Float fadeIn = 0.f, Float fadeOut = 0.f);
 		DLLSHUTIL Float get_scale_factor(Float val, Float range);
 		DLLSHUTIL Float get_scale_factor(Float val, Float min, Float max);
-	#ifdef _WIN32
+#ifdef _WIN32
 		enum class HKey : uint64_t {
 			ClassesRoot = 0x80000000,  // HKEY_CLASSES_ROOT
 			CurrentUser = 0x80000001,  // HKEY_CURRENT_USER,
 			LocalMachine = 0x80000002, // HKEY_LOCAL_MACHINE,
 			Users = 0x80000003,        // HKEY_USERS,
-	#if(WINVER >= 0x0400)
+#if (WINVER >= 0x0400)
 			CurrentConfig = 0x80000005,            // HKEY_CURRENT_CONFIG,
 			DynData = 0x80000006,                  // HKEY_DYN_DATA,
 			CurrentUserLocalSettings = 0x80000007, // HKEY_CURRENT_USER_LOCAL_SETTINGS
-	#endif
+#endif
 		};
 		DLLSHUTIL bool get_registry_key_value(HKey key, const std::string &path, const std::string &strValueName, std::string &strValue);
 		DLLSHUTIL bool get_registry_key_value(HKey key, const std::string &path, const std::string &strValueName, uint64_t &intValue);
 		DLLSHUTIL bool get_registry_key_value(HKey key, const std::string &path, const std::string &strValueName, bool &val);
-	#endif
+#endif
 		DLLSHUTIL bool set_env_variable(const std::string &varName, const std::string &value);
 		DLLSHUTIL bool unset_env_variable(const std::string &varName);
 		DLLSHUTIL std::optional<std::string> get_env_variable(const std::string &varName);
@@ -137,8 +137,8 @@ export {
 		DLLSHUTIL bool is_uuid(const std::string &uuid);
 		DLLSHUTIL size_t get_uuid_hash(const Uuid &uuid);
 
-		DLLSHUTIL std::string make_clickable_link(const std::string& path, const std::string &displayPath, int line);
-		DLLSHUTIL std::string make_clickable_link(const std::string& path, int line);
+		DLLSHUTIL std::string make_clickable_link(const std::string &path, const std::string &displayPath, int line);
+		DLLSHUTIL std::string make_clickable_link(const std::string &path, int line);
 
 		template<typename T>
 		constexpr size_t size_of_container(const T &t)
@@ -156,9 +156,9 @@ export {
 		DLLSHUTIL void flash_window();
 		DLLSHUTIL void minimize_window_to_tray();
 		DLLSHUTIL void unhide_window();
-	#ifdef _WIN32
+#ifdef _WIN32
 		DLLSHUTIL HWND get_window_handle();
-	#endif
+#endif
 		DLLSHUTIL bool shutdown_os();
 		DLLSHUTIL std::optional<std::string> get_system_language();
 		DLLSHUTIL bool is_dark_mode();
@@ -190,9 +190,9 @@ export {
 		unique_ptr_c<T> make_unique_ptr_c(const std::function<void(T &)> &fOnDelete, TARGS &&...args)
 		{
 			return util::unique_ptr_c<T> {new T {std::forward<TARGS>(args)...}, [fOnDelete](T *v) {
-											fOnDelete(*v);
-											delete v;
-										}};
+				                              fOnDelete(*v);
+				                              delete v;
+			                              }};
 		}
 		template<typename TFrom, typename TTo>
 		std::unique_ptr<TTo> static_unique_pointer_cast(std::unique_ptr<TFrom> &&p)
@@ -277,16 +277,16 @@ export {
 	template<class T>
 	T util::to_number(const std::string_view &str)
 	{
-	#if defined(_LIBCPP_VERSION) //checking if we use clang's stl
+#if defined(_LIBCPP_VERSION) //checking if we use clang's stl
 		if constexpr(std::is_integral_v<T>)
 			return atoi(str.data());
 		else
 			return atof(str.data());
-	#else
+#else
 		T result = 0;
 		auto res = std::from_chars(str.data(), str.data() + str.size(), result);
 		return result;
-	#endif
+#endif
 	}
 	template<class T>
 	T util::to_float(const std::string_view &str)

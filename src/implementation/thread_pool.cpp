@@ -3,8 +3,6 @@
 
 module;
 
-
-
 module pragma.util;
 
 import :thread_pool;

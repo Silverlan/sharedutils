@@ -29,7 +29,7 @@ export {
 		};
 		enum class AssetLoadState : uint8_t { NotQueued = 0, Loading, LoadedAndPendingForCompletion };
 		class DLLSHUTIL IAssetLoader {
-		public:
+		  public:
 			IAssetLoader(std::string name = "");
 			virtual ~IAssetLoader();
 			void Poll(const std::function<void(const AssetLoadJob &, AssetLoadResult, std::optional<std::string>)> &onComplete, AssetLoaderWaitMode wait = AssetLoaderWaitMode::None);
@@ -53,7 +53,7 @@ export {
 			bool HasPendingJobs() const;
 			bool HasCompletedJobs() const;
 			//
-		private:
+		  private:
 			std::atomic<bool> m_multiThreadingEnabled = true;
 			std::string m_name;
 			ctpl::thread_pool m_pool;

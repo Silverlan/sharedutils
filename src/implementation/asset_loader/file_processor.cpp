@@ -3,8 +3,6 @@
 
 module;
 
-
-
 module pragma.util;
 
 import :asset_loader.file_processor;

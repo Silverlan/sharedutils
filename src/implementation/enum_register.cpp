@@ -3,10 +3,6 @@
 
 module;
 
-
-
-
-
 module pragma.util;
 
 import :enum_register;

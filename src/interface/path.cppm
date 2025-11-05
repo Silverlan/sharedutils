@@ -19,7 +19,7 @@ export {
 		class Path;
 		template<class TPath>
 		class DLLSHUTIL PathIterator {
-		public:
+		  public:
 			using iterator_category = std::forward_iterator_tag;
 			using value_type = std::string_view;
 			using difference_type = value_type;
@@ -38,14 +38,14 @@ export {
 
 			bool operator==(const PathIterator &other) const;
 			bool operator!=(const PathIterator &other) const;
-		private:
+		  private:
 			TPath *m_path = nullptr;
 			std::string_view m_cur = {};
 			size_t m_pos = 0;
 		};
 
 		class DLLSHUTIL Path {
-		public:
+		  public:
 			template<typename... Args>
 			static Path CreatePath(const Args &...args)
 			{
@@ -139,7 +139,7 @@ export {
 			PathIterator<Path> rend();
 			PathIterator<const Path> rbegin() const;
 			PathIterator<const Path> rend() const;*/
-		private:
+		  private:
 			template<typename First, typename... Rest>
 			static std::string Concatenate(bool &isFirstValidArg, const First &first)
 			{

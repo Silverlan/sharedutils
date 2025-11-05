@@ -11,15 +11,13 @@ export import std.compat;
 
 export namespace util {
 	template<typename T>
-	concept HasMemberHash = requires(const T& t) {
+	concept HasMemberHash = requires(const T &t) {
 		{ t.Hash() } -> std::convertible_to<std::size_t>;
 	};
 
 	template<HasMemberHash T>
 	struct hash_by_member {
-		std::size_t operator()(const T& t) const noexcept(noexcept(t.Hash())) {
-			return t.Hash();
-		}
+		std::size_t operator()(const T &t) const noexcept(noexcept(t.Hash())) { return t.Hash(); }
 	};
 };
 

@@ -12,13 +12,13 @@ export import :data_stream;
 export {
 	class EventMessage;
 	class DLLSHUTIL BaseEvent : public util::DataStream {
-	public:
+	  public:
 		friend EventMessage;
-	protected:
+	  protected:
 		BaseEvent();
 		int m_value;
 		std::unique_ptr<std::string> m_message;
-	public:
+	  public:
 		template<class T>
 		BaseEvent(T i, const std::string &msg) : util::DataStream(), m_value(int(i))
 		{
@@ -39,7 +39,7 @@ export {
 	/////////////////////////////
 
 	class DLLSHUTIL EventMessage : public std::shared_ptr<BaseEvent> {
-	public:
+	  public:
 		template<class T>
 		EventMessage(T i) : std::shared_ptr<BaseEvent>(new BaseEvent(i))
 		{

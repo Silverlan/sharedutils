@@ -18,14 +18,14 @@ export {
 
 	class CallbackHandle;
 	class DLLSHUTIL TCallback {
-	protected:
+	  protected:
 		void Release();
-	public:
-	#ifdef CALLBACK_SANITY_CHECK_ENABLED
+	  public:
+#ifdef CALLBACK_SANITY_CHECK_ENABLED
 		TCallback(size_t hashCode);
-	#else
+#else
 		TCallback();
-	#endif
+#endif
 		TCallback(const TCallback &other);
 		virtual ~TCallback();
 		TCallback &operator=(const TCallback &other);
@@ -34,24 +34,24 @@ export {
 		virtual bool operator==(const TCallback &other) const;
 		virtual bool operator!=(const TCallback &other) const;
 		virtual void operator()();
-	#ifdef CALLBACK_SANITY_CHECK_ENABLED
+#ifdef CALLBACK_SANITY_CHECK_ENABLED
 		size_t hashCode;
-	#endif
+#endif
 	};
 
 	template<typename T, typename... TARGS>
 	class Callback : public TCallback {
-	protected:
+	  protected:
 		std::function<T(TARGS...)> m_function;
-	public:
+	  public:
 		Callback(const std::function<T(TARGS...)> &function)
-			:
-	#ifdef CALLBACK_SANITY_CHECK_ENABLED
-			TCallback(typeid(std::function<T(TARGS...)>).hash_code()),
-	#else
-			TCallback(),
-	#endif
-			m_function(function)
+		    :
+#ifdef CALLBACK_SANITY_CHECK_ENABLED
+		      TCallback(typeid(std::function<T(TARGS...)>).hash_code()),
+#else
+		      TCallback(),
+#endif
+		      m_function(function)
 		{
 		}
 		void SetFunction(const std::function<T(TARGS...)> &f) { m_function = f; }
@@ -62,7 +62,7 @@ export {
 		class DLLSHUTIL BaseCallbackHandle {
 			using TPtr = std::shared_ptr<TCallback>;
 			using TUnderlyingType = TCallback;
-		public:
+		  public:
 			BaseCallbackHandle();
 			BaseCallbackHandle(TPtr *t);
 			BaseCallbackHandle(const TPtr &t);
@@ -81,19 +81,20 @@ export {
 			T *get() const;
 			int32_t use_count() const;
 			bool unique() const;
-		protected:
+		  protected:
 			std::shared_ptr<TPtr> m_basePointer;
 			bool m_bEmpty;
 		};
 
 		template<class T>
-		T *BaseCallbackHandle::get() const {
+		T *BaseCallbackHandle::get() const
+		{
 			return dynamic_cast<T *>(get());
 		}
 	};
 
 	class DLLSHUTIL CallbackHandle : public util::BaseCallbackHandle {
-	public:
+	  public:
 		CallbackHandle();
 		CallbackHandle(const CallbackHandle &other);
 		CallbackHandle(const std::shared_ptr<TCallback> &t);
@@ -112,10 +113,10 @@ export {
 			if(!IsValid())
 				return T();
 			auto cb = get<Callback<T, TARGS...>>();
-		#ifdef CALLBACK_SANITY_CHECK_ENABLED
+#ifdef CALLBACK_SANITY_CHECK_ENABLED
 			if(cb == nullptr && get()->hashCode != typeid(std::function<void(void)>).hash_code())
 				throw std::invalid_argument("Attempted to call callback with template arguments that are incompatible with specified template arguments!");
-		#endif
+#endif
 			if(cb != nullptr)
 				return (*cb)(std::forward<TARGS>(args)...);
 			else
@@ -129,10 +130,10 @@ export {
 			if(!IsValid())
 				return CallbackReturnType::NoReturnValue;
 			auto cb = get<Callback<CallbackReturnType, T *, TARGS...>>();
-		#ifdef CALLBACK_SANITY_CHECK_ENABLED
+#ifdef CALLBACK_SANITY_CHECK_ENABLED
 			if(cb == nullptr && get()->hashCode != typeid(std::function<void(void)>).hash_code())
 				throw std::invalid_argument("Attempted to call callback with template arguments that are incompatible with specified template arguments!");
-		#endif
+#endif
 			if(cb != nullptr) {
 				if((*cb)(ret, std::forward<TARGS>(args)...) == CallbackReturnType::HasReturnValue)
 					return CallbackReturnType::HasReturnValue;
@@ -147,16 +148,10 @@ export {
 
 	template<typename T = void, typename... TARGS>
 	class FunctionCallback {
-	private:
+	  private:
 		FunctionCallback() = delete;
-	public:
-		static CallbackHandle Create(const std::function<T(TARGS...)> &function)
-		{
-			return CallbackHandle(std::shared_ptr<Callback<T, TARGS...>>(new Callback<T, TARGS...>(function)));
-		}
-		static CallbackHandle CreateWithOptionalReturn(const std::function<CallbackReturnType(T *, TARGS...)> &function)
-		{
-			return FunctionCallback<CallbackReturnType, T *, TARGS...>::Create(function);
-		}
+	  public:
+		static CallbackHandle Create(const std::function<T(TARGS...)> &function) { return CallbackHandle(std::shared_ptr<Callback<T, TARGS...>>(new Callback<T, TARGS...>(function))); }
+		static CallbackHandle CreateWithOptionalReturn(const std::function<CallbackReturnType(T *, TARGS...)> &function) { return FunctionCallback<CallbackReturnType, T *, TARGS...>::Create(function); }
 	};
 }

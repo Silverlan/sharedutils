@@ -12,17 +12,17 @@ export import std.compat;
 export {
 	namespace util {
 		class DLLSHUTIL PtrHandleData {
-		public:
+		  public:
 			PtrHandleData(void *data);
 			void Invalidate();
 			void *GetData();
-		private:
+		  private:
 			void *m_data = nullptr;
 		};
 
 		template<typename T>
 		class THandle {
-		public:
+		  public:
 			using value_type = T;
 			THandle(const THandle<T> &) = default;
 			THandle(const std::shared_ptr<PtrHandleData> &data);
@@ -70,7 +70,7 @@ export {
 			bool unique() const { return use_count() == 1; }
 
 			const std::shared_ptr<PtrHandleData> &GetInternalData() const;
-		private:
+		  private:
 			std::shared_ptr<PtrHandleData> m_data = nullptr;
 		};
 
@@ -99,14 +99,16 @@ export {
 			return IsValid();
 		}
 		template<typename T>
-		bool THandle<T>::operator==(const THandle<T> &other) const {
-			if (!m_data)
+		bool THandle<T>::operator==(const THandle<T> &other) const
+		{
+			if(!m_data)
 				return !other.m_data;
 			return m_data->GetData() == other.m_data->GetData();
 		}
 		template<typename T>
-		bool THandle<T>::operator==(const T *other) const {
-			if (!m_data)
+		bool THandle<T>::operator==(const T *other) const
+		{
+			if(!m_data)
 				return !other;
 			return m_data->GetData() == other;
 		}
@@ -148,7 +150,7 @@ export {
 		template<typename T>
 		T *THandle<T>::Get()
 		{
-			return IsValid() ? static_cast<T*>(m_data->GetData()) : nullptr;
+			return IsValid() ? static_cast<T *>(m_data->GetData()) : nullptr;
 		}
 		template<typename T>
 		void THandle<T>::Remove()

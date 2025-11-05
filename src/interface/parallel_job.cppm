@@ -26,7 +26,7 @@ export {
 		};
 		class BaseParallelJob;
 		class DLLSHUTIL BaseParallelWorker : public std::enable_shared_from_this<BaseParallelWorker> {
-		public:
+		  public:
 			BaseParallelWorker() = default;
 			BaseParallelWorker(const BaseParallelWorker &) = delete;
 			virtual ~BaseParallelWorker();
@@ -52,14 +52,14 @@ export {
 			// Note: In general the worker should assign its status on its own, but in some cases
 			// it may be useful to be able to change it from outside.
 			void SetStatus(JobStatus jobStatus, const std::optional<std::string> &resultMsg = {}, std::optional<int32_t> resultCode = {});
-		protected:
+		  protected:
 			friend BaseParallelJob;
 			virtual void DoCancel(const std::string &resultMsg, std::optional<int32_t> resultCode);
 			void SetResultMessage(const std::string &resultMsg, std::optional<int32_t> resultCode = {});
 			void AddThread(const std::function<void()> &fThread);
 			void UpdateProgress(float progress);
 			virtual void CallCompletionHandler() = 0;
-		private:
+		  private:
 			using ThreadId = uint32_t;
 			struct ThreadInfo {
 				ThreadInfo(ThreadId id, std::thread &&thread) : id {id}, thread {std::move(thread)} {}
@@ -81,7 +81,7 @@ export {
 		};
 		template<typename T>
 		class ParallelWorker : public BaseParallelWorker {
-		public:
+		  public:
 			using RESULT_TYPE = T;
 			ParallelWorker() = default;
 			ParallelWorker(const ParallelWorker &) = default;
@@ -91,7 +91,7 @@ export {
 			virtual T GetResult() = 0;
 			void SetCompletionHandler(const std::function<void(ParallelWorker<T> &)> &fOnComplete) { m_fOnComplete = fOnComplete; }
 			const std::function<void(ParallelWorker<T> &)> &GetCompletionHandler() const { return m_fOnComplete; }
-		private:
+		  private:
 			virtual void CallCompletionHandler() override
 			{
 				if(!m_fOnComplete)
@@ -104,7 +104,7 @@ export {
 		};
 
 		class DLLSHUTIL BaseParallelJob {
-		public:
+		  public:
 			BaseParallelJob(BaseParallelWorker &worker);
 			BaseParallelJob() = default;
 			void Cancel();
@@ -124,13 +124,13 @@ export {
 
 			bool IsValid() const;
 			bool Poll();
-		protected:
+		  protected:
 			void CallCompletionHandler();
 			std::shared_ptr<BaseParallelWorker> m_worker = nullptr;
 		};
 
 		class DLLSHUTIL ParallelJobWrapper {
-		public:
+		  public:
 			template<class TJob>
 			static ParallelJobWrapper Create(TJob &job)
 			{
@@ -142,13 +142,13 @@ export {
 			const BaseParallelJob &operator*() const;
 			BaseParallelJob *operator->();
 			const BaseParallelJob *operator->() const;
-		private:
+		  private:
 			std::shared_ptr<BaseParallelJob> m_job = nullptr;
 		};
 
 		template<typename T>
 		class ParallelJob final : public BaseParallelJob {
-		public:
+		  public:
 			ParallelJob(ParallelWorker<T> &worker);
 			ParallelJob();
 			T GetResult();
@@ -167,12 +167,12 @@ export {
 		ParallelJob<typename TJob::RESULT_TYPE> create_parallel_job(TARGS &&...args)
 		{
 			auto job = std::shared_ptr<TJob> {new TJob {std::forward<TARGS>(args)...}, [](TJob *job) {
-												// These have to ben run before the destructor!
-												job->Cancel();
-												job->Wait();
+				                                  // These have to ben run before the destructor!
+				                                  job->Cancel();
+				                                  job->Wait();
 
-												delete job;
-											}};
+				                                  delete job;
+			                                  }};
 			if(job->IsValid() == false)
 				return {};
 			return ParallelJob<typename TJob::RESULT_TYPE> {*job};

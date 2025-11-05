@@ -3,9 +3,6 @@
 
 module;
 
-
-
-
 module pragma.util;
 
 import :asset_loader.format_loader;

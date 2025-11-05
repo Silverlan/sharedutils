@@ -3,7 +3,6 @@
 
 module;
 
-
 export module pragma.util:weak_handle;
 
 export import std.compat;
@@ -12,7 +11,7 @@ export {
 	namespace util {
 		template<class T>
 		class WeakHandle {
-		public:
+		  public:
 			using value_type = T;
 
 			WeakHandle() = default;
@@ -29,7 +28,7 @@ export {
 			bool valid() const;
 			T *get() const;
 			void reset();
-		private:
+		  private:
 			mutable std::weak_ptr<T> m_ptr = {};
 		};
 		template<class T>

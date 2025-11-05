@@ -5,7 +5,6 @@ module;
 
 #include "definitions.hpp"
 
-
 export module pragma.util:asset_loader.file_manager;
 
 export import :asset_loader.format_handler;
@@ -100,8 +99,7 @@ export namespace util {
 		template<class T>
 		void RegisterFormatHandler(const std::string &ext, AssetFormatType formatType = AssetFormatType::Binary)
 		{
-			return RegisterFormatHandler(
-			  ext, [](util::IAssetManager &assetManager) -> std::unique_ptr<util::IAssetFormatHandler> { return std::make_unique<T>(assetManager); }, formatType);
+			return RegisterFormatHandler(ext, [](util::IAssetManager &assetManager) -> std::unique_ptr<util::IAssetFormatHandler> { return std::make_unique<T>(assetManager); }, formatType);
 		}
 
 		PreloadResult PreloadAsset(const std::string &path, util::AssetLoadJobPriority priority, std::unique_ptr<AssetLoadInfo> &&loadInfo);
@@ -113,8 +111,7 @@ export namespace util {
 		template<class T>
 		void RegisterImportHandler(const std::string &ext, util::AssetFormatType formatType = util::AssetFormatType::Binary)
 		{
-			return RegisterImportHandler(
-			  ext, [](util::IAssetManager &assetManager) -> std::unique_ptr<util::IImportAssetFormatHandler> { return std::make_unique<T>(assetManager); }, formatType);
+			return RegisterImportHandler(ext, [](util::IAssetManager &assetManager) -> std::unique_ptr<util::IImportAssetFormatHandler> { return std::make_unique<T>(assetManager); }, formatType);
 		}
 		bool Import(const std::string &path, const std::string &outputPath, const std::string &ext, std::string *optOutErrMsg = nullptr);
 

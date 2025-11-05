@@ -3,9 +3,6 @@
 
 module;
 
-
-
-
 export module pragma.util:overridable;
 
 export import :function_callback;

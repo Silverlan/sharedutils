@@ -3,10 +3,6 @@
 
 module;
 
-
-
-
-
 module pragma.util;
 
 import :data_stream;

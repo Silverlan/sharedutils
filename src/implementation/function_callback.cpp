@@ -3,9 +3,6 @@
 
 module;
 
-
-
-
 module pragma.util;
 
 import :function_callback;
@@ -17,9 +14,10 @@ TCallback::TCallback() {}
 #endif
 TCallback::TCallback(const TCallback &other)
 #ifdef CALLBACK_SANITY_CHECK_ENABLED
-	: hashCode {other.hashCode}
+    : hashCode {other.hashCode}
 #endif
-{}
+{
+}
 TCallback::~TCallback() {}
 
 TCallback &TCallback::operator=(const TCallback &other)
@@ -39,9 +37,7 @@ void TCallback::Release() { delete this; }
 /////////////////////////////
 
 CallbackHandle::CallbackHandle() : util::BaseCallbackHandle {} {}
-CallbackHandle::CallbackHandle(const CallbackHandle &other)
-	: util::BaseCallbackHandle{other}
-{}
+CallbackHandle::CallbackHandle(const CallbackHandle &other) : util::BaseCallbackHandle {other} {}
 CallbackHandle::CallbackHandle(const std::shared_ptr<TCallback> &t) : util::BaseCallbackHandle {t} {}
 CallbackHandle::~CallbackHandle() {}
 CallbackHandle &CallbackHandle::operator=(const CallbackHandle &other)
@@ -66,21 +62,12 @@ void CallbackHandle::Remove()
 
 /////////////////////////////
 
-util::BaseCallbackHandle::BaseCallbackHandle(TPtr *t) : m_basePointer(t), m_bEmpty(false)
-{
-}
-util::BaseCallbackHandle::BaseCallbackHandle(const TPtr &t) : BaseCallbackHandle(new TPtr(t))
-{
-}
-util::BaseCallbackHandle::BaseCallbackHandle() : m_basePointer(nullptr), m_bEmpty(true)
-{
-}
+util::BaseCallbackHandle::BaseCallbackHandle(TPtr *t) : m_basePointer(t), m_bEmpty(false) {}
+util::BaseCallbackHandle::BaseCallbackHandle(const TPtr &t) : BaseCallbackHandle(new TPtr(t)) {}
+util::BaseCallbackHandle::BaseCallbackHandle() : m_basePointer(nullptr), m_bEmpty(true) {}
 util::BaseCallbackHandle::~BaseCallbackHandle() {}
 
-bool util::BaseCallbackHandle::IsValid() const
-{
-	return (!m_bEmpty && get() != nullptr) ? true : false;
-}
+bool util::BaseCallbackHandle::IsValid() const { return (!m_bEmpty && get() != nullptr) ? true : false; }
 
 util::BaseCallbackHandle::TUnderlyingType *util::BaseCallbackHandle::get() const
 {
@@ -90,20 +77,11 @@ util::BaseCallbackHandle::TUnderlyingType *util::BaseCallbackHandle::get() const
 	return (target != nullptr) ? &*target : nullptr;
 }
 
-void util::BaseCallbackHandle::Invalidate()
-{
-	*m_basePointer = nullptr;
-}
+void util::BaseCallbackHandle::Invalidate() { *m_basePointer = nullptr; }
 
-int32_t util::BaseCallbackHandle::use_count() const
-{
-	return m_basePointer.use_count();
-}
+int32_t util::BaseCallbackHandle::use_count() const { return m_basePointer.use_count(); }
 
-bool util::BaseCallbackHandle::unique() const
-{
-	return m_basePointer.use_count() == 1;
-}
+bool util::BaseCallbackHandle::unique() const { return m_basePointer.use_count() == 1; }
 
 bool util::BaseCallbackHandle::operator==(const TPtr &other) const
 {
@@ -133,17 +111,8 @@ bool util::BaseCallbackHandle::operator!=(const util::BaseCallbackHandle &other)
 	return (get() != other.get()) ? true : false;
 }
 
-bool util::BaseCallbackHandle::operator==(const std::nullptr_t) const
-{
-	return !IsValid();
-}
+bool util::BaseCallbackHandle::operator==(const std::nullptr_t) const { return !IsValid(); }
 
-bool util::BaseCallbackHandle::operator!=(const std::nullptr_t) const
-{
-	return IsValid();
-}
+bool util::BaseCallbackHandle::operator!=(const std::nullptr_t) const { return IsValid(); }
 
-util::BaseCallbackHandle::TUnderlyingType *util::BaseCallbackHandle::operator->()
-{
-	return get();
-}
+util::BaseCallbackHandle::TUnderlyingType *util::BaseCallbackHandle::operator->() { return get(); }

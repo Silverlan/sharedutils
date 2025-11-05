@@ -18,13 +18,13 @@ export import std.compat;
 #if defined(_WIN32) || defined(__linux__)
 export {
 	namespace util {
-	#ifdef _WIN32
+#ifdef _WIN32
 		using LibraryModule = HMODULE;
-	#else
+#else
 		using LibraryModule = void *;
-	#endif
+#endif
 		class DLLSHUTIL Library {
-		public:
+		  public:
 			static std::shared_ptr<Library> Load(const std::string &name, const std::vector<std::string> &additionalSearchDirectories = {}, std::string *outErr = nullptr);
 			static std::shared_ptr<Library> Get(const std::string &name, std::string *outErr = nullptr);
 
@@ -35,7 +35,7 @@ export {
 			Library(const Library &) = delete;
 			Library &operator=(const Library &) = delete;
 			~Library();
-		private:
+		  private:
 			Library(const std::string &name, LibraryModule hModule);
 			LibraryModule m_module = nullptr;
 			bool m_freeOnDestruct = true;

@@ -3,7 +3,6 @@
 
 module;
 
-
 #ifdef _WIN32
 #include <windows.h>
 #include <winnls.h>
@@ -163,7 +162,7 @@ bool util::resolve_link(const std::string &lnkPath, std::string &outResolvedPath
 {
 	std::error_code ec;
 	std::filesystem::path resolved_path = std::filesystem::canonical(lnkPath, ec); // resolves symlinks, requires target exists
-	if (ec)
+	if(ec)
 		return false;
 	outResolvedPath = resolved_path.string();
 	return true;
