@@ -20,7 +20,7 @@ pr_init_module(${PROJ_NAME})
 
 # date
 target_include_directories(${PROJ_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/third_party_libs/date/include/")
-pr_add_module_list(${PROJ_NAME} cxx_modules_impl PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/third_party_libs/date/module/date.cppm")
+pr_add_module_list(${PROJ_NAME} cxx_modules_impl PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/modules/date.cppm")
 
 # magic_enum
 target_include_directories(${PROJ_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/third_party_libs/magic_enum/include/")
@@ -39,7 +39,7 @@ target_compile_definitions(${PROJ_NAME} PRIVATE SPDLOG_SHARED_LIB)
 target_compile_definitions(${PROJ_NAME} PRIVATE SPDLOG_COMPILED_LIB)
 target_compile_definitions(${PROJ_NAME} PRIVATE FMT_UNICODE=0)
 target_include_directories(${PROJ_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/third_party_libs/spdlog/include/")
-pr_add_module_list(${PROJ_NAME} cxx_modules_impl PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/third_party_libs/spdlog/module/spdlog.cppm")
+pr_add_module_list(${PROJ_NAME} cxx_modules_impl PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/modules/spdlog.cppm")
 
 if(${SHAREDUTILS_STATIC})
 	pr_add_compile_definitions(${PROJ_NAME} -DSHUTIL_STATIC)
