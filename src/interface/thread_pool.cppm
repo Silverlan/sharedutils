@@ -3,10 +3,12 @@
 
 module;
 
-#include "sharedutils/utildefinitions.h"
-#include <sharedutils/ctpl_stl.h>
+#include "definitions.hpp"
 
 export module pragma.util:thread_pool;
+
+export import ctpl;
+export import std.compat;
 
 export namespace util {
 	class DLLSHUTIL ThreadPool {

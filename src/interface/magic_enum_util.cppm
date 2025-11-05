@@ -1,12 +1,14 @@
 // SPDX-FileCopyrightText: (c) 2021 Silverlan <opensource@pragma-engine.com>
 // SPDX-License-Identifier: MIT
 
-#ifndef __MAGIC_ENUM_UTIL_HPP__
-#define __MAGIC_ENUM_UTIL_HPP__
+module;
 
-#include "sharedutils/magic_enum.hpp"
-#include "sharedutils/util_string.h"
-namespace ustring
+export module pragma.util:magic_enum_util;
+
+export import magic_enum;
+export import std.compat;
+
+export namespace ustring
 {
     template<typename TEnum>
         constexpr TEnum string_to_enum(const std::string_view &strVal,TEnum defaultVal)
@@ -20,5 +22,3 @@ namespace ustring
         return defaultVal;
     }
 };
-
-#endif

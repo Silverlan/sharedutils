@@ -1,8 +1,7 @@
 // SPDX-FileCopyrightText: (c) 2019 Silverlan <opensource@pragma-engine.com>
 // SPDX-License-Identifier: MIT
 
-#ifndef __UTILDEFINITIONS_H__
-#define __UTILDEFINITIONS_H__
+#pragma once
 
 #ifdef SHUTIL_STATIC
 #define DLLSHUTIL
@@ -21,6 +20,4 @@
 #endif
 #ifndef UNUSED
 #define UNUSED(x) x
-#endif
-
 #endif

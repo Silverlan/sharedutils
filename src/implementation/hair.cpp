@@ -3,10 +3,6 @@
 
 module;
 
-
-
-#include "mathutil/glmutil.h"
-
 module pragma.util;
 
 import :hair;

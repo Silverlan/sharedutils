@@ -1,6 +1,6 @@
 module;
 
-#include "sharedutils/utildefinitions.h"
+#include "definitions.hpp"
 
 #include "uriparser/Uri.h"
 

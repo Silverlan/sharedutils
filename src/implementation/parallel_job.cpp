@@ -3,11 +3,10 @@
 
 module;
 
-#include "sharedutils/magic_enum.hpp"
-
 module pragma.util;
 
 import :parallel_job;
+import magic_enum;
 
 util::BaseParallelWorker::~BaseParallelWorker()
 {

@@ -3,14 +3,12 @@
 
 module;
 
-
-#include "sharedutils/magic_enum.hpp"
-
 module pragma.util;
 
 import :file_interface;
+import magic_enum;
 
-#define IsEOF(c) (c == EOF || Eof())
+#define IsEOF(c) (c == std::char_traits<char>::eof() || Eof())
 std::string ufile::IFile::ReadLine()
 {
 	int32_t c;
@@ -90,7 +88,7 @@ void ufile::MemoryFile::Seek(size_t offset, Whence whence)
 int32_t ufile::MemoryFile::ReadChar()
 {
 	if(m_pos >= m_dataSize)
-		return EOF;
+		return std::char_traits<char>::eof();
 	char c;
 	Read(&c, sizeof(c));
 	return c;

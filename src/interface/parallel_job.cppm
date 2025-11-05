@@ -3,7 +3,7 @@
 
 module;
 
-#include "sharedutils/utildefinitions.h"
+#include "definitions.hpp"
 #include <any>
 
 export module pragma.util:parallel_job;

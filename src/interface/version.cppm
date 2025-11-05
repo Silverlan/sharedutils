@@ -3,7 +3,7 @@
 
 module;
 
-#include "sharedutils/utildefinitions.h"
+#include "definitions.hpp"
 
 #ifdef __linux__
 #undef major

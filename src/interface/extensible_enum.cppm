@@ -3,14 +3,15 @@
 
 module;
 
-#include "sharedutils/utildefinitions.h"
-#include "sharedutils/util_hashable.hpp"
+#include "definitions.hpp"
 
 export module pragma.util:extensible_enum;
 
+export import std.compat;
+
 export namespace util {
 	template<typename T>
-	class TExtensibleEnum : public Hashable {
+	class TExtensibleEnum {
 	  public:
 		bool operator==(const TExtensibleEnum<T> &other) const { return m_value == other.m_value; }
 		bool operator!=(const TExtensibleEnum<T> &other) const { return m_value != other.m_value; }
@@ -35,7 +36,7 @@ export namespace util {
 		const T &operator*() const { return m_value; }
 		T &operator*() { return m_value; }
 
-		virtual std::size_t Hash() const override { return std::hash<T>()(m_value); }
+		std::size_t Hash() const { return std::hash<T>()(m_value); }
 	  protected:
 		TExtensibleEnum(const T &val) : m_value(val) {}
 		// This constructor is dangerous and should only be used if ALL enums are defined in the same compilation unit

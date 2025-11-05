@@ -3,13 +3,13 @@
 
 module;
 
-#include "sharedutils/utildefinitions.h"
-#include "sharedutils/ctpl_stl.h"
+#include "definitions.hpp"
 
 export module pragma.util:asset_loader.core;
 
 export import :asset_loader.load_job;
 export import :log;
+import ctpl;
 
 #undef AddJob
 

@@ -1,6 +1,6 @@
 module;
 
-#include "sharedutils/utildefinitions.h"
+#include "definitions.hpp"
 
 export module pragma.util:baking;
 

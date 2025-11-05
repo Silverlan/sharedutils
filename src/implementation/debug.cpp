@@ -3,9 +3,6 @@
 
 module;
 
-#include "sharedutils/magic_enum.hpp"
-
-
 #include <cpptrace/cpptrace.hpp>
 #ifdef _WIN32
 #include <Windows.h>
@@ -15,6 +12,7 @@ module;
 module pragma.util;
 
 import :debug;
+import magic_enum;
 
 static std::array<std::string, static_cast<uint32_t>(util::debug::MessageBoxButton::Count)> g_buttonLabels = {
   "Ok",

@@ -38,7 +38,7 @@
 
 module;
 
-#include "sharedutils/utildefinitions.h"
+#include "definitions.hpp"
 
 #if __cplusplus >= 201703L
 #endif // __cplusplus >= 201703L

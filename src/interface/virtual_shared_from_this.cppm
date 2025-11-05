@@ -3,7 +3,7 @@
 
 module;
 
-#include "sharedutils/utildefinitions.h"
+#include "definitions.hpp"
 
 export module pragma.util:virtual_shared_from_this;
 

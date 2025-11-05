@@ -28,7 +28,8 @@ module;
 #include <direct.h>
 #include <Shlobj_core.h>
 #endif
-#include "sharedutils/uuid.h"
+#include <ctime>
+#include "uuid.h"
 
 module pragma.util;
 
