@@ -34,6 +34,8 @@ export namespace spdlog
     using spdlog::sinks_init_list;
 
     using spdlog::get;
+    using spdlog::get_level;
+    using spdlog::flush_on;
     using spdlog::register_logger;
     using spdlog::set_pattern;
 
