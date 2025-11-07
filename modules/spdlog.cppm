@@ -42,6 +42,7 @@ export namespace spdlog
     using spdlog::formatter;
     using spdlog::pattern_formatter;
     using spdlog::set_default_logger;
+    using spdlog::format_string_t;
 
     namespace level {
         using spdlog::level::level_enum;
