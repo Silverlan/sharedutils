@@ -61,5 +61,9 @@ export namespace spdlog
         using spdlog::details::console_mutex;
         using spdlog::details::console_nullmutex;
         inline const char *default_eol = spdlog::details::os::default_eol;
+        namespace os {
+            using spdlog::details::os::in_terminal;
+            using spdlog::details::os::is_color_terminal;
+        }
     }
 } // namespace spdlog
