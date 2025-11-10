@@ -20,26 +20,26 @@ pr_init_module(${PROJ_NAME})
 
 # date
 target_include_directories(${PROJ_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/third_party_libs/date/include/")
-pr_add_module_list(${PROJ_NAME} cxx_modules_impl PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/modules/date.cppm")
+pr_add_module_list(${PROJ_NAME} cxx_modules_impl PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/modules/date.cppm")
 
 # magic_enum
 target_include_directories(${PROJ_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/third_party_libs/magic_enum/include/")
-pr_add_module_list(${PROJ_NAME} cxx_modules_impl PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/third_party_libs/magic_enum/module/magic_enum.cppm")
+pr_add_module_list(${PROJ_NAME} cxx_modules_impl PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/third_party_libs/magic_enum/module/magic_enum.cppm")
 
 # BS::thread-pool
 target_include_directories(${PROJ_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/third_party_libs/thread-pool/include/")
-pr_add_module_list(${PROJ_NAME} cxx_modules_impl PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/third_party_libs/thread-pool/modules/BS.thread_pool.cppm")
+pr_add_module_list(${PROJ_NAME} cxx_modules_impl PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/third_party_libs/thread-pool/modules/BS.thread_pool.cppm")
 
 # ctpl
 target_include_directories(${PROJ_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/third_party_libs/CTPL/")
-pr_add_module_list(${PROJ_NAME} cxx_modules_impl PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/third_party_libs/CTPL/module/ctpl.cppm")
+pr_add_module_list(${PROJ_NAME} cxx_modules_impl PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/third_party_libs/CTPL/module/ctpl.cppm")
 
 # spdlog
-target_compile_definitions(${PROJ_NAME} PRIVATE SPDLOG_SHARED_LIB)
-target_compile_definitions(${PROJ_NAME} PRIVATE SPDLOG_COMPILED_LIB)
-target_compile_definitions(${PROJ_NAME} PRIVATE FMT_UNICODE=0)
-target_include_directories(${PROJ_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/third_party_libs/spdlog/include/")
-pr_add_module_list(${PROJ_NAME} cxx_modules_impl PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/modules/spdlog.cppm")
+set(SPDLOG_BUILD_SHARED ON CACHE BOOL "Build shared library")
+set(SPDLOG_USE_STD_FORMAT ON CACHE BOOL "Use std::format instead of fmt library.")
+add_subdirectory(third_party_libs/spdlog)
+pr_add_dependency(${PROJ_NAME} spdlog TARGET PUBLIC)
+pr_add_module_list(${PROJ_NAME} cxx_modules_impl PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/modules/spdlog.cppm")
 
 if(${SHAREDUTILS_STATIC})
 	pr_add_compile_definitions(${PROJ_NAME} -DSHUTIL_STATIC)
