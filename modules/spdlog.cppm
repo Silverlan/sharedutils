@@ -7,6 +7,7 @@ module;
 #include <spdlog/pattern_formatter.h>
 #include <spdlog/sinks/sink.h>
 #include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
 
 export module spdlog;
 import std;
@@ -53,6 +54,7 @@ export namespace spdlog
     namespace sinks {
         using spdlog::sinks::sink;
         using spdlog::sinks::basic_file_sink_mt;
+        using spdlog::sinks::stdout_color_sink_mt;
     }
 
     namespace details {
