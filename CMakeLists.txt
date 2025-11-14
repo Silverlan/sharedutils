@@ -37,6 +37,7 @@ pr_add_module_list(${PROJ_NAME} cxx_modules_impl PUBLIC "${CMAKE_CURRENT_SOURCE_
 # spdlog
 set(SPDLOG_BUILD_SHARED ON CACHE BOOL "Build shared library")
 set(SPDLOG_USE_STD_FORMAT ON CACHE BOOL "Use std::format instead of fmt library.")
+set(SPDLOG_MSVC_UTF8 OFF CACHE BOOL "Enable/disable msvc /utf-8 flag required by fmt lib")
 add_subdirectory(third_party_libs/spdlog)
 pr_add_dependency(${PROJ_NAME} spdlog TARGET PUBLIC)
 pr_add_module_list(${PROJ_NAME} cxx_modules_impl PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/modules/spdlog.cppm")

@@ -32,7 +32,7 @@ uriparser::Uri::Uri(std::string uri)
 
 UriUriStructA &uriparser::Uri::GetUriParse()
 {
-	static_assert(sizeof(UriUriStructA) == decltype(uriParse_) {}.size());
+	static_assert(sizeof(UriUriStructA) == decltype(uriParse_) {}.size(), "If the size of the struct has changed, change the uriParse_ variable accordingly.");
 	return *reinterpret_cast<UriUriStructA *>(uriParse_.data());
 }
 
