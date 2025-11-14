@@ -62,12 +62,10 @@ export namespace spdlog
         using spdlog::details::make_unique;
         using spdlog::details::console_mutex;
         using spdlog::details::console_nullmutex;
-#ifndef _WIN32
-        inline const char *default_eol = spdlog::details::os::default_eol;
-#else
-        // Workaround for msvc22 unresolved external symbol compiler bug (SPDLOG_EOL has the same value as default_eol)
-        inline const char *default_eol = SPDLOG_EOL;
-#endif
+        using spdlog::details::os::default_eol;
+        namespace os {
+            using spdlog::details::os::default_eol;
+        }
         namespace os {
             using spdlog::details::os::in_terminal;
             using spdlog::details::os::is_color_terminal;
