@@ -13,10 +13,34 @@ set(PROJ_NAME sharedutils)
 pr_add_library(${PROJ_NAME} ${LIB_TYPE})
 
 pr_add_dependency(${PROJ_NAME} mathutil TARGET PUBLIC)
+pr_add_dependency(${PROJ_NAME} util_string TARGET PUBLIC)
 pr_add_external_dependency(${PROJ_NAME} cpptrace LIBRARY PRIVATE)
 
-pr_add_headers(${PROJ_NAME} "include/")
-pr_add_sources(${PROJ_NAME} "src/")
+pr_init_module(${PROJ_NAME})
+
+# date
+target_include_directories(${PROJ_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/third_party_libs/date/include/")
+pr_add_module_list(${PROJ_NAME} cxx_modules_impl PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/modules/date.cppm")
+
+# magic_enum
+target_include_directories(${PROJ_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/third_party_libs/magic_enum/include/")
+pr_add_module_list(${PROJ_NAME} cxx_modules_impl PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/third_party_libs/magic_enum/module/magic_enum.cppm")
+
+# BS::thread-pool
+target_include_directories(${PROJ_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/third_party_libs/thread-pool/include/")
+pr_add_module_list(${PROJ_NAME} cxx_modules_impl PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/third_party_libs/thread-pool/modules/BS.thread_pool.cppm")
+
+# ctpl
+target_include_directories(${PROJ_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/third_party_libs/CTPL/")
+pr_add_module_list(${PROJ_NAME} cxx_modules_impl PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/third_party_libs/CTPL/module/ctpl.cppm")
+
+# spdlog
+set(SPDLOG_BUILD_SHARED ON CACHE BOOL "Build shared library")
+set(SPDLOG_USE_STD_FORMAT ON CACHE BOOL "Use std::format instead of fmt library.")
+set(SPDLOG_MSVC_UTF8 OFF CACHE BOOL "Enable/disable msvc /utf-8 flag required by fmt lib")
+add_subdirectory(third_party_libs/spdlog)
+pr_add_dependency(${PROJ_NAME} spdlog TARGET PUBLIC)
+pr_add_module_list(${PROJ_NAME} cxx_modules_impl PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/modules/spdlog.cppm")
 
 if(${SHAREDUTILS_STATIC})
 	pr_add_compile_definitions(${PROJ_NAME} -DSHUTIL_STATIC)
