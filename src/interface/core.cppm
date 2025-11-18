@@ -269,9 +269,10 @@ export {
 		// This is a temporary replacement for std::make_shared, which causes a
 		// "definition with same mangled name" compiler error with clang-22 in some cases
 		template<typename T, typename... Args>
-		std::shared_ptr<T> make_shared(Args&&... args) {
+		std::shared_ptr<T> make_shared(Args &&...args)
+		{
 #ifdef __WIN32
-			return std::shared_ptr<T>( new T(std::forward<Args>(args)...) );
+			return std::shared_ptr<T>(new T(std::forward<Args>(args)...));
 #else
 			return std::make_shared<T>(std::forward<Args>(args)...);
 #endif
