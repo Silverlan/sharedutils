@@ -63,10 +63,8 @@ export namespace spdlog
         using spdlog::details::console_mutex;
         using spdlog::details::console_nullmutex;
 #ifdef _WIN32
-        using spdlog::details::os::default_eol;
-        namespace os {
-            using spdlog::details::os::default_eol;
-        }
+        // Workaround for msvc compiler error
+        inline const char *default_eol = "\r\n";
 #else
         inline const char *default_eol = spdlog::details::os::default_eol;
 #endif
