@@ -68,5 +68,4 @@ export import :weak_handle;
 export import BS.thread_pool;
 export import ctpl;
 export import HowardHinnant.date;
-export import magic_enum;
 export import spdlog;
