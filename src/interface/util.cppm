@@ -58,6 +58,7 @@ export import :property_vector;
 export import :scope_guard;
 export import :shader_info;
 export import :shared_handle;
+export import :shared_ptr;
 export import :thread_pool;
 export import :unified_ptr;
 export import :uri;
