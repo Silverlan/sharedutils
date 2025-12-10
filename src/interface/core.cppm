@@ -289,16 +289,9 @@ export {
 	template<class T>
 	T util::to_number(const std::string_view &str)
 	{
-#if defined(_LIBCPP_VERSION) //checking if we use clang's stl
-		if constexpr(std::is_integral_v<T>)
-			return atoi(str.data());
-		else
-			return atof(str.data());
-#else
 		T result = 0;
 		auto res = std::from_chars(str.data(), str.data() + str.size(), result);
 		return result;
-#endif
 	}
 	template<class T>
 	T util::to_float(const std::string_view &str)
