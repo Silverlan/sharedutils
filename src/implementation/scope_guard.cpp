@@ -7,7 +7,7 @@ module pragma.util;
 
 import :scope_guard;
 
-using namespace util;
+using namespace pragma::util;
 
 ScopeGuard::ScopeGuard() : f(nullptr) {}
 

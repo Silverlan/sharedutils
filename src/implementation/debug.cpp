@@ -14,7 +14,7 @@ module pragma.util;
 import :debug;
 import magic_enum;
 
-static std::array<std::string, static_cast<uint32_t>(util::debug::MessageBoxButton::Count)> g_buttonLabels = {
+static std::array<std::string, static_cast<uint32_t>(pragma::debug::MessageBoxButton::Count)> g_buttonLabels = {
   "Ok",
   "Cancel",
   "Abort",
@@ -25,9 +25,9 @@ static std::array<std::string, static_cast<uint32_t>(util::debug::MessageBoxButt
   "Try Again",
   "Continue",
 };
-void util::debug::set_button_labels(const std::array<std::string, static_cast<uint32_t>(MessageBoxButton::Count)> &labels) { g_buttonLabels = labels; }
+void pragma::debug::set_button_labels(const std::array<std::string, static_cast<uint32_t>(MessageBoxButton::Count)> &labels) { g_buttonLabels = labels; }
 
-std::optional<util::debug::MessageBoxButton> util::debug::show_message_prompt(const std::string &msg, MessageBoxButtons bts, std::optional<std::string> title)
+std::optional<pragma::debug::MessageBoxButton> pragma::debug::show_message_prompt(const std::string &msg, MessageBoxButtons bts, std::optional<std::string> title)
 {
 	if(!title)
 		title = util::get_program_name();
@@ -57,8 +57,8 @@ std::optional<util::debug::MessageBoxButton> util::debug::show_message_prompt(co
 		break;
 	}
 
-	auto wmsg = ustring::string_to_wstring(msg);
-	auto wtitle = ustring::string_to_wstring(*title);
+	auto wmsg = pragma::string::string_to_wstring(msg);
+	auto wtitle = pragma::string::string_to_wstring(*title);
 	auto res = ::MessageBoxW(NULL, wmsg.c_str(), wtitle.c_str(), winBt);
 	switch(res) {
 	case IDOK:
@@ -131,7 +131,7 @@ std::optional<util::debug::MessageBoxButton> util::debug::show_message_prompt(co
 	cmd << "--text='" + msg + "' ";
 
 	auto getButtonText = [](MessageBoxButton button) -> std::string {
-		auto identifier = ustring::to_snake_case(std::string {magic_enum::enum_name(button)});
+		auto identifier = string::to_snake_case(std::string {magic_enum::enum_name(button)});
 		auto text = g_buttonLabels[static_cast<uint32_t>(button)];
 		return text;
 	};
@@ -156,9 +156,9 @@ std::optional<util::debug::MessageBoxButton> util::debug::show_message_prompt(co
 //////////
 
 static std::function<std::string()> g_luaBacktraceFunction;
-void util::debug::set_lua_backtrace_function(const std::function<std::string()> &func) { g_luaBacktraceFunction = func; }
+void pragma::debug::set_lua_backtrace_function(const std::function<std::string()> &func) { g_luaBacktraceFunction = func; }
 
-std::string util::debug::get_formatted_stack_backtrace_string(uint32_t maxIterations)
+std::string pragma::debug::get_formatted_stack_backtrace_string(uint32_t maxIterations)
 {
 	auto trace = cpptrace::generate_trace(0, maxIterations).to_string(true);
 	if(!g_luaBacktraceFunction || trace.find("in lua_pcall") == std::string::npos)
@@ -180,14 +180,14 @@ bool _impl::util_assert(const std::string &file, uint32_t line, const std::strin
 	msg << "Assertion failed in " << file << " on line " << line << ":\n" << message << "\n\n";
 
 	msg << "Stack Trace:\n";
-	msg << util::debug::get_formatted_stack_backtrace_string();
-	auto msgType = util::debug::MessageBoxButtons::Ok;
+	msg << pragma::debug::get_formatted_stack_backtrace_string();
+	auto msgType = pragma::debug::MessageBoxButtons::Ok;
 	if(bAllowExit == true) {
-		msgType = util::debug::MessageBoxButtons::YesNo;
+		msgType = pragma::debug::MessageBoxButtons::YesNo;
 		msg << "\n\nExit?";
 	}
-	auto bt = util::debug::show_message_prompt(msg.str(), msgType, "Assertion Failed");
-	if(bt == util::debug::MessageBoxButton::Yes) {
+	auto bt = pragma::debug::show_message_prompt(msg.str(), msgType, "Assertion Failed");
+	if(bt == pragma::debug::MessageBoxButton::Yes) {
 #ifdef _WIN32
 		::PostQuitMessage(EXIT_FAILURE);
 #endif
@@ -204,9 +204,9 @@ bool _impl::util_assert(const std::string &file, uint32_t line, const std::strin
 
 #pragma comment(lib, "DbgHelp.lib")
 
-util::Symbol::LineInfo::LineInfo() : line(std::numeric_limits<decltype(line)>::max()) {}
+pragma::debug::Symbol::LineInfo::LineInfo() : line(std::numeric_limits<decltype(line)>::max()) {}
 
-util::Symbol::Symbol()
+pragma::debug::Symbol::Symbol()
 {
 	info = std::shared_ptr<SYMBOL_INFO>(reinterpret_cast<SYMBOL_INFO *>(calloc(sizeof(SYMBOL_INFO) + 256 * sizeof(uint8_t), 1)), [](SYMBOL_INFO *p) { free(p); });
 	info->MaxNameLen = 255;
@@ -215,7 +215,7 @@ util::Symbol::Symbol()
 
 // dbghelp functions are not thread safe
 static std::mutex g_dbgHelpMutex;
-std::vector<util::Symbol> util::get_stack_backtrace(uint32_t maxIterations)
+std::vector<pragma::debug::Symbol> pragma::debug::get_stack_backtrace(uint32_t maxIterations)
 {
 	std::lock_guard<std::mutex> lock {g_dbgHelpMutex};
 	std::vector<Symbol> symbols;

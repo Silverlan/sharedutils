@@ -24,7 +24,7 @@ module pragma.util;
 
 import :core;
 
-std::string util::guid_to_string(const GUID &guid)
+std::string pragma::util::guid_to_string(const GUID &guid)
 {
 	// Source: https://github.com/graeme-hill/crossguid/blob/master/src/guid.cpp
 	char one[10], two[6], three[6], four[6], five[14];
@@ -45,4 +45,4 @@ std::string util::guid_to_string(const GUID &guid)
 	return out;
 }
 
-bool util::compare_guid(const GUID &guid0, const GUID &guid1) { return memcmp(guid0.data(), guid1.data(), guid0.size()) == 0; }
+bool pragma::util::compare_guid(const GUID &guid0, const GUID &guid1) { return memcmp(guid0.data(), guid1.data(), guid0.size()) == 0; }

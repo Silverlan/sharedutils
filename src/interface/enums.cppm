@@ -8,7 +8,7 @@ export module pragma.util:enums;
 export import std.compat;
 
 export {
-	namespace util {
+	namespace pragma::util {
 		enum class EventReply : uint8_t { Unhandled = 0, Handled };
 	};
 

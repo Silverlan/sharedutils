@@ -7,7 +7,7 @@ module pragma.util;
 
 import :enum_register;
 
-uint32_t util::EnumRegister::RegisterEnum(const std::string &name)
+uint32_t pragma::util::EnumRegister::RegisterEnum(const std::string &name)
 {
 	if(name.empty())
 		return INVALID_ENUM;
@@ -29,7 +29,7 @@ uint32_t util::EnumRegister::RegisterEnum(const std::string &name)
 	}
 	return m_enums.size() - 1;
 }
-bool util::EnumRegister::GetEnumValue(const std::string &name, uint32_t &val) const
+bool pragma::util::EnumRegister::GetEnumValue(const std::string &name, uint32_t &val) const
 {
 	std::scoped_lock lock {m_enumMutex};
 	auto it = std::find(m_enums.begin(), m_enums.end(), name);
@@ -38,23 +38,23 @@ bool util::EnumRegister::GetEnumValue(const std::string &name, uint32_t &val) co
 	val = it - m_enums.begin();
 	return true;
 }
-uint32_t util::EnumRegister::GetEnumValue(const std::string &name) const
+uint32_t pragma::util::EnumRegister::GetEnumValue(const std::string &name) const
 {
 	auto r = INVALID_ENUM;
 	GetEnumValue(name, r);
 	return r;
 }
-const std::string *util::EnumRegister::GetEnumName(uint32_t val) const
+const std::string *pragma::util::EnumRegister::GetEnumName(uint32_t val) const
 {
 	std::scoped_lock lock {m_enumMutex};
 	if(val >= m_enums.size())
 		return nullptr;
 	return &m_enums.at(val);
 }
-const std::vector<std::string> &util::EnumRegister::GetEnums() const { return m_enums; }
-void util::EnumRegister::Lock() { m_enumMutex.lock(); }
-void util::EnumRegister::Unlock() { m_enumMutex.unlock(); }
-CallbackHandle util::EnumRegister::CallOnRegister(const std::function<void(std::reference_wrapper<const std::string>, uint32_t)> &f)
+const std::vector<std::string> &pragma::util::EnumRegister::GetEnums() const { return m_enums; }
+void pragma::util::EnumRegister::Lock() { m_enumMutex.lock(); }
+void pragma::util::EnumRegister::Unlock() { m_enumMutex.unlock(); }
+CallbackHandle pragma::util::EnumRegister::CallOnRegister(const std::function<void(std::reference_wrapper<const std::string>, uint32_t)> &f)
 {
 	std::scoped_lock lock {m_enumMutex};
 	m_onRegisterCallbacks.push_back(FunctionCallback<void, std::reference_wrapper<const std::string>, uint32_t>::Create(f));

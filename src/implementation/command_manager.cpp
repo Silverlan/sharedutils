@@ -11,7 +11,7 @@ module pragma.util;
 
 import :command_manager;
 
-using namespace util;
+using namespace pragma::util;
 
 std::vector<std::string> CommandManager::m_cmds;
 std::vector<std::function<void(std::vector<std::string> &)>> CommandManager::m_functions;
@@ -29,7 +29,7 @@ bool CommandManager::Input(std::string *cmdOut, const std::function<void(const s
 	std::string s;
 	std::getline(std::cin, s);
 	std::vector<std::string> args;
-	ustring::explode(s, ustring::WHITESPACE.c_str(), args);
+	string::explode(s, string::WHITESPACE.c_str(), args);
 	if(args.empty())
 		return true;
 	std::string cmd = args.front();

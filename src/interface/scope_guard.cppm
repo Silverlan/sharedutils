@@ -10,7 +10,7 @@ export module pragma.util:scope_guard;
 export import std.compat;
 
 export {
-	namespace util {
+	namespace pragma::util {
 		class DLLSHUTIL ScopeGuard {
 		  private:
 			std::function<void()> f;
@@ -28,7 +28,7 @@ export {
 			ScopeGuard &operator=(ScopeGuard &&other);
 		};
 		template<class Callable>
-		util::ScopeGuard &ScopeGuard::operator=(Callable &&undo_func)
+		pragma::util::ScopeGuard &ScopeGuard::operator=(Callable &&undo_func)
 		{
 			if(f != nullptr)
 				f();

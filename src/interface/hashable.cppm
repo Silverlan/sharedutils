@@ -9,7 +9,7 @@ export module pragma.util:hashable;
 
 export import std.compat;
 
-export namespace util {
+export namespace pragma::util {
 	template<typename T>
 	concept HasMemberHash = requires(const T &t) {
 		{ t.Hash() } -> std::convertible_to<std::size_t>;
@@ -22,4 +22,4 @@ export namespace util {
 };
 
 // Usage to enable hashing for type T:
-// namespace std { template<> struct hash<T> : util::hash_by_member<T> {}; }
+// namespace std { template<> struct hash<T> : pragma::util::hash_by_member<T> {}; }

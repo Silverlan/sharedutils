@@ -17,7 +17,7 @@ export import std.compat;
 
 #if defined(_WIN32) || defined(__linux__)
 export {
-	namespace util {
+	namespace pragma::util {
 #ifdef _WIN32
 		using LibraryModule = HMODULE;
 #else

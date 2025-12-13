@@ -443,7 +443,7 @@ void MurmurHash3_x64_128(const void *key, const int len, const uint32_t seed, vo
 
 //-----------------------------------------------------------------------------
 
-util::MurmurHash3 util::murmur_hash3(const void *data, int32_t len, uint32_t seed)
+pragma::util::MurmurHash3 pragma::util::murmur_hash3(const void *data, int32_t len, uint32_t seed)
 {
 	MurmurHash3 hash;
 	MurmurHash3_x64_128(data, len, seed, hash.data());

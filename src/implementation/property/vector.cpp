@@ -7,7 +7,7 @@ module pragma.util;
 
 import :property_vector;
 
-using namespace util;
+using namespace pragma::util;
 
 Vector2Property::Vector2Property(const Vector2 &v) : SimpleVectorProperty<Vector2Property, Vector2>::SimpleVectorProperty(v) {}
 Vector2Property::Vector2Property(float x, float y) : SimpleVectorProperty<Vector2Property, Vector2>::SimpleVectorProperty() { m_value = {x, y}; }

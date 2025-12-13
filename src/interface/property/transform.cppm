@@ -13,33 +13,33 @@ export import pragma.math;
 export {
 #pragma warning(push)
 #pragma warning(disable : 4251)
-	namespace util {
-		class DLLSHUTIL TransformProperty : public SimpleProperty<TransformProperty, umath::Transform> {
+	namespace pragma::util {
+		class DLLSHUTIL TransformProperty : public SimpleProperty<TransformProperty, pragma::math::Transform> {
 		  public:
 			TransformProperty();
-			TransformProperty(const umath::Transform &t);
+			TransformProperty(const pragma::math::Transform &t);
 			TransformProperty(const Vector3 &pos, const Quat &rot);
-			TransformProperty &operator*=(const umath::Transform &other);
+			TransformProperty &operator*=(const pragma::math::Transform &other);
 
 			template<class TProperty, class T>
 			TransformProperty &operator=(const T &val)
 			{
-				return static_cast<TransformProperty &>(SimpleProperty<TransformProperty, umath::Transform>::operator=(val));
+				return static_cast<TransformProperty &>(SimpleProperty<TransformProperty, pragma::math::Transform>::operator=(val));
 			}
 		};
 		using PTransformProperty = std::shared_ptr<TransformProperty>;
 
-		class DLLSHUTIL ScaledTransformProperty : public SimpleProperty<ScaledTransformProperty, umath::ScaledTransform> {
+		class DLLSHUTIL ScaledTransformProperty : public SimpleProperty<ScaledTransformProperty, pragma::math::ScaledTransform> {
 		  public:
 			ScaledTransformProperty();
-			ScaledTransformProperty(const umath::ScaledTransform &t);
+			ScaledTransformProperty(const pragma::math::ScaledTransform &t);
 			ScaledTransformProperty(const Vector3 &pos, const Quat &rot, const Vector3 &scale);
-			ScaledTransformProperty &operator*=(const umath::ScaledTransform &other);
+			ScaledTransformProperty &operator*=(const pragma::math::ScaledTransform &other);
 
 			template<class TProperty, class T>
 			ScaledTransformProperty &operator=(const T &val)
 			{
-				return static_cast<ScaledTransformProperty &>(SimpleProperty<ScaledTransformProperty, umath::ScaledTransform>::operator=(val));
+				return static_cast<ScaledTransformProperty &>(SimpleProperty<ScaledTransformProperty, pragma::math::ScaledTransform>::operator=(val));
 			}
 		};
 		using PScaledTransformProperty = std::shared_ptr<ScaledTransformProperty>;

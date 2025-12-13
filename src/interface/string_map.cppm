@@ -9,7 +9,7 @@ export module pragma.util:string_map;
 
 export import std.compat;
 
-export namespace util {
+export namespace pragma::util {
 	// See https://en.cppreference.com/w/cpp/container/unordered_map/find
 	struct DLLSHUTIL string_hash {
 		using hash_type = std::hash<std::string_view>;

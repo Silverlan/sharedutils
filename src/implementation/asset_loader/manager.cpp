@@ -60,7 +60,7 @@ unsigned long hash_identifier(std::string_view key)
 		c = std::tolower(static_cast<unsigned char>(c));
 		if(contains_dot_file(key, i)) {
 			// Path contains '.' or '..', we'll have to canonicalize and re-hash
-			auto path = util::Path::CreateFile(std::string {key});
+			auto path = pragma::util::Path::CreateFile(std::string {key});
 			path.Canonicalize();
 			auto &strPath = path.GetString();
 			return hash_identifier(strPath);
@@ -71,9 +71,9 @@ unsigned long hash_identifier(std::string_view key)
 	return hash;
 }
 
-bool util::Asset::IsInUse() const { return assetObject.use_count() > 1 || alwaysInUse; }
+bool pragma::util::Asset::IsInUse() const { return assetObject.use_count() > 1 || alwaysInUse; }
 
-void util::IAssetManager::FlagAssetAsAlwaysInUse(const std::string &assetName, bool alwaysInUse)
+void pragma::util::IAssetManager::FlagAssetAsAlwaysInUse(const std::string &assetName, bool alwaysInUse)
 {
 	auto identifier = ToCacheIdentifier(assetName);
 
@@ -85,7 +85,7 @@ void util::IAssetManager::FlagAssetAsAlwaysInUse(const std::string &assetName, b
 	m_assets[it->second].asset->alwaysInUse = alwaysInUse;
 }
 
-void util::IAssetManager::StripFileExtension(std::string_view &key) const
+void pragma::util::IAssetManager::StripFileExtension(std::string_view &key) const
 {
 	if(key.empty())
 		return;
@@ -105,20 +105,20 @@ void util::IAssetManager::StripFileExtension(std::string_view &key) const
 	}
 }
 
-std::vector<util::IAssetManager::FormatExtensionInfo>::const_iterator util::IAssetManager::FindExtension(const std::vector<FormatExtensionInfo> &exts, const std::string_view &ext, const std::optional<FormatExtensionInfo::Type> type)
+std::vector<pragma::util::IAssetManager::FormatExtensionInfo>::const_iterator pragma::util::IAssetManager::FindExtension(const std::vector<FormatExtensionInfo> &exts, const std::string_view &ext, const std::optional<FormatExtensionInfo::Type> type)
 {
 	auto hash = hash_identifier(ext);
 	return std::find_if(exts.begin(), exts.end(), [hash, &type](const FormatExtensionInfo &extInfo) { return hash == extInfo.hash && (!type.has_value() || extInfo.type == *type); });
 }
 
-util::IAssetManager::IAssetManager() : m_mainThreadId {std::this_thread::get_id()} {}
-util::IAssetManager::~IAssetManager()
+pragma::util::IAssetManager::IAssetManager() : m_mainThreadId {std::this_thread::get_id()} {}
+pragma::util::IAssetManager::~IAssetManager()
 {
 	assert(m_reset);
 	if(!m_reset)
 		throw std::runtime_error {"Asset manager was not reset!"};
 }
-void util::IAssetManager::Reset()
+void pragma::util::IAssetManager::Reset()
 {
 	ValidateMainThread();
 	if(m_reset)
@@ -140,12 +140,12 @@ void util::IAssetManager::Reset()
 	m_flaggedForDeletion.clear();
 	m_extensions.clear();
 }
-void util::IAssetManager::ValidateMainThread()
+void pragma::util::IAssetManager::ValidateMainThread()
 {
 	if(std::this_thread::get_id() != m_mainThreadId)
 		throw std::runtime_error {"This action is only allowed from the same thread that created the asset manager!"};
 }
-util::AssetIndex util::IAssetManager::AddToIndex(const std::shared_ptr<Asset> &asset)
+pragma::util::AssetIndex pragma::util::IAssetManager::AddToIndex(const std::shared_ptr<Asset> &asset)
 {
 	ValidateMainThread();
 	AssetIndex index = 0;
@@ -167,7 +167,7 @@ util::AssetIndex util::IAssetManager::AddToIndex(const std::shared_ptr<Asset> &a
 	asset->index = index;
 	return index;
 }
-util::AssetIndex util::IAssetManager::AddToCache(const std::string &assetName, const std::shared_ptr<Asset> &asset)
+pragma::util::AssetIndex pragma::util::IAssetManager::AddToCache(const std::string &assetName, const std::shared_ptr<Asset> &asset)
 {
 	ValidateMainThread();
 	auto identifier = ToCacheIdentifier(assetName);
@@ -204,7 +204,7 @@ util::AssetIndex util::IAssetManager::AddToCache(const std::string &assetName, c
 	asset->index = index;
 	return index;
 }
-bool util::IAssetManager::RemoveFromCache(const std::string &assetName)
+bool pragma::util::IAssetManager::RemoveFromCache(const std::string &assetName)
 {
 	ValidateMainThread();
 	auto identifier = ToCacheIdentifier(assetName);
@@ -216,20 +216,20 @@ bool util::IAssetManager::RemoveFromCache(const std::string &assetName)
 	m_assets[it->second].asset = nullptr;
 	return true;
 }
-void util::IAssetManager::RegisterFileExtension(const std::string &ext, AssetFormatType formatType, FormatExtensionInfo::Type type)
+void pragma::util::IAssetManager::RegisterFileExtension(const std::string &ext, AssetFormatType formatType, FormatExtensionInfo::Type type)
 {
 	ValidateMainThread();
 	m_extensions.push_back({ext, hash_identifier(ext), formatType, type});
 }
-size_t util::IAssetManager::GetIdentifierHash(const std::string &assetName) const
+size_t pragma::util::IAssetManager::GetIdentifierHash(const std::string &assetName) const
 {
 	std::string_view strView {assetName};
 	StripFileExtension(strView);
 	return hash_identifier(strView);
 }
-std::string util::IAssetManager::ToCacheIdentifier(const std::string &assetName) const
+std::string pragma::util::IAssetManager::ToCacheIdentifier(const std::string &assetName) const
 {
-	auto path = util::Path::CreateFile(assetName);
+	auto path = Path::CreateFile(assetName);
 	path.Canonicalize();
 	path.RemoveLeadingRootSlash();
 	auto canonPath = path.Move();
@@ -241,7 +241,7 @@ std::string util::IAssetManager::ToCacheIdentifier(const std::string &assetName)
 	return std::move(canonPath);
 }
 
-bool util::IAssetManager::ClearAsset(AssetIndex idx)
+bool pragma::util::IAssetManager::ClearAsset(AssetIndex idx)
 {
 	ValidateMainThread();
 	if(idx >= m_assets.size())
@@ -262,7 +262,7 @@ bool util::IAssetManager::ClearAsset(AssetIndex idx)
 	return true;
 }
 
-uint32_t util::IAssetManager::ClearUnused()
+uint32_t pragma::util::IAssetManager::ClearUnused()
 {
 	ValidateMainThread();
 	uint32_t n = 0;
@@ -274,7 +274,7 @@ uint32_t util::IAssetManager::ClearUnused()
 	}
 	return n;
 }
-uint32_t util::IAssetManager::ClearFlagged()
+uint32_t pragma::util::IAssetManager::ClearFlagged()
 {
 	ValidateMainThread();
 	auto flaggedForDeletion = std::move(m_flaggedForDeletion);
@@ -286,7 +286,7 @@ uint32_t util::IAssetManager::ClearFlagged()
 	}
 	return n;
 }
-uint32_t util::IAssetManager::Clear()
+uint32_t pragma::util::IAssetManager::Clear()
 {
 	ValidateMainThread();
 	m_cacheMutex.lock();
@@ -298,7 +298,7 @@ uint32_t util::IAssetManager::Clear()
 	m_flaggedForDeletion.clear();
 	return n;
 }
-void util::IAssetManager::FlagForRemoval(const std::string &assetName, bool flag)
+void pragma::util::IAssetManager::FlagForRemoval(const std::string &assetName, bool flag)
 {
 	ValidateMainThread();
 	auto idx = GetAssetIndex(assetName);
@@ -307,7 +307,7 @@ void util::IAssetManager::FlagForRemoval(const std::string &assetName, bool flag
 	FlagForRemoval(*idx, flag);
 }
 
-void util::IAssetManager::FlagForRemoval(AssetIndex idx, bool flag)
+void pragma::util::IAssetManager::FlagForRemoval(AssetIndex idx, bool flag)
 {
 	ValidateMainThread();
 	m_cacheMutex.lock();
@@ -325,7 +325,7 @@ void util::IAssetManager::FlagForRemoval(AssetIndex idx, bool flag)
 	}
 }
 
-void util::IAssetManager::FlagAllForRemoval()
+void pragma::util::IAssetManager::FlagAllForRemoval()
 {
 	ValidateMainThread();
 	m_flaggedForDeletion.reserve(m_assets.size());
@@ -337,21 +337,21 @@ void util::IAssetManager::FlagAllForRemoval()
 	}
 }
 
-void util::IAssetManager::SetLogHandler(const util::LogHandler &logHandler) { m_logHandler = logHandler; }
-void util::IAssetManager::Log(const std::string &msg, util::LogSeverity severity) const
+void pragma::util::IAssetManager::SetLogHandler(const LogHandler &logHandler) { m_logHandler = logHandler; }
+void pragma::util::IAssetManager::Log(const std::string &msg, LogSeverity severity) const
 {
 	if(!ShouldLog())
 		return;
 	m_logHandler(msg, severity);
 }
-bool util::IAssetManager::ShouldLog() const { return m_logHandler != nullptr; }
+bool pragma::util::IAssetManager::ShouldLog() const { return m_logHandler != nullptr; }
 
-util::Asset *util::IAssetManager::GetAsset(AssetIndex index)
+pragma::util::Asset *pragma::util::IAssetManager::GetAsset(AssetIndex index)
 {
 	// ValidateMainThread();
 	return (index < m_assets.size()) ? m_assets[index].asset.get() : nullptr;
 }
-std::optional<util::AssetIndex> util::IAssetManager::GetAssetIndex(const std::string &assetName) const
+std::optional<pragma::util::AssetIndex> pragma::util::IAssetManager::GetAssetIndex(const std::string &assetName) const
 {
 	auto hash = GetIdentifierHash(assetName);
 	std::scoped_lock lock {m_cacheMutex};
@@ -361,11 +361,11 @@ std::optional<util::AssetIndex> util::IAssetManager::GetAssetIndex(const std::st
 	return it->second;
 }
 
-const std::unordered_map<util::AssetIdentifierHash, util::AssetIndex> &util::IAssetManager::GetCache() const { return m_cache; }
-const std::vector<util::IAssetManager::AssetInfo> &util::IAssetManager::GetAssets() const { return m_assets; }
+const std::unordered_map<pragma::util::AssetIdentifierHash, pragma::util::AssetIndex> &pragma::util::IAssetManager::GetCache() const { return m_cache; }
+const std::vector<pragma::util::IAssetManager::AssetInfo> &pragma::util::IAssetManager::GetAssets() const { return m_assets; }
 
-const util::Asset *util::IAssetManager::FindCachedAsset(const std::string &assetName) const { return const_cast<IAssetManager *>(this)->FindCachedAsset(assetName); }
-util::Asset *util::IAssetManager::FindCachedAsset(const std::string &assetName)
+const pragma::util::Asset *pragma::util::IAssetManager::FindCachedAsset(const std::string &assetName) const { return const_cast<IAssetManager *>(this)->FindCachedAsset(assetName); }
+pragma::util::Asset *pragma::util::IAssetManager::FindCachedAsset(const std::string &assetName)
 {
 	m_cacheMutex.lock();
 	auto it = m_cache.find(GetIdentifierHash(assetName));
@@ -377,7 +377,7 @@ util::Asset *util::IAssetManager::FindCachedAsset(const std::string &assetName)
 	m_cacheMutex.unlock();
 	return GetAsset(idx);
 }
-util::Asset *util::IAssetManager::FindCachedAsset(const std::string &assetName, bool lockMutex)
+pragma::util::Asset *pragma::util::IAssetManager::FindCachedAsset(const std::string &assetName, bool lockMutex)
 {
 	if(lockMutex)
 		m_cacheMutex.lock();

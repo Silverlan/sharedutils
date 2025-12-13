@@ -36,13 +36,13 @@ void TCallback::Release() { delete this; }
 
 /////////////////////////////
 
-CallbackHandle::CallbackHandle() : util::BaseCallbackHandle {} {}
-CallbackHandle::CallbackHandle(const CallbackHandle &other) : util::BaseCallbackHandle {other} {}
-CallbackHandle::CallbackHandle(const std::shared_ptr<TCallback> &t) : util::BaseCallbackHandle {t} {}
+CallbackHandle::CallbackHandle() : pragma::util::BaseCallbackHandle {} {}
+CallbackHandle::CallbackHandle(const CallbackHandle &other) : pragma::util::BaseCallbackHandle {other} {}
+CallbackHandle::CallbackHandle(const std::shared_ptr<TCallback> &t) : pragma::util::BaseCallbackHandle {t} {}
 CallbackHandle::~CallbackHandle() {}
 CallbackHandle &CallbackHandle::operator=(const CallbackHandle &other)
 {
-	util::BaseCallbackHandle::operator=(other);
+	BaseCallbackHandle::operator=(other);
 	return *this;
 }
 void CallbackHandle::operator()()
@@ -62,14 +62,14 @@ void CallbackHandle::Remove()
 
 /////////////////////////////
 
-util::BaseCallbackHandle::BaseCallbackHandle(TPtr *t) : m_basePointer(t), m_bEmpty(false) {}
-util::BaseCallbackHandle::BaseCallbackHandle(const TPtr &t) : BaseCallbackHandle(new TPtr(t)) {}
-util::BaseCallbackHandle::BaseCallbackHandle() : m_basePointer(nullptr), m_bEmpty(true) {}
-util::BaseCallbackHandle::~BaseCallbackHandle() {}
+pragma::util::BaseCallbackHandle::BaseCallbackHandle(TPtr *t) : m_basePointer(t), m_bEmpty(false) {}
+pragma::util::BaseCallbackHandle::BaseCallbackHandle(const TPtr &t) : BaseCallbackHandle(new TPtr(t)) {}
+pragma::util::BaseCallbackHandle::BaseCallbackHandle() : m_basePointer(nullptr), m_bEmpty(true) {}
+pragma::util::BaseCallbackHandle::~BaseCallbackHandle() {}
 
-bool util::BaseCallbackHandle::IsValid() const { return (!m_bEmpty && get() != nullptr) ? true : false; }
+bool pragma::util::BaseCallbackHandle::IsValid() const { return (!m_bEmpty && get() != nullptr) ? true : false; }
 
-util::BaseCallbackHandle::TUnderlyingType *util::BaseCallbackHandle::get() const
+pragma::util::BaseCallbackHandle::TUnderlyingType *pragma::util::BaseCallbackHandle::get() const
 {
 	if(m_bEmpty || m_basePointer.get() == nullptr)
 		return nullptr;
@@ -77,42 +77,42 @@ util::BaseCallbackHandle::TUnderlyingType *util::BaseCallbackHandle::get() const
 	return (target != nullptr) ? &*target : nullptr;
 }
 
-void util::BaseCallbackHandle::Invalidate() { *m_basePointer = nullptr; }
+void pragma::util::BaseCallbackHandle::Invalidate() { *m_basePointer = nullptr; }
 
-int32_t util::BaseCallbackHandle::use_count() const { return m_basePointer.use_count(); }
+int32_t pragma::util::BaseCallbackHandle::use_count() const { return m_basePointer.use_count(); }
 
-bool util::BaseCallbackHandle::unique() const { return m_basePointer.use_count() == 1; }
+bool pragma::util::BaseCallbackHandle::unique() const { return m_basePointer.use_count() == 1; }
 
-bool util::BaseCallbackHandle::operator==(const TPtr &other) const
+bool pragma::util::BaseCallbackHandle::operator==(const TPtr &other) const
 {
 	if(other == nullptr)
 		return !IsValid();
 	return (*m_basePointer.get() == other) ? true : false;
 }
 
-bool util::BaseCallbackHandle::operator!=(const TPtr &other) const
+bool pragma::util::BaseCallbackHandle::operator!=(const TPtr &other) const
 {
 	if(other == nullptr)
 		return IsValid();
 	return (*m_basePointer.get() != other) ? true : false;
 }
 
-bool util::BaseCallbackHandle::operator==(const util::BaseCallbackHandle &other) const
+bool pragma::util::BaseCallbackHandle::operator==(const BaseCallbackHandle &other) const
 {
 	if(other == nullptr)
 		return !IsValid();
 	return (get() == other.get()) ? true : false;
 }
 
-bool util::BaseCallbackHandle::operator!=(const util::BaseCallbackHandle &other) const
+bool pragma::util::BaseCallbackHandle::operator!=(const BaseCallbackHandle &other) const
 {
 	if(other == nullptr)
 		return IsValid();
 	return (get() != other.get()) ? true : false;
 }
 
-bool util::BaseCallbackHandle::operator==(const std::nullptr_t) const { return !IsValid(); }
+bool pragma::util::BaseCallbackHandle::operator==(const std::nullptr_t) const { return !IsValid(); }
 
-bool util::BaseCallbackHandle::operator!=(const std::nullptr_t) const { return IsValid(); }
+bool pragma::util::BaseCallbackHandle::operator!=(const std::nullptr_t) const { return IsValid(); }
 
-util::BaseCallbackHandle::TUnderlyingType *util::BaseCallbackHandle::operator->() { return get(); }
+pragma::util::BaseCallbackHandle::TUnderlyingType *pragma::util::BaseCallbackHandle::operator->() { return get(); }

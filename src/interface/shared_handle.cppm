@@ -10,7 +10,7 @@ export module pragma.util:shared_handle;
 export import std.compat;
 
 export {
-	namespace util {
+	namespace pragma::util {
 		class DLLSHUTIL PtrSharedHandleData {
 		  public:
 			PtrSharedHandleData(const std::shared_ptr<void> &data);
@@ -167,7 +167,7 @@ export {
 		};
 	};
 
-	namespace util {
+	namespace pragma::util {
 		template<typename T>
 		TSharedHandle<T>::TSharedHandle() : m_data {nullptr}, m_typedPtr {nullptr}
 		{

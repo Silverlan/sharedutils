@@ -13,14 +13,14 @@ module pragma.util;
 
 import :library;
 
-using namespace util;
+using namespace pragma::util;
 std::shared_ptr<Library> Library::Get(const std::string &name, std::string *outErr)
 {
 #ifdef _WIN32
 	auto nName = name;
 	ufile::remove_extension_from_filename(nName);
 	nName += ".dll";
-	ustring::replace(nName, "/", "\\");
+	pragma::string::replace(nName, "/", "\\");
 	auto hModule = GetModuleHandleA(nName.c_str());
 	if(hModule == nullptr)
 		return nullptr;
@@ -43,8 +43,8 @@ std::shared_ptr<Library> Library::Load(const std::string &name, const std::vecto
 	dirCookies.reserve(additionalSearchDirectories.size());
 	for(auto &searchPath : additionalSearchDirectories) {
 		auto nSearchPath = searchPath;
-		ustring::replace(nSearchPath, "/", "\\");
-		auto cookie = AddDllDirectory(ustring::string_to_wstring(nSearchPath).c_str());
+		pragma::string::replace(nSearchPath, "/", "\\");
+		auto cookie = AddDllDirectory(pragma::string::string_to_wstring(nSearchPath).c_str());
 		if(cookie == nullptr)
 			continue;
 		dirCookies.push_back(cookie);
@@ -56,7 +56,7 @@ std::shared_ptr<Library> Library::Load(const std::string &name, const std::vecto
 	auto nName = name;
 	ufile::remove_extension_from_filename(nName);
 	nName += ".dll";
-	ustring::replace(nName, "/", "\\");
+	pragma::string::replace(nName, "/", "\\");
 	auto hModule = LoadLibraryEx(nName.c_str(), nullptr, LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
 	if(hModule == nullptr) {
 		if(outErr != nullptr) {
@@ -75,11 +75,11 @@ std::shared_ptr<Library> Library::Load(const std::string &name, const std::vecto
 #else
 	auto curLibPath = get_env_variable("LD_LIBRARY_PATH");
 	if(curLibPath.has_value()) {
-		auto newLibPath = *curLibPath + ":" + ustring::implode(additionalSearchDirectories, ":"); //Those are loaded LAST.
+		auto newLibPath = *curLibPath + ":" + string::implode(additionalSearchDirectories, ":"); //Those are loaded LAST.
 		set_env_variable("LD_LIBRARY_PATH", newLibPath);
 	}
 
-	util::ScopeGuard sgResetLibPath {[curLibPath = std::move(curLibPath)]() {
+	ScopeGuard sgResetLibPath {[curLibPath = std::move(curLibPath)]() {
 		if(curLibPath.has_value())
 			set_env_variable("LD_LIBRARY_PATH", *curLibPath);
 	}};

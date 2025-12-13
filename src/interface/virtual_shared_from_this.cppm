@@ -12,7 +12,7 @@ export import std.compat;
 // Source: http://stackoverflow.com/a/16083526/2482983
 #pragma warning(push)
 #pragma warning(disable : 4251)
-namespace util {
+namespace pragma::util {
 	namespace impl {
 		class DLLSHUTIL MultipleInheritableEnableSharedFromThis : public std::enable_shared_from_this<MultipleInheritableEnableSharedFromThis> {
 		  public:

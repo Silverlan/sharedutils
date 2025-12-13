@@ -7,7 +7,7 @@ module pragma.util;
 
 import :shader_info;
 
-using namespace util;
+using namespace pragma::util;
 
 ShaderInfo::ShaderInfo(const std::string &identifier) : m_identifier(identifier), m_shader(nullptr) {}
 const std::shared_ptr<void> &ShaderInfo::GetShader() const { return m_shader; }

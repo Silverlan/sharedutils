@@ -9,10 +9,10 @@ import :asset_loader.format_loader;
 
 #undef AddJob
 
-util::AssetFormatLoader::AssetFormatLoader(util::IAssetManager &assetManager, std::string name) : IAssetLoader {std::move(name)}, m_assetManager {assetManager} {}
-void util::AssetFormatLoader::RegisterFormatHandler(const std::string &ext, const std::function<std::unique_ptr<IAssetFormatHandler>(util::IAssetManager &)> &factory) { m_formatHandlers[ext] = factory; }
+pragma::util::AssetFormatLoader::AssetFormatLoader(IAssetManager &assetManager, std::string name) : IAssetLoader {std::move(name)}, m_assetManager {assetManager} {}
+void pragma::util::AssetFormatLoader::RegisterFormatHandler(const std::string &ext, const std::function<std::unique_ptr<IAssetFormatHandler>(IAssetManager &)> &factory) { m_formatHandlers[ext] = factory; }
 
-std::optional<util::AssetLoadJobId> util::AssetFormatLoader::AddJob(const std::string &identifier, const std::string &ext, std::unique_ptr<ufile::IFile> &&file, util::AssetLoadJobPriority priority, const std::function<void(util::IAssetProcessor &)> &initProcessor)
+std::optional<pragma::util::AssetLoadJobId> pragma::util::AssetFormatLoader::AddJob(const std::string &identifier, const std::string &ext, std::unique_ptr<ufile::IFile> &&file, AssetLoadJobPriority priority, const std::function<void(IAssetProcessor &)> &initProcessor)
 {
 	auto it = m_formatHandlers.find(ext);
 	if(it == m_formatHandlers.end())

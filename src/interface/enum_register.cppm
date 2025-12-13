@@ -12,7 +12,7 @@ export import :function_callback;
 
 #undef max
 
-export namespace util {
+export namespace pragma::util {
 	CONSTEXPR_COMPAT uint32_t INVALID_ENUM = std::numeric_limits<uint32_t>::max();
 	class DLLSHUTIL EnumRegister {
 	  public:

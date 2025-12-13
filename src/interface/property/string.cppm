@@ -11,7 +11,7 @@ export import :property;
 export import :property_simple_number;
 
 export {
-	namespace util {
+	namespace pragma::util {
 		class DLLSHUTIL StringProperty : public SimpleProperty<StringProperty, std::string> {
 		  public:
 			StringProperty() : SimpleProperty<StringProperty, std::string> {} {}

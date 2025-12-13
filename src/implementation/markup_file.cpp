@@ -7,7 +7,7 @@ module pragma.util;
 
 import :markup_file;
 
-using namespace util;
+using namespace pragma::util;
 
 MarkupFile::MarkupFile(const DataStream &ds) : m_dataStream {ds} {}
 MarkupFile::ResultCode MarkupFile::ReadUntil(const std::string &str, std::string &readString, bool bExclude, bool bIncludeLast)
@@ -46,7 +46,7 @@ MarkupFile::ResultCode MarkupFile::ReadNextToken(char &token)
 {
 	auto &ds = m_dataStream;
 	auto str = std::string {};
-	auto r = ReadUntil(ustring::WHITESPACE, str, true);
+	auto r = ReadUntil(string::WHITESPACE, str, true);
 	if(r != ResultCode::Ok)
 		return r;
 	token = str.back();
@@ -57,7 +57,7 @@ MarkupFile::ResultCode MarkupFile::ReadNextToken(char &token)
 
 MarkupFile::ResultCode MarkupFile::ReadNextParameterToken(char &token)
 {
-	auto filter = ustring::WHITESPACE;
+	auto filter = string::WHITESPACE;
 	filter.erase(std::remove(filter.begin(), filter.end(), '\n'), filter.end());
 	auto str = std::string {};
 	auto r = ReadUntil(filter, str, true);
@@ -72,7 +72,7 @@ MarkupFile::ResultCode MarkupFile::ReadNextParameterToken(char &token)
 MarkupFile::ResultCode MarkupFile::ReadNextString(std::string &readStr, const std::string &endOfStringTokens)
 {
 	auto &str = readStr;
-	auto r = ReadUntil(ustring::WHITESPACE, str, true);
+	auto r = ReadUntil(string::WHITESPACE, str, true);
 	if(r != ResultCode::Ok)
 		return r;
 	if(endOfStringTokens.find(str.back()) != std::string::npos) {

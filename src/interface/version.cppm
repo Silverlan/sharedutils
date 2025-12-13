@@ -15,7 +15,7 @@ export module pragma.util:version;
 export import std.compat;
 
 export {
-	namespace util {
+	namespace pragma::util {
 #ifdef _WIN32
 #pragma pack(push, 1)
 #endif
@@ -46,5 +46,5 @@ export {
 #endif
 	}
 
-	DLLSHUTIL std::ostream &operator<<(std::ostream &out, const util::Version &version);
+	DLLSHUTIL std::ostream &operator<<(std::ostream &out, const pragma::util::Version &version);
 }

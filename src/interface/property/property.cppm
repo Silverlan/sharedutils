@@ -14,7 +14,7 @@ export import pragma.math;
 export {
 #pragma warning(push)
 #pragma warning(disable : 4251)
-	namespace util {
+	namespace pragma::util {
 		class DLLSHUTIL BaseProperty {
 		  public:
 			void AddCallback(const CallbackHandle &hCallback);
@@ -87,13 +87,13 @@ export {
 		};
 		using PBoolProperty = std::shared_ptr<BoolProperty>;
 
-		using namespace umath::scoped_enum::bitwise;
+		using namespace pragma::math::scoped_enum::bitwise;
 	};
-	REGISTER_ENUM_FLAGS(util::SimplePropertyFlags)
+	REGISTER_ENUM_FLAGS(pragma::util::SimplePropertyFlags)
 
 #pragma warning(pop)
 
-	namespace util {
+	namespace pragma::util {
 		template<class TProperty, class T>
 		std::shared_ptr<TProperty> SimpleProperty<TProperty, T>::Create(const T &value)
 		{

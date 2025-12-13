@@ -12,7 +12,7 @@ export import :property;
 export {
 #pragma warning(push)
 #pragma warning(disable : 4544)
-	namespace util {
+	namespace pragma::util {
 		template<class TProperty, class T>
 		class SimpleNumberProperty : public SimpleProperty<TProperty, T> {
 		  public:
@@ -127,7 +127,7 @@ export {
 		};
 	};
 
-	namespace util {
+	namespace pragma::util {
 		template<class TProperty, class T>
 		SimpleNumberProperty<TProperty, T> &SimpleNumberProperty<TProperty, T>::operator=(const T &val)
 		{
@@ -566,7 +566,7 @@ export {
 
 #pragma warning(push)
 #pragma warning(disable : 4251)
-	namespace util {
+	namespace pragma::util {
 		DEFINE_SIMPLE_NUMBER_PROPERTY(Int8, int8_t);
 		DEFINE_SIMPLE_NUMBER_PROPERTY(UInt8, uint8_t);
 		DEFINE_SIMPLE_NUMBER_PROPERTY(Int16, int16_t);

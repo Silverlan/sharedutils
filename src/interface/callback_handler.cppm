@@ -10,7 +10,7 @@ export module pragma.util:callback_handler;
 export import :function_callback;
 
 export {
-	namespace util {
+	namespace pragma::util {
 #pragma warning(push)
 #pragma warning(disable : 4251)
 		template<typename T>

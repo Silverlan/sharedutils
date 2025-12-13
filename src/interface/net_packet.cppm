@@ -23,13 +23,13 @@ export {
 	constexpr size_t NWM_DEFAULT_PACKET_SIZE = 32;
 	constexpr size_t NWM_MAX_PACKET_SIZE = (0x2003 - NWM_PACKET_HEADER_EXTENDED_SIZE);
 
-	class DLLSHUTIL NWMPacket : public util::DataStreamBase {
+	class DLLSHUTIL NWMPacket : public pragma::util::DataStreamBase {
 	  private:
 		bool m_bClient = false;
 		uint64_t m_tActivated = 0;
 
 		NWMPacket(void *, uint32_t) {};
-		friend util::TDataStream<NWMPacket>;
+		friend pragma::util::TDataStream<NWMPacket>;
 	  public:
 		NWMPacket();
 		NWMPacket(uint32_t size);
@@ -42,7 +42,7 @@ export {
 		uint64_t GetTimeActivated() const;
 	};
 
-	class DLLSHUTIL NetPacket : public util::TDataStream<NWMPacket> {
+	class DLLSHUTIL NetPacket : public pragma::util::TDataStream<NWMPacket> {
 	  protected:
 		uint32_t m_messageID;
 	  public:

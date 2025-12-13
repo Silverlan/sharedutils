@@ -13,7 +13,7 @@ export import pragma.math;
 export {
 #pragma warning(push)
 #pragma warning(disable : 4251)
-	namespace util {
+	namespace pragma::util {
 		class DLLSHUTIL EulerAnglesProperty : public SimpleProperty<EulerAnglesProperty, EulerAngles> {
 		  public:
 			EulerAnglesProperty();

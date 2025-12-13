@@ -13,7 +13,7 @@ export import pragma.math;
 export {
 #pragma warning(push)
 #pragma warning(disable : 4251)
-	namespace util {
+	namespace pragma::util {
 		template<class TMatrixProperty, class TMatrix>
 		class SimpleMatrixProperty : public SimpleProperty<TMatrixProperty, TMatrix> {
 		  public:
@@ -149,7 +149,7 @@ export {
 	};
 #pragma warning(pop)
 
-	namespace util {
+	namespace pragma::util {
 		template<class TMatrixProperty, class TMatrix>
 		SimpleMatrixProperty<TMatrixProperty, TMatrix>::SimpleMatrixProperty() : SimpleProperty<TMatrixProperty, TMatrix>()
 		{

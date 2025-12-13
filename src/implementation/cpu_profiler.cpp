@@ -7,7 +7,7 @@ module pragma.util;
 
 import :cpu_profiler;
 
-using namespace util;
+using namespace pragma::util;
 
 CPUProfiler::Stage::Stage() : duration(0) {}
 

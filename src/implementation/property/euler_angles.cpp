@@ -7,7 +7,7 @@ module pragma.util;
 
 import :property_euler_angles;
 
-using namespace util;
+using namespace pragma::util;
 
 EulerAnglesProperty::EulerAnglesProperty() : SimpleProperty<EulerAnglesProperty, EulerAngles>() {}
 EulerAnglesProperty::EulerAnglesProperty(const EulerAngles &col) : SimpleProperty<EulerAnglesProperty, EulerAngles>(col) {}

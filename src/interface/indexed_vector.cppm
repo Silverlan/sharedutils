@@ -8,7 +8,7 @@ export module pragma.util:indexed_vector;
 export import std.compat;
 
 export {
-	namespace util {
+	namespace pragma::util {
 		template<typename T, class TPtr = std::shared_ptr<T>>
 		class IndexedVector {
 		  public:

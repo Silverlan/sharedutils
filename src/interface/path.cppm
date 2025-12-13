@@ -12,7 +12,7 @@ import :file;
 #undef CreateFile
 
 export {
-	namespace util {
+	namespace pragma::util {
 		DLLSHUTIL void canonicalize_path(std::string &inOutPath);
 		DLLSHUTIL std::string get_normalized_path(const std::string &path);
 
@@ -55,14 +55,14 @@ export {
 					npath = '/';
 				else if(npath.back() != '/' && npath.back() != '\\')
 					npath += '/';
-				return util::Path {std::move(npath)};
+				return pragma::util::Path {std::move(npath)};
 			}
 			template<typename... Args>
 			static Path CreateFile(const Args &...args)
 			{
 				auto isFirstValidArg = false;
 				auto strPath = Concatenate(isFirstValidArg, args...);
-				util::Path path {std::move(strPath)};
+				pragma::util::Path path {std::move(strPath)};
 				auto &p = reinterpret_cast<std::string &>(path);
 				if(!p.empty() && (p.back() == '/' || p.back() == '\\'))
 					p.pop_back();
@@ -166,7 +166,7 @@ export {
 			static std::string to_string(const std::string &s) { return s; }
 			static std::string to_string(const std::string_view &sw) { return std::string {sw}; }
 			static std::string to_string(const char *s) { return std::string {s}; }
-			static std::string to_string(const util::Path &path) { return path.GetString(); }
+			static std::string to_string(const pragma::util::Path &path) { return path.GetString(); }
 			template<typename T>
 			static std::string to_string(const T &value)
 			{
@@ -201,8 +201,9 @@ export {
 		{
 			return Path::CreateRelativePath(args...);
 		}
+
+		DLLSHUTIL std::ostream &operator<<(std::ostream &out, const pragma::util::Path &path);
 	};
 
-	DLLSHUTIL util::Path operator+(const std::string &path, const util::Path &other);
-	DLLSHUTIL std::ostream &operator<<(std::ostream &out, const util::Path &path);
+	DLLSHUTIL pragma::util::Path operator+(const std::string &path, const pragma::util::Path &other);
 }

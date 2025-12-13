@@ -10,7 +10,7 @@ export module pragma.util:enum_hash;
 export import std.compat;
 
 export {
-	namespace util {
+	namespace pragma::util {
 		// Required as a hash when using std::unordered_map with an enum class as key
 		struct DLLSHUTIL EnumHash {
 			template<typename T>

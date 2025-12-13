@@ -6,7 +6,7 @@ export module pragma.util:baking;
 
 export import std.compat;
 
-export namespace util::baking {
+export namespace pragma::util::baking {
 	struct DLLSHUTIL BakePixel {
 		int32_t primitiveId = -1;
 		int32_t objectId = -1;
@@ -33,7 +33,7 @@ export namespace util::baking {
 	};
 
 	struct DLLSHUTIL BakeDataView {
-		util::baking::BakePixel *bakePixels;
+		BakePixel *bakePixels;
 		int32_t primitiveId;
 		int32_t objectId;
 		uint32_t bakeImageWidth;

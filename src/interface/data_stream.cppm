@@ -10,7 +10,7 @@ export module pragma.util:data_stream;
 export import pragma.math;
 
 export {
-	namespace util {
+	namespace pragma::util {
 		class DataStreamBase;
 		template<class TDataStreamBase>
 		class TDataStream {
@@ -246,7 +246,7 @@ export {
 			}
 			Write<T>(v, &m_offset);
 			m_offset += sizeof(T);
-			m_dataSize = umath::max(m_dataSize, m_offset);
+			m_dataSize = pragma::math::max(m_dataSize, m_offset);
 		}
 
 		template<class T>
@@ -261,7 +261,7 @@ export {
 			}
 			Write<T>(v, &m_offset);
 			m_offset += sizeof(T);
-			m_dataSize = umath::max(m_dataSize, m_offset);
+			m_dataSize = pragma::math::max(m_dataSize, m_offset);
 		}
 
 		template<class T>

@@ -9,7 +9,7 @@ export module pragma.util:asset_loader.manager;
 
 export import :log;
 
-export namespace util {
+export namespace pragma::util {
 	using AssetObject = std::shared_ptr<void>;
 	using AssetIndex = uint32_t;
 	struct DLLSHUTIL Asset {
@@ -48,8 +48,8 @@ export namespace util {
 		void FlagForRemoval(const std::string &assetName, bool flag = true);
 		void FlagAllForRemoval();
 
-		virtual void SetLogHandler(const util::LogHandler &logHandler);
-		void Log(const std::string &msg, util::LogSeverity severity) const;
+		virtual void SetLogHandler(const pragma::util::LogHandler &logHandler);
+		void Log(const std::string &msg, pragma::util::LogSeverity severity) const;
 		bool ShouldLog() const;
 
 		Asset *GetAsset(AssetIndex index);
@@ -84,7 +84,7 @@ export namespace util {
 		std::unordered_set<AssetIndex> m_flaggedForDeletion;
 		std::vector<FormatExtensionInfo> m_extensions;
 		std::thread::id m_mainThreadId;
-		util::LogHandler m_logHandler;
+		pragma::util::LogHandler m_logHandler;
 		bool m_reset = false;
 	};
 };

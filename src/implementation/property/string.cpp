@@ -7,7 +7,7 @@ module pragma.util;
 
 import :property_string;
 
-using namespace util;
+using namespace pragma::util;
 
 // Assignment
 StringProperty &StringProperty::operator+=(const std::string &val)

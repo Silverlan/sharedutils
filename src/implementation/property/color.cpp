@@ -7,7 +7,7 @@ module pragma.util;
 
 import :property_color;
 
-using namespace util;
+using namespace pragma::util;
 
 ColorProperty::ColorProperty() : SimpleProperty<ColorProperty, Color>() {}
 ColorProperty::ColorProperty(const Color &col) : SimpleProperty<ColorProperty, Color>(col) {}

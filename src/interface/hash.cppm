@@ -10,7 +10,7 @@ export module pragma.util:hash;
 export import std.compat;
 
 // Source: https://stackoverflow.com/a/50978188/2482983
-export namespace util {
+export namespace pragma::util {
 	using Hash = uint64_t;
 	template<typename T>
 	T xorshift(const T &n, int i)
@@ -40,9 +40,9 @@ export namespace util {
 		template<class T1, class T2>
 		std::size_t operator()(const std::pair<T1, T2> &pair) const
 		{
-			util::Hash hash = 0;
-			hash = util::hash_combine<size_t>(hash, std::hash<T1> {}(pair.first));
-			hash = util::hash_combine<size_t>(hash, std::hash<T2> {}(pair.second));
+			pragma::util::Hash hash = 0;
+			hash = pragma::util::hash_combine<size_t>(hash, std::hash<T1> {}(pair.first));
+			hash = pragma::util::hash_combine<size_t>(hash, std::hash<T2> {}(pair.second));
 			return hash;
 		}
 	};

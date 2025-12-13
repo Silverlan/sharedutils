@@ -8,7 +8,7 @@ export module pragma.util:memory_iterator;
 export import std.compat;
 
 export {
-	namespace util {
+	namespace pragma::util {
 		template<class T>
 		class MemoryIteratorBase {
 		  public:

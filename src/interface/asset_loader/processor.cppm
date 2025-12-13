@@ -9,7 +9,7 @@ export module pragma.util:asset_loader.processor;
 
 export import std.compat;
 
-export namespace util {
+export namespace pragma::util {
 	class DLLSHUTIL IAssetProcessor {
 	  public:
 		virtual ~IAssetProcessor() = default;

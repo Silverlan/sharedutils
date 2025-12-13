@@ -10,7 +10,7 @@ export module pragma.util:handle;
 export import std.compat;
 
 export {
-	namespace util {
+	namespace pragma::util {
 		class DLLSHUTIL PtrHandleData {
 		  public:
 			PtrHandleData(void *data);

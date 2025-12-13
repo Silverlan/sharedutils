@@ -8,7 +8,7 @@ export module pragma.util:weak_handle;
 export import std.compat;
 
 export {
-	namespace util {
+	namespace pragma::util {
 		template<class T>
 		class WeakHandle {
 		  public:

@@ -19,7 +19,7 @@ export import pragma.math;
 #undef Success
 
 export {
-	namespace util {
+	namespace pragma::util {
 		using GUID = std::array<uint8_t, 16>;
 		DLLSHUTIL std::string get_pretty_bytes(unsigned long long bytes);
 		DLLSHUTIL std::string get_pretty_duration(unsigned long long ms, int addSegments = 0, bool bNoMs = true);
@@ -189,7 +189,7 @@ export {
 		template<typename T, typename... TARGS>
 		unique_ptr_c<T> make_unique_ptr_c(const std::function<void(T &)> &fOnDelete, TARGS &&...args)
 		{
-			return util::unique_ptr_c<T> {new T {std::forward<TARGS>(args)...}, [fOnDelete](T *v) {
+			return pragma::util::unique_ptr_c<T> {new T {std::forward<TARGS>(args)...}, [fOnDelete](T *v) {
 				                              fOnDelete(*v);
 				                              delete v;
 			                              }};
@@ -279,7 +279,7 @@ export {
 		}
 	}
 
-	uint32_t util::to_uint(const std::string_view &str)
+	uint32_t pragma::util::to_uint(const std::string_view &str)
 	{
 		uint32_t result = 0;
 		auto res = std::from_chars(str.data(), str.data() + str.size(), result);
@@ -287,32 +287,32 @@ export {
 	}
 
 	template<class T>
-	T util::to_number(const std::string_view &str)
+	T pragma::util::to_number(const std::string_view &str)
 	{
 		T result = 0;
 		auto res = std::from_chars(str.data(), str.data() + str.size(), result);
 		return result;
 	}
 	template<class T>
-	T util::to_float(const std::string_view &str)
+	T pragma::util::to_float(const std::string_view &str)
 	{
 		return to_number<T>(str);
 	}
 
 	template<class T>
-	T util::to_int(const std::string_view &str)
+	T pragma::util::to_int(const std::string_view &str)
 	{
 		return to_number<T>(str);
 	}
 
 	template<typename T, typename C>
-	constexpr T util::declvalue(T C::*ptr)
+	constexpr T pragma::util::declvalue(T C::*ptr)
 	{
 		return C {}.*ptr;
 	}
 
 	template<typename T>
-	uint64_t util::get_size_in_bytes(const T &container)
+	uint64_t pragma::util::get_size_in_bytes(const T &container)
 	{
 		return container.size() * sizeof(container.front());
 	}

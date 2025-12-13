@@ -56,7 +56,7 @@ size_t ufile::MemoryFile::Read(void *data, size_t size)
 {
 	if(m_pos >= m_dataSize)
 		return 0;
-	size = umath::min(m_dataSize - m_pos, size);
+	size = pragma::math::min(m_dataSize - m_pos, size);
 	memcpy(data, m_data + m_pos, size);
 	m_pos += size;
 	return size;
@@ -65,7 +65,7 @@ size_t ufile::MemoryFile::Write(const void *data, size_t size)
 {
 	if(m_pos >= m_dataSize)
 		return 0;
-	size = umath::min(m_dataSize - m_pos, size);
+	size = pragma::math::min(m_dataSize - m_pos, size);
 	memcpy(m_data + m_pos, data, size);
 	m_pos += size;
 	return size;

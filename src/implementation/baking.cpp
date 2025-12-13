@@ -4,7 +4,7 @@ module pragma.util;
 
 import :baking;
 
-static void bake_differentials(util::baking::BakeDataView &bd, const util::baking::Uv &uv1, const util::baking::Uv &uv2, const util::baking::Uv &uv3)
+static void bake_differentials(pragma::util::baking::BakeDataView &bd, const pragma::util::baking::Uv &uv1, const pragma::util::baking::Uv &uv2, const pragma::util::baking::Uv &uv3)
 {
 	auto A = (uv2[0] - uv1[0]) * (uv3[1] - uv1[1]) - (uv3[0] - uv1[0]) * (uv2[1] - uv1[1]);
 	if(fabsf(A) > std::numeric_limits<float>::epsilon()) {
@@ -22,7 +22,7 @@ static void bake_differentials(util::baking::BakeDataView &bd, const util::bakin
 	}
 }
 
-static void zbuf_init_span(util::baking::detail::BakeSpanData &zspan)
+static void zbuf_init_span(pragma::util::baking::detail::BakeSpanData &zspan)
 {
 	zspan.miny1 = zspan.miny2 = zspan.recty + 1;
 	zspan.maxy1 = zspan.maxy2 = -1;
@@ -33,7 +33,7 @@ static float min_ff(float a, float b) { return (a < b) ? a : b; }
 static int min_ii(int a, int b) { return (a < b) ? a : b; }
 static int max_ii(int a, int b) { return (b < a) ? a : b; }
 static float max_ff(float a, float b) { return (a > b) ? a : b; }
-static void zbuf_add_to_span(util::baking::detail::BakeSpanData &zspan, const util::baking::Uv &v1, const util::baking::Uv &v2)
+static void zbuf_add_to_span(pragma::util::baking::detail::BakeSpanData &zspan, const pragma::util::baking::Uv &v1, const pragma::util::baking::Uv &v2)
 {
 	const float *minv, *maxv;
 	float *span;
@@ -108,7 +108,7 @@ static void zbuf_add_to_span(util::baking::detail::BakeSpanData &zspan, const ut
 		span[y] = xs0;
 }
 
-static void zspan_scanconvert(util::baking::detail::BakeSpanData &zspan, util::baking::BakeDataView &handle, util::baking::Uv &v1, util::baking::Uv &v2, util::baking::Uv &v3, void (*func)(util::baking::BakeDataView &, int, int, float, float))
+static void zspan_scanconvert(pragma::util::baking::detail::BakeSpanData &zspan, pragma::util::baking::BakeDataView &handle, pragma::util::baking::Uv &v1, pragma::util::baking::Uv &v2, pragma::util::baking::Uv &v3, void (*func)(pragma::util::baking::BakeDataView &, int, int, float, float))
 {
 	float x0, y0, x1, y1, x2, y2, z0, z1, z2;
 	float u, v, uxd, uyd, vxd, vyd, uy0, vy0, xx1;
@@ -182,7 +182,7 @@ static void zspan_scanconvert(util::baking::detail::BakeSpanData &zspan, util::b
 	}
 }
 
-static void store_bake_pixel(util::baking::BakeDataView &bd, int32_t x, int32_t y, float u, float v)
+static void store_bake_pixel(pragma::util::baking::BakeDataView &bd, int32_t x, int32_t y, float u, float v)
 {
 	const auto width = bd.bakeImageWidth;
 	const size_t offset = 0;
@@ -198,7 +198,7 @@ static void store_bake_pixel(util::baking::BakeDataView &bd, int32_t x, int32_t 
 	pixel.objectId = bd.objectId;
 }
 
-void util::baking::prepare_bake_pixel_data(BakeDataView &dv, uint32_t objectId, const MeshInterface &meshInterface, uint32_t numTris, uint32_t imgWidth, uint32_t imgHeight)
+void pragma::util::baking::prepare_bake_pixel_data(BakeDataView &dv, uint32_t objectId, const MeshInterface &meshInterface, uint32_t numTris, uint32_t imgWidth, uint32_t imgHeight)
 {
 	dv.objectId = objectId;
 	for(auto i = decltype(numTris) {0u}; i < numTris; ++i) {
@@ -220,7 +220,7 @@ void util::baking::prepare_bake_pixel_data(BakeDataView &dv, uint32_t objectId, 
 	}
 }
 
-void util::baking::fill_bake_mask(const std::vector<BakePixel> &pixel_array, const size_t num_pixels, char *mask)
+void pragma::util::baking::fill_bake_mask(const std::vector<BakePixel> &pixel_array, const size_t num_pixels, char *mask)
 {
 	if(!mask)
 		return;

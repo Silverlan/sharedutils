@@ -11,7 +11,7 @@ import :asset_loader.core;
 
 #undef AddJob
 
-util::IAssetLoader::IAssetLoader(std::string name) : m_pool {10}, m_name {std::move(name)}
+pragma::util::IAssetLoader::IAssetLoader(std::string name) : m_pool {10}, m_name {std::move(name)}
 {
 	auto n = m_pool.size();
 	std::string threadName = "asset_loader";
@@ -21,9 +21,9 @@ util::IAssetLoader::IAssetLoader(std::string name) : m_pool {10}, m_name {std::m
 		util::set_thread_name(m_pool.get_thread(i), threadName);
 }
 
-util::IAssetLoader::~IAssetLoader() { m_pool.stop(); }
+pragma::util::IAssetLoader::~IAssetLoader() { m_pool.stop(); }
 
-bool util::IAssetLoader::InvalidateLoadJob(const std::string &identifier)
+bool pragma::util::IAssetLoader::InvalidateLoadJob(const std::string &identifier)
 {
 	std::scoped_lock lock {m_assetIdToJobIdMutex};
 	auto it = m_assetIdToJobId.find(identifier);
@@ -35,17 +35,17 @@ bool util::IAssetLoader::InvalidateLoadJob(const std::string &identifier)
 	m_assetIdToJobId.erase(it);
 	return true;
 }
-std::optional<util::AssetLoadJobId> util::IAssetLoader::FindJobId(const std::string &identifier) const
+std::optional<pragma::util::AssetLoadJobId> pragma::util::IAssetLoader::FindJobId(const std::string &identifier) const
 {
 	std::scoped_lock lock {m_assetIdToJobIdMutex};
 	auto it = m_assetIdToJobId.find(identifier);
-	return (it != m_assetIdToJobId.end()) ? it->second.jobId : std::optional<util::AssetLoadJobId> {};
+	return (it != m_assetIdToJobId.end()) ? it->second.jobId : std::optional<AssetLoadJobId> {};
 }
 
-void util::IAssetLoader::SetMultiThreadingEnabled(bool enabled) { m_multiThreadingEnabled = enabled; }
-bool util::IAssetLoader::IsMultiThreadingEnabled() const { return m_multiThreadingEnabled; }
+void pragma::util::IAssetLoader::SetMultiThreadingEnabled(bool enabled) { m_multiThreadingEnabled = enabled; }
+bool pragma::util::IAssetLoader::IsMultiThreadingEnabled() const { return m_multiThreadingEnabled; }
 
-util::AssetLoadState util::IAssetLoader::GetLoadState(const std::string &identifier) const
+pragma::util::AssetLoadState pragma::util::IAssetLoader::GetLoadState(const std::string &identifier) const
 {
 	std::scoped_lock lock {m_assetIdToJobIdMutex};
 	auto it = m_assetIdToJobId.find(identifier);
@@ -55,10 +55,10 @@ util::AssetLoadState util::IAssetLoader::GetLoadState(const std::string &identif
 	return (jobInfo.state == QueuedJobInfo::State::Complete) ? AssetLoadState::LoadedAndPendingForCompletion : AssetLoadState::Loading;
 }
 
-void util::IAssetLoader::SetLogHandler(const util::LogHandler &logHandler) { m_logHandler = logHandler; }
-bool util::IAssetLoader::ShouldLog() const { return m_logHandler != nullptr; }
+void pragma::util::IAssetLoader::SetLogHandler(const LogHandler &logHandler) { m_logHandler = logHandler; }
+bool pragma::util::IAssetLoader::ShouldLog() const { return m_logHandler != nullptr; }
 
-std::optional<util::AssetLoadJobId> util::IAssetLoader::AddJob(const std::string &identifier, std::unique_ptr<IAssetProcessor> &&processor, AssetLoadJobPriority priority)
+std::optional<pragma::util::AssetLoadJobId> pragma::util::IAssetLoader::AddJob(const std::string &identifier, std::unique_ptr<IAssetProcessor> &&processor, AssetLoadJobPriority priority)
 {
 	std::scoped_lock lock {m_assetIdToJobIdMutex};
 	std::unique_lock jobLock {m_jobMutex};
@@ -110,7 +110,7 @@ std::optional<util::AssetLoadJobId> util::IAssetLoader::AddJob(const std::string
 		job.taskStartTime = std::chrono::high_resolution_clock::now();
 
 		if(ShouldLog())
-			m_logHandler("Running job " + std::to_string(job.jobId) + "...!", util::LogSeverity::Debug);
+			m_logHandler("Running job " + std::to_string(job.jobId) + "...!", LogSeverity::Debug);
 
 		if(!isValid)
 			job.state = AssetLoadJob::State::Cancelled;
@@ -134,7 +134,7 @@ std::optional<util::AssetLoadJobId> util::IAssetLoader::AddJob(const std::string
 		m_completeQueueMutex.lock();
 
 		if(ShouldLog())
-			m_logHandler("Job " + std::to_string(job.jobId) + " has completed with result: " + std::to_string(+umath::to_integral(job.state)) + "!", util::LogSeverity::Debug);
+			m_logHandler("Job " + std::to_string(job.jobId) + " has completed with result: " + std::to_string(+math::to_integral(job.state)) + "!", LogSeverity::Debug);
 
 		m_completeQueue.push(job);
 		m_hasCompletedJobs = true;
@@ -158,21 +158,21 @@ std::optional<util::AssetLoadJobId> util::IAssetLoader::AddJob(const std::string
 	return jobId;
 }
 
-bool util::IAssetLoader::IsJobPending(AssetLoadJobId jobId) const
+bool pragma::util::IAssetLoader::IsJobPending(AssetLoadJobId jobId) const
 {
 	m_assetIdToJobIdMutex.lock();
 	auto res = (m_pendingAssetJobs.find(jobId) != m_pendingAssetJobs.end());
 	m_assetIdToJobIdMutex.unlock();
 	return res;
 }
-bool util::IAssetLoader::HasPendingJobs() const
+bool pragma::util::IAssetLoader::HasPendingJobs() const
 {
 	m_assetIdToJobIdMutex.lock();
 	auto res = !m_assetIdToJobId.empty();
 	m_assetIdToJobIdMutex.unlock();
 	return res;
 }
-bool util::IAssetLoader::HasCompletedJobs() const
+bool pragma::util::IAssetLoader::HasCompletedJobs() const
 {
 	m_completeQueueMutex.lock();
 	auto res = !m_completeQueue.empty();
@@ -180,7 +180,7 @@ bool util::IAssetLoader::HasCompletedJobs() const
 	return res;
 }
 
-void util::IAssetLoader::Poll(const std::function<void(const AssetLoadJob &, AssetLoadResult, std::optional<std::string>)> &onComplete, AssetLoaderWaitMode wait)
+void pragma::util::IAssetLoader::Poll(const std::function<void(const AssetLoadJob &, AssetLoadResult, std::optional<std::string>)> &onComplete, AssetLoaderWaitMode wait)
 {
 	if(wait == AssetLoaderWaitMode::All) {
 		for(;;) {
@@ -197,7 +197,7 @@ void util::IAssetLoader::Poll(const std::function<void(const AssetLoadJob &, Ass
 		std::unique_lock<std::mutex> lock {m_completeQueueMutex};
 
 		if(ShouldLog())
-			m_logHandler("Poll: Waiting until completed jobs are available!", util::LogSeverity::Debug);
+			m_logHandler("Poll: Waiting until completed jobs are available!", LogSeverity::Debug);
 
 		m_completeCondition.wait(lock, [this]() { return m_hasCompletedJobs == true; });
 	}
@@ -215,7 +215,7 @@ void util::IAssetLoader::Poll(const std::function<void(const AssetLoadJob &, Ass
 		}
 
 		if(ShouldLog())
-			m_logHandler("Poll: Popping available job!", util::LogSeverity::Debug);
+			m_logHandler("Poll: Popping available job!", LogSeverity::Debug);
 
 		auto job = std::move(m_completeQueue.front());
 		m_completeQueue.pop();
@@ -224,7 +224,7 @@ void util::IAssetLoader::Poll(const std::function<void(const AssetLoadJob &, Ass
 		hasJobsRemaining = m_hasCompletedJobs;
 
 		if(ShouldLog())
-			m_logHandler("Poll: Jobs remaining: " + std::to_string(hasJobsRemaining), util::LogSeverity::Debug);
+			m_logHandler("Poll: Jobs remaining: " + std::to_string(hasJobsRemaining), LogSeverity::Debug);
 
 		m_completeQueueMutex.unlock();
 
@@ -255,7 +255,7 @@ void util::IAssetLoader::Poll(const std::function<void(const AssetLoadJob &, Ass
 			m_assetIdToJobIdMutex.lock();
 
 			if(ShouldLog())
-				m_logHandler("Poll: Erasing job '" + job.identifier + "'...", util::LogSeverity::Debug);
+				m_logHandler("Poll: Erasing job '" + job.identifier + "'...", LogSeverity::Debug);
 
 			auto it = m_assetIdToJobId.find(job.identifier);
 			if(it != m_assetIdToJobId.end()) {

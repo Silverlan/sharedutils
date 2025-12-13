@@ -14,7 +14,7 @@ import ctpl;
 #undef AddJob
 
 export {
-	namespace util {
+	namespace pragma::util {
 		using AssetLoadJobId = uint64_t;
 		using AssetLoadJobPriority = int32_t;
 		class IAssetProcessor;
@@ -42,7 +42,7 @@ export {
 			void SetMultiThreadingEnabled(bool enabled);
 			bool IsMultiThreadingEnabled() const;
 
-			void SetLogHandler(const util::LogHandler &logHandler);
+			void SetLogHandler(const pragma::util::LogHandler &logHandler);
 			bool ShouldLog() const;
 
 			const std::string &GetName() const { return m_name; }
@@ -76,7 +76,7 @@ export {
 			std::unordered_map<std::string, QueuedJobInfo> m_assetIdToJobId;
 			std::unordered_set<AssetLoadJobId> m_pendingAssetJobs;
 			AssetLoadJobId m_nextJobId = 0;
-			util::LogHandler m_logHandler;
+			pragma::util::LogHandler m_logHandler;
 		};
 	};
 }

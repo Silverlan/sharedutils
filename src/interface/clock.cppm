@@ -9,7 +9,7 @@ export module pragma.util:clock;
 
 export import std.compat;
 
-export namespace util {
+export namespace pragma::util {
 	using Clock = std::chrono::steady_clock;
 	namespace clock {
 		DLLSHUTIL void set_start_time(Clock::time_point t);

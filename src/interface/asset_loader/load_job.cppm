@@ -9,7 +9,7 @@ export module pragma.util:asset_loader.load_job;
 
 export import std.compat;
 
-export namespace util {
+export namespace pragma::util {
 	using AssetLoadJobId = uint64_t;
 	using AssetLoadJobPriority = int32_t;
 	class ITextureFormatHandler;

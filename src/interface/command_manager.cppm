@@ -9,7 +9,7 @@ export module pragma.util:command_manager;
 
 export import std.compat;
 
-export namespace util {
+export namespace pragma::util {
 	class DLLSHUTIL CommandManager {
 	  private:
 		static std::vector<std::string> m_cmds;

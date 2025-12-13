@@ -37,7 +37,7 @@ import :core;
 #undef max
 #undef min
 
-std::string util::CommandInfo::GetArguments() const
+std::string pragma::util::CommandInfo::GetArguments() const
 {
 	std::string argsStr;
 	for(const auto &arg : args) {
@@ -48,7 +48,7 @@ std::string util::CommandInfo::GetArguments() const
 	return argsStr;
 }
 
-std::string util::get_pretty_bytes(unsigned long long bytes)
+std::string pragma::util::get_pretty_bytes(unsigned long long bytes)
 {
 	auto sz = static_cast<double>(bytes);
 	const char *suffixes[] = {"Byte", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"};
@@ -58,11 +58,11 @@ std::string util::get_pretty_bytes(unsigned long long bytes)
 		i++;
 	}
 	std::stringstream ss;
-	ss << util::round_string(sz, 2) << " " << suffixes[i];
+	ss << round_string(sz, 2) << " " << suffixes[i];
 	return ss.str();
 }
 
-std::string util::get_pretty_duration(unsigned long long ms, int addSegments, bool bNoMs)
+std::string pragma::util::get_pretty_duration(unsigned long long ms, int addSegments, bool bNoMs)
 {
 	if(addSegments == -1)
 		addSegments = 100;
@@ -143,16 +143,16 @@ static std::string program_name(bool bPost = false)
 }
 
 static std::string g_programPath = "";
-std::string util::get_program_path()
+std::string pragma::util::get_program_path()
 {
 	if(g_programPath.empty())
 		g_programPath = program_name();
 	return g_programPath;
 }
 
-void util::set_program_path(const std::string &path) { g_programPath = path; }
+void pragma::util::set_program_path(const std::string &path) { g_programPath = path; }
 
-std::string util::get_program_name()
+std::string pragma::util::get_program_name()
 {
 	static std::string programName = "";
 	if(programName.empty())
@@ -160,7 +160,7 @@ std::string util::get_program_name()
 	return programName;
 }
 
-std::optional<std::string> util::get_library_file_path(const void *ptrToAnyStaticLibFunc)
+std::optional<std::string> pragma::util::get_library_file_path(const void *ptrToAnyStaticLibFunc)
 {
 	// https://stackoverflow.com/a/6924332/2482983
 #ifdef _WIN32
@@ -181,7 +181,7 @@ std::optional<std::string> util::get_library_file_path(const void *ptrToAnyStati
 #endif
 }
 
-std::optional<std::string> util::get_path_to_library(const void *ptrToAnyStaticLibFunc)
+std::optional<std::string> pragma::util::get_path_to_library(const void *ptrToAnyStaticLibFunc)
 {
 	auto path = get_library_file_path(ptrToAnyStaticLibFunc);
 	if(path.has_value() == false)
@@ -189,7 +189,7 @@ std::optional<std::string> util::get_path_to_library(const void *ptrToAnyStaticL
 	return ufile::get_path_from_filename(*path);
 }
 
-unsigned long long util::get_process_id()
+unsigned long long pragma::util::get_process_id()
 {
 #ifdef _WIN32
 	return GetCurrentProcessId();
@@ -198,7 +198,7 @@ unsigned long long util::get_process_id()
 #endif
 }
 
-bool util::is_process_running(unsigned long long id)
+bool pragma::util::is_process_running(unsigned long long id)
 {
 #ifdef _WIN32
 	auto process = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, static_cast<DWORD>(id));
@@ -266,7 +266,7 @@ static pid_t find_process_id(const char *process_name)
 }
 #endif
 
-bool util::is_process_running(const char *name)
+bool pragma::util::is_process_running(const char *name)
 {
 #ifdef _WIN32
 	HANDLE SnapShot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
@@ -289,7 +289,7 @@ bool util::is_process_running(const char *name)
 #endif
 }
 
-bool util::get_current_working_directory(std::string &cwd)
+bool pragma::util::get_current_working_directory(std::string &cwd)
 {
 	char cCurrentPath[FILENAME_MAX];
 #ifdef __linux__
@@ -302,13 +302,13 @@ bool util::get_current_working_directory(std::string &cwd)
 	cwd = cCurrentPath;
 	return true;
 }
-std::string util::get_current_working_directory()
+std::string pragma::util::get_current_working_directory()
 {
 	std::string r;
 	get_current_working_directory(r);
 	return r;
 }
-bool util::set_current_working_directory(const std::string &path)
+bool pragma::util::set_current_working_directory(const std::string &path)
 {
 #ifdef __linux__
 	if(!chdir(path.c_str()))
@@ -319,7 +319,7 @@ bool util::set_current_working_directory(const std::string &path)
 #endif
 	return true;
 }
-bool util::start_process(const CommandInfo &cmdInfo)
+bool pragma::util::start_process(const CommandInfo &cmdInfo)
 {
 	std::string fullCmdPath = cmdInfo.command;
 	if(cmdInfo.absoluteCommandPath == false) {
@@ -344,7 +344,7 @@ bool util::start_process(const CommandInfo &cmdInfo)
 	}
 	return true;
 #else
-	auto fp = util::FilePath(fullCmdPath);
+	auto fp = pragma::util::FilePath(fullCmdPath);
 	auto path = fp.GetPath();
 	auto file = fp.GetFileName();
 
@@ -367,7 +367,7 @@ bool util::start_process(const CommandInfo &cmdInfo)
 #endif
 }
 
-bool util::set_env_variable(const std::string &varName, const std::string &value)
+bool pragma::util::set_env_variable(const std::string &varName, const std::string &value)
 {
 #ifdef _WIN32
 	return SetEnvironmentVariable(varName.c_str(), value.c_str()) != 0;
@@ -375,7 +375,7 @@ bool util::set_env_variable(const std::string &varName, const std::string &value
 	return setenv(varName.c_str(), value.c_str(), 1) == 0;
 #endif
 }
-bool util::unset_env_variable(const std::string &varName)
+bool pragma::util::unset_env_variable(const std::string &varName)
 {
 #ifdef _WIN32
 	return _putenv((varName + "=").c_str()) == 0;
@@ -383,7 +383,7 @@ bool util::unset_env_variable(const std::string &varName)
 	return unsetenv(varName.c_str()) == 0;
 #endif
 }
-std::optional<std::string> util::get_env_variable(const std::string &varName)
+std::optional<std::string> pragma::util::get_env_variable(const std::string &varName)
 {
 	auto *val = getenv(varName.c_str());
 	if(!val)
@@ -392,7 +392,7 @@ std::optional<std::string> util::get_env_variable(const std::string &varName)
 }
 
 #ifdef _WIN32
-util::CommandResult util::start_and_wait_for_command(const CommandInfo &cmdInfo)
+pragma::util::CommandResult pragma::util::start_and_wait_for_command(const CommandInfo &cmdInfo)
 {
 	std::string path;
 	if(!cmdInfo.command.empty()) {
@@ -456,9 +456,9 @@ util::CommandResult util::start_and_wait_for_command(const CommandInfo &cmdInfo)
 	  &ProcessInfo                                                        //  pointer to PROCESS_INFORMATION
 	);
 	if(!hProcess) {
-		util::CommandResult result {};
-		result.executionResult = util::CommandResult::ExecutionResult::Failure;
-		result.errorMessage = std::string("CreateProcess failed: ") + util::get_last_system_error_string();
+		pragma::util::CommandResult result {};
+		result.executionResult = pragma::util::CommandResult::ExecutionResult::Failure;
+		result.errorMessage = std::string("CreateProcess failed: ") + pragma::util::get_last_system_error_string();
 		return result;
 	}
 	auto r = WaitForSingleObject(ProcessInfo.hProcess,
@@ -468,9 +468,9 @@ util::CommandResult util::start_and_wait_for_command(const CommandInfo &cmdInfo)
 	DWORD code;
 	GetExitCodeProcess(ProcessInfo.hProcess, &code);
 
-	util::CommandResult result {};
+	pragma::util::CommandResult result {};
 	result.exitCode = code;
-	result.executionResult = util::CommandResult::ExecutionResult::Success;
+	result.executionResult = pragma::util::CommandResult::ExecutionResult::Success;
 	{
 		DWORD read;  //bytes read
 		DWORD avail; //bytes available
@@ -498,7 +498,7 @@ util::CommandResult util::start_and_wait_for_command(const CommandInfo &cmdInfo)
 	return result;
 }
 
-util::SubSystem util::get_subsystem()
+pragma::util::SubSystem pragma::util::get_subsystem()
 {
 	// See https://stackoverflow.com/a/1440163/1879228
 	PIMAGE_NT_HEADERS nth = ImageNtHeader((PVOID)GetModuleHandle(NULL));
@@ -511,12 +511,12 @@ util::SubSystem util::get_subsystem()
 	return SubSystem::Unknown;
 }
 #else
-util::CommandResult util::start_and_wait_for_command(const CommandInfo &cmdInfo)
+pragma::util::CommandResult pragma::util::start_and_wait_for_command(const CommandInfo &cmdInfo)
 {
 	int pipefd[2];
 	if(pipe(pipefd) == -1) {
-		util::CommandResult result {};
-		result.executionResult = util::CommandResult::ExecutionResult::Failure;
+		CommandResult result {};
+		result.executionResult = CommandResult::ExecutionResult::Failure;
 		result.errorMessage = std::string("pipe failed: ") + std::strerror(errno);
 		return result;
 	}
@@ -543,8 +543,8 @@ util::CommandResult util::start_and_wait_for_command(const CommandInfo &cmdInfo)
 
 	if(status != 0) {
 		close(pipefd[0]);
-		util::CommandResult result {};
-		result.executionResult = util::CommandResult::ExecutionResult::Failure;
+		CommandResult result {};
+		result.executionResult = CommandResult::ExecutionResult::Failure;
 		result.errorMessage = std::string("posix_spawnp: ") + std::strerror(status);
 		return result;
 	}
@@ -558,14 +558,14 @@ util::CommandResult util::start_and_wait_for_command(const CommandInfo &cmdInfo)
 	close(pipefd[0]);
 
 	if(waitpid(pid, &status, 0) == -1) {
-		util::CommandResult result {};
-		result.executionResult = util::CommandResult::ExecutionResult::Failure;
+		CommandResult result {};
+		result.executionResult = CommandResult::ExecutionResult::Failure;
 		result.errorMessage = std::string("waitpid failed: ") + std::strerror(errno);
 		return result;
 	}
 	if(!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
-		util::CommandResult result {};
-		result.executionResult = util::CommandResult::ExecutionResult::Failure;
+		CommandResult result {};
+		result.executionResult = CommandResult::ExecutionResult::Failure;
 		result.errorMessage = "command exited with error";
 		result.exitCode = WEXITSTATUS(status);
 		return result;
@@ -575,15 +575,15 @@ util::CommandResult util::start_and_wait_for_command(const CommandInfo &cmdInfo)
 	while(!output.empty() && (output.back() == '\n' || output.back() == '\r'))
 		output.pop_back();
 
-	util::CommandResult result {};
+	CommandResult result {};
 	result.output = output;
-	result.executionResult = util::CommandResult::ExecutionResult::Success;
+	result.executionResult = CommandResult::ExecutionResult::Success;
 	result.exitCode = WEXITSTATUS(status);
 	return result;
 }
 #endif
 
-std::string util::get_last_system_error_string()
+std::string pragma::util::get_last_system_error_string()
 {
 #ifdef _WIN32
 	DWORD errorMessageID = ::GetLastError();
@@ -599,7 +599,7 @@ std::string util::get_last_system_error_string()
 #endif
 }
 
-void util::set_prevent_os_sleep_mode(bool prevent)
+void pragma::util::set_prevent_os_sleep_mode(bool prevent)
 {
 #ifdef _WIN32
 	if(prevent)
@@ -611,7 +611,7 @@ void util::set_prevent_os_sleep_mode(bool prevent)
 #endif
 }
 
-bool util::is_x64_system()
+bool pragma::util::is_x64_system()
 {
 #ifdef __linux__
 #if __x86_64__ || __ppc64__
@@ -630,8 +630,8 @@ bool util::is_x64_system()
 #endif
 #endif
 }
-bool util::is_x86_system() { return (is_x64_system() == true) ? false : true; }
-bool util::is_windows_system()
+bool pragma::util::is_x86_system() { return (is_x64_system() == true) ? false : true; }
+bool pragma::util::is_windows_system()
 {
 #ifdef _WIN32
 	return true;
@@ -639,7 +639,7 @@ bool util::is_windows_system()
 	return false;
 #endif
 }
-bool util::is_linux_system()
+bool pragma::util::is_linux_system()
 {
 #ifdef __linux__
 	return true;
@@ -649,15 +649,15 @@ bool util::is_linux_system()
 }
 
 #ifdef _WIN32
-std::unordered_map<std::string, std::string> util::get_launch_parameters() { return get_launch_parameters(__argc, __argv); }
+std::unordered_map<std::string, std::string> pragma::util::get_launch_parameters() { return get_launch_parameters(__argc, __argv); }
 #endif
-std::unordered_map<std::string, std::string> util::get_launch_parameters(int argc, char *argv[])
+std::unordered_map<std::string, std::string> pragma::util::get_launch_parameters(int argc, char *argv[])
 {
 	std::unordered_map<std::string, std::string> out;
 	for(auto i = 0; i < argc; i++) {
 		char *arg = argv[i];
 		std::vector<std::string> sub;
-		ustring::explode(arg, "=", sub);
+		string::explode(arg, "=", sub);
 		if(!sub.empty()) {
 			if(sub.size() > 1)
 				out.insert(std::unordered_map<std::string, std::string>::value_type(sub[0], sub[1]));
@@ -668,44 +668,44 @@ std::unordered_map<std::string, std::string> util::get_launch_parameters(int arg
 	return out;
 }
 
-float util::to_float(const std::string_view &str) { return to_float<float>(str); }
-int util::to_int(const std::string_view &str) { return to_int<int>(str); }
-bool util::to_boolean(const std::string_view &str)
+float pragma::util::to_float(const std::string_view &str) { return to_float<float>(str); }
+int pragma::util::to_int(const std::string_view &str) { return to_int<int>(str); }
+bool pragma::util::to_boolean(const std::string_view &str)
 {
 	if(str.length() >= 4) {
-		if(ustring::match(str, "*true*"))
+		if(string::match(str, "*true*"))
 			return true;
-		if(ustring::match(str, "*false*"))
+		if(string::match(str, "*false*"))
 			return false;
 	}
 	return to_int(str) != 0;
 }
 
-std::string util::round_string(double v, int places)
+std::string pragma::util::round_string(double v, int places)
 {
-	v = umath::round(v, places);
+	v = math::round(v, places);
 	std::stringstream ss;
 	ss << std::fixed << std::setprecision(places) << v;
 	return ss.str();
 }
 
-util::Version util::string_to_version(const std::string_view &str)
+pragma::util::Version pragma::util::string_to_version(const std::string_view &str)
 {
-	auto v = util::Version();
+	auto v = Version();
 	auto pos = str.find_first_of('.');
-	v.major = util::to_int(str.substr(0, pos));
-	v.minor = util::to_int(str.substr(pos + 1, str.length()));
+	v.major = to_int(str.substr(0, pos));
+	v.minor = to_int(str.substr(pos + 1, str.length()));
 	return v;
 }
 
-Float util::get_faded_time_factor(Float cur, Float dur, Float fadeIn, Float fadeOut)
+Float pragma::util::get_faded_time_factor(Float cur, Float dur, Float fadeIn, Float fadeOut)
 {
-	cur = umath::max(cur, 0.f);
-	dur = umath::max(dur, 0.f);
+	cur = math::max(cur, 0.f);
+	dur = math::max(dur, 0.f);
 	if(cur > dur)
 		return 0.f;
-	fadeIn = umath::max(fadeIn, 0.f);
-	fadeOut = umath::max(fadeOut, 0.f);
+	fadeIn = math::max(fadeIn, 0.f);
+	fadeOut = math::max(fadeOut, 0.f);
 	auto scale = 1.f;
 	if(cur < fadeIn)
 		scale *= cur / fadeIn;
@@ -714,7 +714,7 @@ Float util::get_faded_time_factor(Float cur, Float dur, Float fadeIn, Float fade
 	return scale;
 }
 
-Float util::get_scale_factor(Float val, Float min, Float max)
+Float pragma::util::get_scale_factor(Float val, Float min, Float max)
 {
 	if(max < min || val < min)
 		return 0.f;
@@ -722,7 +722,7 @@ Float util::get_scale_factor(Float val, Float min, Float max)
 		return 1.f;
 	return get_scale_factor(max - min, val - min);
 }
-Float util::get_scale_factor(Float val, Float range)
+Float pragma::util::get_scale_factor(Float val, Float range)
 {
 	if(val < 0.f || range == 0.f)
 		return 0.f;
@@ -732,7 +732,7 @@ Float util::get_scale_factor(Float val, Float range)
 }
 
 #ifdef _WIN32
-bool util::get_registry_key_value(HKey key, const std::string &path, const std::string &strValueName, std::string &strValue)
+bool pragma::util::get_registry_key_value(HKey key, const std::string &path, const std::string &strValueName, std::string &strValue)
 {
 	HKEY hKey;
 	std::wstring wpath(path.begin(), path.end());
@@ -753,7 +753,7 @@ bool util::get_registry_key_value(HKey key, const std::string &path, const std::
 	}
 	return false;
 }
-bool util::get_registry_key_value(HKey key, const std::string &path, const std::string &strValueName, uint64_t &intValue)
+bool pragma::util::get_registry_key_value(HKey key, const std::string &path, const std::string &strValueName, uint64_t &intValue)
 {
 	HKEY hKey;
 	std::wstring wpath(path.begin(), path.end());
@@ -771,7 +771,7 @@ bool util::get_registry_key_value(HKey key, const std::string &path, const std::
 	}
 	return false;
 }
-bool util::get_registry_key_value(HKey key, const std::string &path, const std::string &strValueName, bool &val)
+bool pragma::util::get_registry_key_value(HKey key, const std::string &path, const std::string &strValueName, bool &val)
 {
 	uint64_t intVal = 0;
 	val = false;
@@ -782,7 +782,7 @@ bool util::get_registry_key_value(HKey key, const std::string &path, const std::
 }
 #endif
 
-std::string util::get_date_time(const std::string &format)
+std::string pragma::util::get_date_time(const std::string &format)
 {
 	time_t now = time(0);
 	struct tm tstruct;
@@ -815,12 +815,12 @@ static std::string shellQuote(const std::string &s)
 static bool tryCmd(const std::string &cmd) { return std::system((cmd + " > /dev/null 2>&1").c_str()) == 0; }
 #endif
 
-void util::open_path_in_explorer(const std::string &path, const std::optional<std::string> &selectFile)
+void pragma::util::open_path_in_explorer(const std::string &path, const std::optional<std::string> &selectFile)
 {
 #ifdef _WIN32
 	if(selectFile.has_value()) {
 		auto absPath = path + *selectFile;
-		ustring::replace(absPath, "/", "\\");
+		pragma::string::replace(absPath, "/", "\\");
 		auto *pidl = ILCreateFromPath(absPath.c_str());
 		if(pidl) {
 			SHOpenFolderAndSelectItems(pidl, 0, 0, 0);
@@ -830,8 +830,8 @@ void util::open_path_in_explorer(const std::string &path, const std::optional<st
 	}
 	// Source: https://stackoverflow.com/a/4139684/2482983
 	auto npath = path;
-	ustring::replace(npath, "/", "\\");
-	std::wstring stemp = ustring::string_to_wstring(npath);
+	pragma::string::replace(npath, "/", "\\");
+	std::wstring stemp = pragma::string::string_to_wstring(npath);
 	LPCWSTR pszPathToOpen = stemp.c_str();
 	PIDLIST_ABSOLUTE pidl;
 	auto result = SHParseDisplayName(pszPathToOpen, 0, &pidl, 0, 0);
@@ -845,10 +845,10 @@ void util::open_path_in_explorer(const std::string &path, const std::optional<st
 		ILFree(pidl);
 	}
 #else
-	auto fullPath = util::DirPath(path);
+	auto fullPath = DirPath(path);
 	auto shouldSelect = selectFile.has_value();
 	if(shouldSelect)
-		fullPath = util::FilePath(fullPath, *selectFile);
+		fullPath = FilePath(fullPath, *selectFile);
 
 	auto strFullPath = fullPath.GetString();
 	if(shouldSelect && !strFullPath.empty() && strFullPath.back() == '/')
@@ -872,12 +872,12 @@ void util::open_path_in_explorer(const std::string &path, const std::optional<st
 
 	// Fallback
 	// xdg-open cannot select the file, so we'll just open the directory containing it
-	const auto &d = shellQuote(util::DirPath(path).GetString());
+	const auto &d = shellQuote(DirPath(path).GetString());
 	tryCmd("xdg-open " + d);
 #endif
 }
 
-void util::open_file_in_default_program(const std::string &filePath)
+void pragma::util::open_file_in_default_program(const std::string &filePath)
 {
 #ifdef _WIN32
 	ShellExecute(0, 0, filePath.c_str(), 0, 0, SW_SHOW);
@@ -888,7 +888,7 @@ void util::open_file_in_default_program(const std::string &filePath)
 #endif
 }
 
-void util::open_url_in_browser(const std::string &url)
+void pragma::util::open_url_in_browser(const std::string &url)
 {
 #ifdef _WIN32
 	ShellExecute(nullptr, "open", url.c_str(), nullptr, nullptr, SW_SHOW);
@@ -898,7 +898,7 @@ void util::open_url_in_browser(const std::string &url)
 #endif
 }
 
-void util::set_thread_priority(std::thread &thread, ThreadPriority priority)
+void pragma::util::set_thread_priority(std::thread &thread, ThreadPriority priority)
 {
 #ifdef _WIN32
 	auto *threadHandle = thread.native_handle();
@@ -982,7 +982,7 @@ static std::optional<std::string> get_thread_name(HANDLE hThread)
 }
 #endif
 
-bool util::set_thread_name(std::thread &thread, const std::string &name)
+bool pragma::util::set_thread_name(std::thread &thread, const std::string &name)
 {
 #ifdef _WIN32
 	return ::set_thread_name(thread.native_handle(), name);
@@ -991,7 +991,7 @@ bool util::set_thread_name(std::thread &thread, const std::string &name)
 	return pthread_setname_np(handle, name.c_str()) == 0;
 #endif
 }
-bool util::set_thread_name(const std::string &name)
+bool pragma::util::set_thread_name(const std::string &name)
 {
 #ifdef _WIN32
 	return ::set_thread_name(GetCurrentThread(), name);
@@ -1000,7 +1000,7 @@ bool util::set_thread_name(const std::string &name)
 #endif
 }
 
-std::optional<std::string> util::get_thread_name(std::thread &thread)
+std::optional<std::string> pragma::util::get_thread_name(std::thread &thread)
 {
 #ifdef _WIN32
 	return ::get_thread_name(thread.native_handle());
@@ -1013,7 +1013,7 @@ std::optional<std::string> util::get_thread_name(std::thread &thread)
 	return std::string {name.data()};
 #endif
 }
-std::optional<std::string> util::get_thread_name()
+std::optional<std::string> pragma::util::get_thread_name()
 {
 #ifdef _WIN32
 	return ::get_thread_name(GetCurrentThread());
@@ -1026,7 +1026,7 @@ std::optional<std::string> util::get_thread_name()
 #endif
 }
 
-std::string util::make_clickable_link(const std::string &path, const std::string &displayPath, int line)
+std::string pragma::util::make_clickable_link(const std::string &path, const std::string &displayPath, int line)
 {
 	std::string uri = "file://" + path + "#L" + std::to_string(line);
 
@@ -1035,29 +1035,29 @@ std::string util::make_clickable_link(const std::string &path, const std::string
 	return ss.str();
 }
 
-std::string util::make_clickable_link(const std::string &path, int line) { return make_clickable_link(path, path, line); }
+std::string pragma::util::make_clickable_link(const std::string &path, int line) { return make_clickable_link(path, path, line); }
 
-uint64_t util::to_uint64(const std::string_view &str) { return strtoll(str.data(), nullptr, 10); }
+uint64_t pragma::util::to_uint64(const std::string_view &str) { return strtoll(str.data(), nullptr, 10); }
 
 #ifdef _WIN32
-HWND util::get_window_handle() { return GetActiveWindow(); }
+HWND pragma::util::get_window_handle() { return GetActiveWindow(); }
 #endif
 
-void util::minimize_window_to_tray()
+void pragma::util::minimize_window_to_tray()
 {
 #ifdef _WIN32
 	ShowWindow(get_window_handle(), SW_HIDE);
 #endif
 }
 
-void util::unhide_window()
+void pragma::util::unhide_window()
 {
 #ifdef _WIN32
 	ShowWindow(get_window_handle(), SW_SHOW);
 #endif
 }
 
-void util::flip_item_sequence(void *sequence, size_t sequenceSize, uint32_t numItems, uint32_t itemStride)
+void pragma::util::flip_item_sequence(void *sequence, size_t sequenceSize, uint32_t numItems, uint32_t itemStride)
 {
 	auto *tmp = new uint8_t[itemStride];
 	auto *row0 = static_cast<uint8_t *>(sequence);
@@ -1073,7 +1073,7 @@ void util::flip_item_sequence(void *sequence, size_t sequenceSize, uint32_t numI
 	delete[] tmp;
 }
 
-void util::flash_window()
+void pragma::util::flash_window()
 {
 #ifdef _WIN32
 	FLASHWINFO fi;
@@ -1086,7 +1086,7 @@ void util::flash_window()
 #endif
 }
 
-bool util::is_dark_mode()
+bool pragma::util::is_dark_mode()
 {
 #ifdef _WIN32
 	DWORD value = 1; // default to light
@@ -1103,11 +1103,11 @@ bool util::is_dark_mode()
 		cmdInfo.command = cmd;
 		cmdInfo.args = args;
 		cmdInfo.useParentEnvironment = false;
-		auto res = util::start_and_wait_for_command(cmdInfo);
-		if(res.executionResult != util::CommandResult::ExecutionResult::Success)
+		auto res = start_and_wait_for_command(cmdInfo);
+		if(res.executionResult != CommandResult::ExecutionResult::Success)
 			return false;
-		ustring::remove_whitespace(res.output);
-		return ustring::find(res.output, checkFor, false);
+		string::remove_whitespace(res.output);
+		return string::find(res.output, checkFor, false);
 	};
 	if(check("gsettings", {"get", "org.gnome.desktop.interface", "color-scheme"}, "'prefer-dark'"))
 		return true;
@@ -1115,7 +1115,7 @@ bool util::is_dark_mode()
 #endif
 }
 
-std::optional<std::string> util::get_system_language()
+std::optional<std::string> pragma::util::get_system_language()
 {
 #ifdef _WIN32
 	// See https://github.com/boostorg/locale/blob/develop/src/win32/lcid.cpp#L44
@@ -1146,7 +1146,7 @@ std::optional<std::string> util::get_system_language()
 #endif
 }
 
-bool util::shutdown_os()
+bool pragma::util::shutdown_os()
 {
 #ifdef _WIN32
 	// See https://docs.microsoft.com/en-us/windows/win32/shutdown/how-to-shut-down-the-system?redirectedfrom=MSDN
@@ -1185,14 +1185,14 @@ bool util::shutdown_os()
 }
 
 // See https://github.com/mariusbancila/stduuid
-static util::Uuid uuid_to_bytes(const uuids::uuid &uuid)
+static pragma::util::Uuid uuid_to_bytes(const uuids::uuid &uuid)
 {
 	auto bytes = uuid.as_bytes();
-	util::Uuid result;
-	memcpy(result.data(), bytes.data(), util::size_of_container(result));
+	pragma::util::Uuid result;
+	memcpy(result.data(), bytes.data(), pragma::util::size_of_container(result));
 	return result;
 }
-util::Uuid util::generate_uuid_v4(const std::optional<uint32_t> seed)
+pragma::util::Uuid pragma::util::generate_uuid_v4(const std::optional<uint32_t> seed)
 {
 	static std::random_device rd;
 	static auto seed_data = std::array<int, std::mt19937::state_size> {};
@@ -1211,22 +1211,22 @@ util::Uuid util::generate_uuid_v4(const std::optional<uint32_t> seed)
 	static uuids::uuid_random_generator gen {generator};
 	return uuid_to_bytes(gen());
 }
-std::string util::uuid_to_string(const util::Uuid &uuid)
+std::string pragma::util::uuid_to_string(const Uuid &uuid)
 {
 	std::array<uuids::uuid::value_type, 16> a {};
 	static_assert(sizeof(a) == sizeof(uuid));
 	memcpy(a.data(), uuid.data(), size_of_container(uuid));
 	return uuids::to_string(uuids::uuid {a});
 }
-util::Uuid util::uuid_string_to_bytes(const std::string &uuid)
+pragma::util::Uuid pragma::util::uuid_string_to_bytes(const std::string &uuid)
 {
 	auto str = uuids::uuid::from_string(uuid);
 	if(str.has_value() == false)
 		return {};
 	return uuid_to_bytes(*str);
 }
-bool util::is_uuid(const std::string &uuid) { return uuids::uuid::from_string(uuid).has_value(); }
-size_t util::get_uuid_hash(const Uuid &uuid)
+bool pragma::util::is_uuid(const std::string &uuid) { return uuids::uuid::from_string(uuid).has_value(); }
+size_t pragma::util::get_uuid_hash(const Uuid &uuid)
 {
 	size_t hash = 0;
 	hash = util::hash_combine<size_t>(hash, uuid[0]);

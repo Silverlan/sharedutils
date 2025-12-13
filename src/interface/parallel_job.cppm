@@ -13,7 +13,7 @@ export import std.compat;
 #undef max
 
 export {
-	namespace util {
+	namespace pragma::util {
 		enum class JobStatus : uint8_t {
 			Failed = 0,
 			Successful,
@@ -212,5 +212,5 @@ export {
 		}
 	};
 
-	DLLSHUTIL std::ostream &operator<<(std::ostream &out, const util::BaseParallelJob &o);
+	DLLSHUTIL std::ostream &operator<<(std::ostream &out, const pragma::util::BaseParallelJob &o);
 }

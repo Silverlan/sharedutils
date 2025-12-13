@@ -47,7 +47,7 @@ export module pragma.util:base64;
 
 export import std.compat;
 
-export namespace util {
+export namespace pragma::util {
 	DLLSHUTIL std::string base64_encode(std::string const &s, bool url = false);
 	DLLSHUTIL std::string base64_encode_pem(std::string const &s);
 	DLLSHUTIL std::string base64_encode_mime(std::string const &s);
@@ -62,7 +62,7 @@ export namespace util {
 // Requires C++17
 // Provided by Yannic Bonenberger (https://github.com/Yannic)
 //
-export namespace util {
+export namespace pragma::util {
 	DLLSHUTIL std::string base64_encode(std::string_view s, bool url = false);
 	DLLSHUTIL std::string base64_encode_pem(std::string_view s);
 	DLLSHUTIL std::string base64_encode_mime(std::string_view s);

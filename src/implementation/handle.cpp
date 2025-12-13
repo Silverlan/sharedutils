@@ -7,6 +7,6 @@ module pragma.util;
 
 import :handle;
 
-util::PtrHandleData::PtrHandleData(void *data) : m_data {data} {}
-void util::PtrHandleData::Invalidate() { m_data = nullptr; }
-void *util::PtrHandleData::GetData() { return m_data; }
+pragma::util::PtrHandleData::PtrHandleData(void *data) : m_data {data} {}
+void pragma::util::PtrHandleData::Invalidate() { m_data = nullptr; }
+void *pragma::util::PtrHandleData::GetData() { return m_data; }

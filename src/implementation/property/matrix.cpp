@@ -7,6 +7,6 @@ module pragma.util;
 
 import :property_matrix;
 
-using namespace util;
+using namespace pragma::util;
 
 /////////////////////////////

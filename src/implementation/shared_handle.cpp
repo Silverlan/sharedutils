@@ -7,6 +7,6 @@ module pragma.util;
 
 import :shared_handle;
 
-util::PtrSharedHandleData::PtrSharedHandleData(const std::shared_ptr<void> &data) : m_data {data} {}
-void util::PtrSharedHandleData::Invalidate() { m_data = nullptr; }
-void *util::PtrSharedHandleData::GetData() { return m_data ? m_data.get() : nullptr; }
+pragma::util::PtrSharedHandleData::PtrSharedHandleData(const std::shared_ptr<void> &data) : m_data {data} {}
+void pragma::util::PtrSharedHandleData::Invalidate() { m_data = nullptr; }
+void *pragma::util::PtrSharedHandleData::GetData() { return m_data ? m_data.get() : nullptr; }

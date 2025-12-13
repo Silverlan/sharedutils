@@ -7,9 +7,9 @@ module pragma.util;
 
 import :hair;
 
-void util::HairGenerator::SetMeshDataInterface(std::unique_ptr<MeshInterface> &&meshInterface) { m_meshData = std::move(meshInterface); }
+void pragma::util::HairGenerator::SetMeshDataInterface(std::unique_ptr<MeshInterface> &&meshInterface) { m_meshData = std::move(meshInterface); }
 
-util::HairData util::HairGenerator::Generate(float hairPerArea)
+pragma::util::HairData pragma::util::HairGenerator::Generate(float hairPerArea)
 {
 	auto numTris = m_meshData->GetTriangleCount();
 	std::vector<double> triAreas;
@@ -61,23 +61,23 @@ util::HairData util::HairGenerator::Generate(float hairPerArea)
 		hairPointBarycentric.push_back(barycentric);
 	};
 	for(auto i = decltype(numHair) {0u}; i < numHair; ++i) {
-		auto r = umath::random(0.f, 1.f);
-		auto idx = umath::floor(r * (triAreas.size() - 1));
+		auto r = math::random(0.f, 1.f);
+		auto idx = math::floor(r * (triAreas.size() - 1));
 		int32_t sign = (r < triAreas[idx]) ? -1 : 1;
 		while((r < triAreas[idx] || r > triAreas[idx + 1]) && (idx + sign) >= 0 && (idx + sign) < triAreas.size())
 			idx += sign;
-		if(idx < triAreas.size() - 1 && umath::abs(r - triAreas[idx]) > umath::abs(triAreas[idx + 1] - r))
+		if(idx < triAreas.size() - 1 && math::abs(r - triAreas[idx]) > math::abs(triAreas[idx + 1] - r))
 			++idx;
 
 		auto tri = m_meshData->GetTriangle(idx);
 		auto &v0 = m_meshData->GetVertexPosition(tri.at(0));
 		auto &v1 = m_meshData->GetVertexPosition(tri.at(1));
 		auto &v2 = m_meshData->GetVertexPosition(tri.at(2));
-		auto p = uvec::calc_point_on_triangle(v0, v1, v2, umath::random(0.f, 1.f), umath::random(0.f, 1.f));
+		auto p = uvec::calc_point_on_triangle(v0, v1, v2, math::random(0.f, 1.f), math::random(0.f, 1.f));
 
 		float u = 0.f;
 		float v = 0.f;
-		umath::geometry::calc_barycentric_coordinates(v0, v1, v2, p, u, v);
+		math::geometry::calc_barycentric_coordinates(v0, v1, v2, p, u, v);
 
 		auto w = 1.f - (u + v);
 		auto &n0 = m_meshData->GetVertexNormal(tri.at(0));

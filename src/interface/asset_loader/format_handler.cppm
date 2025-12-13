@@ -9,7 +9,7 @@ export module pragma.util:asset_loader.format_handler;
 
 export import :file_interface;
 
-export namespace util {
+export namespace pragma::util {
 	class IAssetManager;
 	class DLLSHUTIL IAssetFormatHandler {
 	  public:
@@ -17,19 +17,19 @@ export namespace util {
 		void SetFile(std::unique_ptr<ufile::IFile> &&file) { m_file = std::move(file); }
 		std::unique_ptr<ufile::IFile> GetFile() { return std::move(m_file); }
 		void Close() { m_file = nullptr; }
-		util::IAssetManager &GetAssetManager() { return m_assetManager; }
-		const util::IAssetManager &GetAssetManager() const { return const_cast<IAssetFormatHandler *>(this)->GetAssetManager(); }
+		pragma::util::IAssetManager &GetAssetManager() { return m_assetManager; }
+		const pragma::util::IAssetManager &GetAssetManager() const { return const_cast<IAssetFormatHandler *>(this)->GetAssetManager(); }
 		const std::optional<std::string> &GetErrorMessage() const { return m_error; }
 	  protected:
-		IAssetFormatHandler(util::IAssetManager &assetManager);
+		IAssetFormatHandler(pragma::util::IAssetManager &assetManager);
 		std::unique_ptr<ufile::IFile> m_file = nullptr;
 		std::optional<std::string> m_error {};
-		util::IAssetManager &m_assetManager;
+		pragma::util::IAssetManager &m_assetManager;
 	};
 
 	class DLLSHUTIL IImportAssetFormatHandler : public IAssetFormatHandler {
 	  public:
-		IImportAssetFormatHandler(util::IAssetManager &assetManager) : IAssetFormatHandler {assetManager} {}
+		IImportAssetFormatHandler(pragma::util::IAssetManager &assetManager) : IAssetFormatHandler {assetManager} {}
 		virtual bool Import(const std::string &outputPath, std::string &outFilePath) = 0;
 	};
 };

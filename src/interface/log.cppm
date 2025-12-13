@@ -9,7 +9,7 @@ export module pragma.util:log;
 
 export import std.compat;
 
-export namespace util {
+export namespace pragma::util {
 	enum class LogSeverity : uint32_t {
 		Trace,
 		Debug,
@@ -22,7 +22,7 @@ export namespace util {
 		Count
 	};
 
-	using LogHandler = std::function<void(const std::string &, util::LogSeverity)>;
+	using LogHandler = std::function<void(const std::string &, pragma::util::LogSeverity)>;
 #ifdef _WIN32
 	DLLSHUTIL const std::string LOG_NL = "\r\n";
 #else

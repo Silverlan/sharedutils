@@ -58,7 +58,7 @@ export {
 		T operator()(TARGS... args) { return m_function(std::forward<TARGS>(args)...); }
 	};
 
-	namespace util {
+	namespace pragma::util {
 		class DLLSHUTIL BaseCallbackHandle {
 			using TPtr = std::shared_ptr<TCallback>;
 			using TUnderlyingType = TCallback;
@@ -93,7 +93,7 @@ export {
 		}
 	};
 
-	class DLLSHUTIL CallbackHandle : public util::BaseCallbackHandle {
+	class DLLSHUTIL CallbackHandle : public pragma::util::BaseCallbackHandle {
 	  public:
 		CallbackHandle();
 		CallbackHandle(const CallbackHandle &other);

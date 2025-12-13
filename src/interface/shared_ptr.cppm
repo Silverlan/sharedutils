@@ -7,7 +7,7 @@ import std.compat;
 
 export {
 	// Simple wrappers around std::shared_ptr and std::weak_ptr with convenience utility methods
-	namespace util {
+	namespace pragma::util {
 		template<typename T>
 		struct SharedPtrHandle;
 		template<typename T>

@@ -9,12 +9,12 @@ export module pragma.util:hair;
 
 export import pragma.math;
 
-export namespace util {
+export namespace pragma::util {
 	struct DLLSHUTIL HairConfig {
 		uint32_t numSegments = 1;
 		float hairPerSquareMeter = 100.f;
-		umath::Centimeter defaultThickness = 0.1f;
-		umath::Centimeter defaultLength = 0.1f;
+		pragma::math::Centimeter defaultThickness = 0.1f;
+		pragma::math::Centimeter defaultLength = 0.1f;
 		float defaultHairStrength = 0.2f;
 		float randomHairLengthFactor = 0.5f;
 		float curvature = 0.f;

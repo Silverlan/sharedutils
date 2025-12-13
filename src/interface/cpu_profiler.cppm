@@ -10,7 +10,7 @@ export module pragma.util:cpu_profiler;
 export import std.compat;
 
 export {
-	namespace util {
+	namespace pragma::util {
 		class DLLSHUTIL CPUTimer {
 		  private:
 			std::chrono::high_resolution_clock::time_point m_start;

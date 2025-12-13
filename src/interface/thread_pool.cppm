@@ -10,7 +10,7 @@ export module pragma.util:thread_pool;
 export import ctpl;
 export import std.compat;
 
-export namespace util {
+export namespace pragma::util {
 	class DLLSHUTIL ThreadPool {
 	  public:
 		using ResultHandler = std::function<void()>;

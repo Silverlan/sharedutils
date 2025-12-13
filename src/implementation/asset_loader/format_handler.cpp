@@ -7,4 +7,4 @@ module pragma.util;
 
 import :asset_loader.format_handler;
 
-util::IAssetFormatHandler::IAssetFormatHandler(util::IAssetManager &assetManager) : m_assetManager {assetManager} {}
+pragma::util::IAssetFormatHandler::IAssetFormatHandler(IAssetManager &assetManager) : m_assetManager {assetManager} {}

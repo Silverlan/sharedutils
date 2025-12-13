@@ -7,13 +7,13 @@ export module pragma.util:disarmable_deleter;
 
 export import std.compat;
 
-export namespace util {
+export namespace pragma::util {
 	template<typename T, typename Deleter = typename std::default_delete<T>>
 	struct DisarmableDeleter : private Deleter {
 	  public:
 		static T *release(std::shared_ptr<T> &ptr)
 		{
-			auto *deleter = std::get_deleter<util::DisarmableDeleter<T>>(ptr);
+			auto *deleter = std::get_deleter<pragma::util::DisarmableDeleter<T>>(ptr);
 			deleter->release();
 			return ptr.get();
 		}

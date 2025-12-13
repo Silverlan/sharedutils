@@ -7,7 +7,7 @@ export module pragma.util:overridable;
 
 export import :function_callback;
 
-export namespace util {
+export namespace pragma::util {
 	template<typename T>
 	class Overridable;
 	namespace _impl {

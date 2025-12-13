@@ -7,7 +7,7 @@ export module pragma.util:string_literal;
 
 export import std.compat;
 
-export namespace util {
+export namespace pragma::util {
 	template<size_t N>
 	struct StringLiteral {
 		constexpr StringLiteral(const char (&str)[N]) { std::copy_n(str, N, value); }

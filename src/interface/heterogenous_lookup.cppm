@@ -12,7 +12,7 @@ export module pragma.util:heterogenous_lookup;
 
 export import std.compat;
 
-export namespace util {
+export namespace pragma::util {
 	struct DLLSHUTIL hl_string_hash {
 		using is_transparent = void;
 		[[nodiscard]] size_t operator()(const char *txt) const { return std::hash<std::string_view> {}(txt); }

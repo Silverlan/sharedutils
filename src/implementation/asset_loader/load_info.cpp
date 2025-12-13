@@ -7,4 +7,4 @@ module pragma.util;
 
 import :asset_loader.load_info;
 
-util::AssetLoadInfo::AssetLoadInfo(AssetLoadFlags flags) : flags {flags} {}
+pragma::util::AssetLoadInfo::AssetLoadInfo(AssetLoadFlags flags) : flags {flags} {}

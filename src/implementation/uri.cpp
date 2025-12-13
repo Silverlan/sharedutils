@@ -25,7 +25,7 @@ std::string uriparser::unescape(const std::string_view &str)
 
 uriparser::Uri::Uri(std::string uri)
 {
-	ustring::replace(uri, " ", "%20");
+	pragma::string::replace(uri, " ", "%20");
 	uri_ = std::move(uri);
 	isValid_ = uriParseSingleUriA(&GetUriParse(), uri_.c_str(), nullptr) == URI_SUCCESS;
 }

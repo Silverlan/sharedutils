@@ -129,17 +129,17 @@ static void initialize_co()
 	initialized = true;
 	if(CoInitialize(NULL)) {
 		// Cleanup at program shutdown
-		static util::ScopeGuard sg {[]() { CoUninitialize(); }};
+		static pragma::util::ScopeGuard sg {[]() { CoUninitialize(); }};
 	}
 }
 
-bool util::create_link(const std::string &srcPath, const std::string &lnkPath)
+bool pragma::util::create_link(const std::string &srcPath, const std::string &lnkPath)
 {
 	initialize_co();
 	auto fullLnkPath = lnkPath + ".lnk";
 	return SUCCEEDED(::create_link(srcPath.c_str(), fullLnkPath.c_str(), ""));
 }
-bool util::resolve_link(const std::string &lnkPath, std::string &outResolvedPath)
+bool pragma::util::resolve_link(const std::string &lnkPath, std::string &outResolvedPath)
 {
 	initialize_co();
 	auto fullLnkPath = lnkPath + ".lnk";
@@ -150,15 +150,15 @@ bool util::resolve_link(const std::string &lnkPath, std::string &outResolvedPath
 	outResolvedPath = resolvedPath.data();
 	return true;
 }
-bool util::link_exists(const std::string &lnkPath)
+bool pragma::util::link_exists(const std::string &lnkPath)
 {
 	auto fullLnkPath = lnkPath + ".lnk";
 	return std::filesystem::exists(fullLnkPath);
 }
 #else
 
-bool util::create_link(const std::string &srcPath, const std::string &lnkPath) { return symlink(srcPath.c_str(), lnkPath.c_str()) == 0; }
-bool util::resolve_link(const std::string &lnkPath, std::string &outResolvedPath)
+bool pragma::util::create_link(const std::string &srcPath, const std::string &lnkPath) { return symlink(srcPath.c_str(), lnkPath.c_str()) == 0; }
+bool pragma::util::resolve_link(const std::string &lnkPath, std::string &outResolvedPath)
 {
 	std::error_code ec;
 	std::filesystem::path resolved_path = std::filesystem::canonical(lnkPath, ec); // resolves symlinks, requires target exists
@@ -167,5 +167,5 @@ bool util::resolve_link(const std::string &lnkPath, std::string &outResolvedPath
 	outResolvedPath = resolved_path.string();
 	return true;
 }
-bool util::link_exists(const std::string &lnkPath) { return std::filesystem::exists(lnkPath); }
+bool pragma::util::link_exists(const std::string &lnkPath) { return std::filesystem::exists(lnkPath); }
 #endif

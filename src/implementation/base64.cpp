@@ -98,7 +98,7 @@ static std::string insert_linebreaks(std::string str, size_t distance)
 template<typename String, unsigned int line_length>
 static std::string encode_with_line_breaks(String s)
 {
-	return insert_linebreaks(util::base64_encode(s, false), line_length);
+	return insert_linebreaks(pragma::util::base64_encode(s, false), line_length);
 }
 
 template<typename String>
@@ -116,10 +116,10 @@ static std::string encode_mime(String s)
 template<typename String>
 static std::string encode(String s, bool url)
 {
-	return util::base64_encode(reinterpret_cast<const unsigned char *>(s.data()), s.length(), url);
+	return pragma::util::base64_encode(reinterpret_cast<const unsigned char *>(s.data()), s.length(), url);
 }
 
-std::string util::base64_encode(unsigned char const *bytes_to_encode, size_t in_len, bool url)
+std::string pragma::util::base64_encode(unsigned char const *bytes_to_encode, size_t in_len, bool url)
 {
 
 	size_t len_encoded = (in_len + 2) / 3 * 4;
@@ -187,7 +187,7 @@ static std::string decode(String encoded_string, bool remove_linebreaks)
 
 		copy.erase(std::remove(copy.begin(), copy.end(), '\n'), copy.end());
 
-		return util::base64_decode(copy, false);
+		return pragma::util::base64_decode(copy, false);
 	}
 
 	size_t length_of_string = encoded_string.length();
@@ -247,13 +247,13 @@ static std::string decode(String encoded_string, bool remove_linebreaks)
 	return ret;
 }
 
-std::string util::base64_decode(std::string const &s, bool remove_linebreaks) { return decode(s, remove_linebreaks); }
+std::string pragma::util::base64_decode(std::string const &s, bool remove_linebreaks) { return decode(s, remove_linebreaks); }
 
-std::string util::base64_encode(std::string const &s, bool url) { return encode(s, url); }
+std::string pragma::util::base64_encode(std::string const &s, bool url) { return encode(s, url); }
 
-std::string util::base64_encode_pem(std::string const &s) { return encode_pem(s); }
+std::string pragma::util::base64_encode_pem(std::string const &s) { return encode_pem(s); }
 
-std::string util::base64_encode_mime(std::string const &s) { return encode_mime(s); }
+std::string pragma::util::base64_encode_mime(std::string const &s) { return encode_mime(s); }
 
 #if __cplusplus >= 201703L
 //
@@ -262,12 +262,12 @@ std::string util::base64_encode_mime(std::string const &s) { return encode_mime(
 // Provided by Yannic Bonenberger (https://github.com/Yannic)
 //
 
-std::string util::base64_encode(std::string_view s, bool url) { return encode(s, url); }
+std::string pragma::util::base64_encode(std::string_view s, bool url) { return encode(s, url); }
 
-std::string util::base64_encode_pem(std::string_view s) { return encode_pem(s); }
+std::string pragma::util::base64_encode_pem(std::string_view s) { return encode_pem(s); }
 
-std::string util::base64_encode_mime(std::string_view s) { return encode_mime(s); }
+std::string pragma::util::base64_encode_mime(std::string_view s) { return encode_mime(s); }
 
-std::string util::base64_decode(std::string_view s, bool remove_linebreaks) { return decode(s, remove_linebreaks); }
+std::string pragma::util::base64_decode(std::string_view s, bool remove_linebreaks) { return decode(s, remove_linebreaks); }
 
 #endif // __cplusplus >= 201703L

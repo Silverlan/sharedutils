@@ -11,7 +11,7 @@ export import :property_vector;
 export import pragma.math;
 
 export {
-	namespace util {
+	namespace pragma::util {
 		class DLLSHUTIL QuatProperty : public SimpleVectorProperty<QuatProperty, Quat> {
 		  public:
 			QuatProperty() = default;

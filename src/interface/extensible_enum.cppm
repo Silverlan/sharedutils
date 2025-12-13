@@ -9,7 +9,7 @@ export module pragma.util:extensible_enum;
 
 export import std.compat;
 
-export namespace util {
+export namespace pragma::util {
 	template<typename T>
 	class TExtensibleEnum {
 	  public:
@@ -50,4 +50,4 @@ export namespace util {
 		using TExtensibleEnum<uint32_t>::TExtensibleEnum;
 	};
 };
-//DEFINE_STD_HASH_SPECIALIZATION(util::ExtensibleEnum);
+//DEFINE_STD_HASH_SPECIALIZATION(pragma::util::ExtensibleEnum);

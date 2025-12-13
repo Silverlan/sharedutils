@@ -13,7 +13,7 @@ export import pragma.math;
 export {
 #pragma warning(push)
 #pragma warning(disable : 4251)
-	namespace util {
+	namespace pragma::util {
 		template<class TVectorProperty, class TVector>
 		class SimpleVectorProperty : public SimpleProperty<TVectorProperty, TVector> {
 		  public:
@@ -96,7 +96,7 @@ export {
 	};
 #pragma warning(pop)
 
-	namespace util {
+	namespace pragma::util {
 		template<class TVectorProperty, class TVector>
 		SimpleVectorProperty<TVectorProperty, TVector>::SimpleVectorProperty() : SimpleProperty<TVectorProperty, TVector>()
 		{

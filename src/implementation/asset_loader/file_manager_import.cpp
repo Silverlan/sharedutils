@@ -7,20 +7,20 @@ module pragma.util;
 
 import :asset_loader.file_manager;
 
-void util::FileAssetManager::RegisterImportHandler(const std::string &ext, const std::function<std::unique_ptr<util::IImportAssetFormatHandler>(util::IAssetManager &)> &factory, util::AssetFormatType formatType)
+void pragma::util::FileAssetManager::RegisterImportHandler(const std::string &ext, const std::function<std::unique_ptr<IImportAssetFormatHandler>(IAssetManager &)> &factory, AssetFormatType formatType)
 {
 	m_importHandlers[ext] = factory;
 	RegisterFileExtension(ext, formatType, FormatExtensionInfo::Type::Import);
 }
-bool util::FileAssetManager::Import(const std::string &path) { return Import(path, path); }
-bool util::FileAssetManager::Import(const std::string &path, const std::string &outputPath)
+bool pragma::util::FileAssetManager::Import(const std::string &path) { return Import(path, path); }
+bool pragma::util::FileAssetManager::Import(const std::string &path, const std::string &outputPath)
 {
 	std::string ext;
 	if(!ufile::get_extension(path, &ext))
 		return false;
 	return Import(path, outputPath, ext);
 }
-bool util::FileAssetManager::Import(const std::string &path, const std::string &outputPath, const std::string &ext, std::string *optOutErrMsg)
+bool pragma::util::FileAssetManager::Import(const std::string &path, const std::string &outputPath, const std::string &ext, std::string *optOutErrMsg)
 {
 	auto itExt = FindExtension(m_extensions, ext, FormatExtensionInfo::Type::Import);
 	if(itExt == m_extensions.end())
