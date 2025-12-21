@@ -18,8 +18,6 @@ export {
 			AssetLoadInfo(AssetLoadFlags flags = AssetLoadFlags::None);
 			virtual ~AssetLoadInfo() = default;
 			AssetLoadFlags flags = AssetLoadFlags::None;
-			std::function<void(pragma::util::Asset &)> onLoaded = nullptr;
-			std::function<void()> onFailure = nullptr;
 		};
 		using namespace pragma::math::scoped_enum::bitwise;
 	};

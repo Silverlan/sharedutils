@@ -11,6 +11,18 @@ import :asset_loader.core;
 
 #undef AddJob
 
+pragma::util::AssetRequest::AssetRequest(AssetLoadJobId jobId) : m_jobId {jobId} {}
+void pragma::util::AssetRequest::AddCallback(const Callback &callback) { m_callbacks.push(callback); }
+void pragma::util::AssetRequest::CallCallbacks(Asset *asset, AssetLoadResult result) {
+	while (!m_callbacks.empty()) {
+		auto &callback = m_callbacks.front();
+		callback(asset, result);
+		m_callbacks.pop();
+	}
+}
+
+pragma::util::AssetLoadJobId pragma::util::AssetLoadJob::GetJobId() const { return assetRequest->GetJobId(); }
+
 pragma::util::IAssetLoader::IAssetLoader(std::string name) : m_pool {10}, m_name {std::move(name)}
 {
 	auto n = m_pool.size();
@@ -29,7 +41,7 @@ bool pragma::util::IAssetLoader::InvalidateLoadJob(const std::string &identifier
 	auto it = m_assetIdToJobId.find(identifier);
 	if(it == m_assetIdToJobId.end())
 		return false;
-	auto itPending = m_pendingAssetJobs.find(it->second.jobId);
+	auto itPending = m_pendingAssetJobs.find(it->second.assetRequest->GetJobId());
 	if(itPending != m_pendingAssetJobs.end())
 		m_pendingAssetJobs.erase(itPending);
 	m_assetIdToJobId.erase(it);
@@ -39,7 +51,7 @@ std::optional<pragma::util::AssetLoadJobId> pragma::util::IAssetLoader::FindJobI
 {
 	std::scoped_lock lock {m_assetIdToJobIdMutex};
 	auto it = m_assetIdToJobId.find(identifier);
-	return (it != m_assetIdToJobId.end()) ? it->second.jobId : std::optional<AssetLoadJobId> {};
+	return (it != m_assetIdToJobId.end()) ? it->second.assetRequest->GetJobId() : std::optional<AssetLoadJobId> {};
 }
 
 void pragma::util::IAssetLoader::SetMultiThreadingEnabled(bool enabled) { m_multiThreadingEnabled = enabled; }
@@ -58,18 +70,20 @@ pragma::util::AssetLoadState pragma::util::IAssetLoader::GetLoadState(const std:
 void pragma::util::IAssetLoader::SetLogHandler(const LogHandler &logHandler) { m_logHandler = logHandler; }
 bool pragma::util::IAssetLoader::ShouldLog() const { return m_logHandler != nullptr; }
 
-std::optional<pragma::util::AssetLoadJobId> pragma::util::IAssetLoader::AddJob(const std::string &identifier, std::unique_ptr<IAssetProcessor> &&processor, AssetLoadJobPriority priority)
+std::shared_ptr<pragma::util::AssetRequest> pragma::util::IAssetLoader::AddJob(const std::string &identifier, std::unique_ptr<IAssetProcessor> &&processor, AssetLoadJobPriority priority)
 {
 	std::scoped_lock lock {m_assetIdToJobIdMutex};
 	std::unique_lock jobLock {m_jobMutex};
+	std::shared_ptr<AssetRequest> ar;
 	if(!identifier.empty()) {
 		auto itJob = m_assetIdToJobId.find(identifier);
 		if(itJob != m_assetIdToJobId.end()) {
 			// Already queued up
 			if(priority <= itJob->second.priority || itJob->second.state != QueuedJobInfo::State::Pending)
-				return itJob->second.jobId;
+				return itJob->second.assetRequest;
 			// New job has higher priority; The old job will be invalidated and the
 			// new job added
+			ar = itJob->second.assetRequest;
 		}
 	}
 
@@ -77,17 +91,20 @@ std::optional<pragma::util::AssetLoadJobId> pragma::util::IAssetLoader::AddJob(c
 	AssetLoadJob job {};
 	job.processor = std::move(processor);
 	job.priority = priority;
-	job.jobId = jobId;
 	job.queueStartTime = std::chrono::high_resolution_clock::now();
+	if (!ar)
+		ar = std::make_shared<AssetRequest>(jobId);
+	ar->SetJobId(jobId);
+	job.assetRequest = ar;
 	if(!identifier.empty()) {
 		job.identifier = identifier;
-		m_assetIdToJobId[identifier] = {jobId, priority};
+		m_assetIdToJobId[identifier] = {ar, priority};
 		m_pendingAssetJobs.insert(jobId);
 	}
 	else {
 		std::string identifier = "#anonymous_" + std::to_string(jobId);
 		job.identifier = identifier;
-		m_assetIdToJobId[identifier] = {jobId, priority};
+		m_assetIdToJobId[identifier] = {ar, priority};
 		m_pendingAssetJobs.insert(jobId);
 	}
 
@@ -103,14 +120,14 @@ std::optional<pragma::util::AssetLoadJobId> pragma::util::IAssetLoader::AddJob(c
 
 		m_assetIdToJobIdMutex.lock();
 		auto it = m_assetIdToJobId.find(job.identifier);
-		auto isValid = (it != m_assetIdToJobId.end() && it->second.jobId == job.jobId);
+		auto isValid = (it != m_assetIdToJobId.end() && it->second.assetRequest->GetJobId() == job.GetJobId());
 		if(it != m_assetIdToJobId.end())
 			it->second.state = QueuedJobInfo::State::InProgress;
 		m_assetIdToJobIdMutex.unlock();
 		job.taskStartTime = std::chrono::high_resolution_clock::now();
 
 		if(ShouldLog())
-			m_logHandler("Running job " + std::to_string(job.jobId) + "...!", LogSeverity::Debug);
+			m_logHandler("Running job " + std::to_string(job.GetJobId()) + "...!", LogSeverity::Debug);
 
 		if(!isValid)
 			job.state = AssetLoadJob::State::Cancelled;
@@ -134,14 +151,14 @@ std::optional<pragma::util::AssetLoadJobId> pragma::util::IAssetLoader::AddJob(c
 		m_completeQueueMutex.lock();
 
 		if(ShouldLog())
-			m_logHandler("Job " + std::to_string(job.jobId) + " has completed with result: " + std::to_string(+math::to_integral(job.state)) + "!", LogSeverity::Debug);
+			m_logHandler("Job " + std::to_string(job.GetJobId()) + " has completed with result: " + std::to_string(+math::to_integral(job.state)) + "!", LogSeverity::Debug);
 
 		m_completeQueue.push(job);
 		m_hasCompletedJobs = true;
 		if(isValid) {
 			m_assetIdToJobIdMutex.lock();
 			auto it = m_assetIdToJobId.find(job.identifier);
-			if(it != m_assetIdToJobId.end() && it->second.jobId == job.jobId) {
+			if(it != m_assetIdToJobId.end() && it->second.assetRequest->GetJobId() == job.GetJobId()) {
 				it->second.state = QueuedJobInfo::State::Complete;
 				if(job.processor)
 					job.processor->Close();
@@ -155,7 +172,7 @@ std::optional<pragma::util::AssetLoadJobId> pragma::util::IAssetLoader::AddJob(c
 		m_pool.push(std::move(f));
 	else
 		f(0);
-	return jobId;
+	return ar;
 }
 
 bool pragma::util::IAssetLoader::IsJobPending(AssetLoadJobId jobId) const
@@ -237,7 +254,7 @@ void pragma::util::IAssetLoader::Poll(const std::function<void(const AssetLoadJo
 		auto it = m_assetIdToJobId.find(job.identifier);
 		// If an asset is queued up multiple times, we only care about the latest job
 		// and disregard previous ones.
-		auto valid = (it != m_assetIdToJobId.end() && it->second.jobId == job.jobId);
+		auto valid = (it != m_assetIdToJobId.end() && it->second.assetRequest->GetJobId() == job.GetJobId());
 		m_assetIdToJobIdMutex.unlock();
 
 		auto errorMsg = job.processor->GetErrorMessage();
@@ -259,7 +276,7 @@ void pragma::util::IAssetLoader::Poll(const std::function<void(const AssetLoadJo
 
 			auto it = m_assetIdToJobId.find(job.identifier);
 			if(it != m_assetIdToJobId.end()) {
-				auto itPending = m_pendingAssetJobs.find(it->second.jobId);
+				auto itPending = m_pendingAssetJobs.find(it->second.assetRequest->GetJobId());
 				if(itPending != m_pendingAssetJobs.end())
 					m_pendingAssetJobs.erase(itPending);
 				m_assetIdToJobId.erase(it);

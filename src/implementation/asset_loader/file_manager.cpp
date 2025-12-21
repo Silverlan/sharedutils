@@ -82,19 +82,11 @@ pragma::util::FileAssetManager::PreloadResult pragma::util::FileAssetManager::Pr
 		if(cachedResult.has_value())
 			return *cachedResult;
 	}
-	auto jobId = m_loader->AddJob(ToCacheIdentifier(cacheName), ext, std::move(file), priority, [this, &loadInfo, hash](IAssetProcessor &processor) {
+	auto ar = m_loader->AddJob(ToCacheIdentifier(cacheName), ext, std::move(file), priority, [this, &loadInfo, hash](IAssetProcessor &processor) {
 		auto &faProcessor = static_cast<FileAssetProcessor &>(processor);
 		faProcessor.loadInfo = std::move(loadInfo);
 		InitializeProcessor(processor);
 		faProcessor.onLoaded = [this, &faProcessor, hash](Asset *asset, AssetLoadResult result) {
-			auto &loadInfo = *faProcessor.loadInfo;
-			if(asset) {
-				if(loadInfo.onLoaded)
-					loadInfo.onLoaded(*asset);
-			}
-			else if(loadInfo.onFailure)
-				loadInfo.onFailure();
-
 			if(m_callbacks.onAssetLoaded)
 				m_callbacks.onAssetLoaded(asset, result);
 
@@ -109,9 +101,9 @@ pragma::util::FileAssetManager::PreloadResult pragma::util::FileAssetManager::Pr
 			}
 		};
 	});
-	if(!jobId.has_value())
+	if(!ar)
 		return PreloadResult {{}, PreloadResult::Result::JobCreationFailed};
-	return PreloadResult {jobId, PreloadResult::Result::Success};
+	return PreloadResult {ar, PreloadResult::Result::Success};
 }
 void pragma::util::FileAssetManager::ClearCachedResult(size_t hash)
 {
@@ -199,24 +191,19 @@ pragma::util::FileAssetManager::PreloadResult pragma::util::FileAssetManager::Pr
 	// This call will add the job, but only if no job for the asset is already queued (or if the new priority is higher)
 	return PreloadAsset(strPath, std::move(f), *ext, priority, std::move(loadInfo));
 }
-pragma::util::AssetObject pragma::util::FileAssetManager::LoadAsset(const std::string &path, const PreloadResult &r, std::function<void(Asset &)> onLoaded, std::function<void()> onFailure)
+pragma::util::AssetObject pragma::util::FileAssetManager::LoadAsset(const std::string &path, const PreloadResult &r)
 {
 	ValidateMainThread();
-	if(r == false) {
-		if(onFailure)
-			onFailure();
+	if(!r)
 		return nullptr;
-	}
-	if(!r.jobId.has_value()) {
+	if(!r.assetRequest) {
 		// Already fully loaded
 		auto *asset = FindCachedAsset(path);
-		if(onLoaded)
-			onLoaded(*asset);
 		return asset->assetObject;
 	}
 
 	auto identifier = ToCacheIdentifier(path);
-	auto jobId = *r.jobId;
+	auto jobId = r.assetRequest->GetJobId();
 	std::chrono::steady_clock::time_point t;
 	if(ShouldLog()) {
 		m_logHandler("LoadAsset '" + identifier + "': Job Id: " + std::to_string(jobId), LogSeverity::Debug);
@@ -294,8 +281,12 @@ pragma::util::AssetObject pragma::util::FileAssetManager::Poll(std::optional<Ass
 			return nullptr;
 		m_loader->Poll(
 		  [this, &untilJob, &targetAsset](const AssetLoadJob &job, AssetLoadResult result, std::optional<std::string> errMsg) {
+		  	if (result == AssetLoadResult::Cancelled) {
+		  		// This job has been cancelled, so we'll skip the remaining steps
+		  		return;
+		  	}
 			  if(ShouldLog())
-				  m_logHandler("Poll: Job " + (untilJob.has_value() ? std::to_string(*untilJob) : std::string {"n/a"}) + " state: " + std::to_string(math::to_integral(result)) + "!", LogSeverity::Trace);
+				  m_logHandler("Poll: Job " + (untilJob.has_value() ? std::to_string(*untilJob) : std::string {"n/a"}) + " state: " + std::string {magic_enum::enum_name(result)} + "!", LogSeverity::Trace);
 			  auto &processor = *static_cast<FileAssetProcessor *>(job.processor.get());
 			  Asset *passet = nullptr;
 			  switch(result) {
@@ -315,7 +306,7 @@ pragma::util::AssetObject pragma::util::FileAssetManager::Poll(std::optional<Ass
 						  AddToCache(job.identifier, asset);
 					  auto assetObject = InitializeAsset(*asset, job);
 					  asset->assetObject = assetObject;
-					  if(untilJob.has_value() && job.jobId == *untilJob) {
+					  if(untilJob.has_value() && job.GetJobId() == *untilJob) {
 						  targetAsset = asset->assetObject;
 						  untilJob = {};
 					  }
@@ -325,7 +316,7 @@ pragma::util::AssetObject pragma::util::FileAssetManager::Poll(std::optional<Ass
 			  default:
 				  {
 					  if(ShouldLog()) {
-						  std::string msg = job.identifier + " has failed: ";
+						  std::string msg = "Asset load job '" +job.identifier + "' has failed: ";
 						  if(errMsg)
 							  msg += *errMsg;
 						  else
@@ -333,7 +324,7 @@ pragma::util::AssetObject pragma::util::FileAssetManager::Poll(std::optional<Ass
 						  m_logHandler(msg, LogSeverity::Warning);
 					  }
 
-					  if(untilJob.has_value() && job.jobId == *untilJob) {
+					  if(untilJob.has_value() && job.GetJobId() == *untilJob) {
 						  targetAsset = nullptr;
 						  untilJob = {};
 					  }
@@ -342,6 +333,7 @@ pragma::util::AssetObject pragma::util::FileAssetManager::Poll(std::optional<Ass
 			  }
 			  if(processor.onLoaded)
 				  processor.onLoaded(passet, result);
+		  	job.assetRequest->CallCallbacks(passet, result);
 		  },
 		  wait);
 	} while(untilJob.has_value());
@@ -371,8 +363,6 @@ pragma::util::AssetObject pragma::util::FileAssetManager::LoadAsset(const std::s
 	ValidateMainThread();
 	if(!loadInfo)
 		loadInfo = CreateDefaultLoadInfo();
-	auto onLoaded = loadInfo ? loadInfo->onLoaded : nullptr;
-	auto onFailure = loadInfo ? loadInfo->onFailure : nullptr;
 	auto r = PreloadAsset(cacheName, std::move(file), ext, IMMEDIATE_PRIORITY, std::move(loadInfo));
 	if(optOutResult)
 		*optOutResult = r;
@@ -381,15 +371,13 @@ pragma::util::AssetObject pragma::util::FileAssetManager::LoadAsset(const std::s
 			CacheResult(cacheName, r);
 		return nullptr;
 	}
-	return LoadAsset(cacheName, r, onLoaded, onFailure);
+	return LoadAsset(cacheName, r);
 }
 pragma::util::AssetObject pragma::util::FileAssetManager::LoadAsset(const std::string &path, std::unique_ptr<AssetLoadInfo> &&loadInfo, PreloadResult *optOutResult)
 {
 	if(!loadInfo)
 		loadInfo = CreateDefaultLoadInfo();
 	ValidateMainThread();
-	auto onLoaded = loadInfo->onLoaded;
-	auto onFailure = loadInfo->onFailure;
 	auto r = PreloadAsset(path, IMMEDIATE_PRIORITY, std::move(loadInfo));
 	if(!r && !r.firstTimeError) {
 		// Already failed previously; Don't bother trying again
@@ -476,5 +464,5 @@ pragma::util::AssetObject pragma::util::FileAssetManager::LoadAsset(const std::s
 			CacheResult(assetPath, r);
 		return nullptr;
 	}
-	return LoadAsset(assetPath, r, onLoaded, onFailure);
+	return LoadAsset(assetPath, r);
 }

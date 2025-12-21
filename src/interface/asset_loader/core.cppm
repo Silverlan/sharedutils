@@ -27,13 +27,26 @@ export {
 			NotStarted,
 			Loading
 		};
+		struct Asset;
 		enum class AssetLoadState : uint8_t { NotQueued = 0, Loading, LoadedAndPendingForCompletion };
+		struct DLLSHUTIL AssetRequest {
+			using Callback = std::function<void(Asset *, AssetLoadResult)>;
+
+			AssetRequest(AssetLoadJobId jobId);
+			void AddCallback(const Callback &callback);
+			void CallCallbacks(Asset *, AssetLoadResult);
+			const AssetLoadJobId GetJobId() const { return m_jobId; }
+			void SetJobId(AssetLoadJobId jobId) { m_jobId = jobId; }
+		private:
+			AssetLoadJobId m_jobId;
+			std::queue<Callback> m_callbacks;
+		};
 		class DLLSHUTIL IAssetLoader {
 		  public:
 			IAssetLoader(std::string name = "");
 			virtual ~IAssetLoader();
 			void Poll(const std::function<void(const AssetLoadJob &, AssetLoadResult, std::optional<std::string>)> &onComplete, AssetLoaderWaitMode wait = AssetLoaderWaitMode::None);
-			std::optional<AssetLoadJobId> AddJob(const std::string &identifier, std::unique_ptr<IAssetProcessor> &&processor, AssetLoadJobPriority priority = 0);
+			std::shared_ptr<AssetRequest> AddJob(const std::string &identifier, std::unique_ptr<IAssetProcessor> &&processor, AssetLoadJobPriority priority = 0);
 			std::optional<AssetLoadJobId> FindJobId(const std::string &identifier) const;
 			bool InvalidateLoadJob(const std::string &identifier);
 
@@ -68,7 +81,7 @@ export {
 
 			struct QueuedJobInfo {
 				enum class State : uint8_t { Pending = 0, InProgress, Complete };
-				AssetLoadJobId jobId;
+				std::shared_ptr<AssetRequest> assetRequest;
 				AssetLoadJobPriority priority;
 				State state = State::Pending;
 			};

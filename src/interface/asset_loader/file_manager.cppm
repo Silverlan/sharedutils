@@ -38,7 +38,7 @@ export namespace pragma::util {
 				ImportFailed,
 				Success,
 			};
-			std::optional<pragma::util::AssetLoadJobId> jobId {};
+			std::shared_ptr<AssetRequest> assetRequest {};
 			Result result = Result::Pending;
 			std::optional<std::string> errorMessage {};
 			bool firstTimeError = true;
@@ -104,7 +104,7 @@ export namespace pragma::util {
 
 		PreloadResult PreloadAsset(const std::string &path, pragma::util::AssetLoadJobPriority priority, std::unique_ptr<AssetLoadInfo> &&loadInfo);
 		PreloadResult PreloadAsset(const std::string &cacheName, std::unique_ptr<ufile::IFile> &&file, const std::string &ext, pragma::util::AssetLoadJobPriority priority, std::unique_ptr<AssetLoadInfo> &&loadInfo);
-		pragma::util::AssetObject LoadAsset(const std::string &path, const PreloadResult &r, std::function<void(pragma::util::Asset &)> onLoaded, std::function<void()> onFailure);
+		pragma::util::AssetObject LoadAsset(const std::string &path, const PreloadResult &r);
 		pragma::util::AssetObject Poll(std::optional<pragma::util::AssetLoadJobId> untilJob, pragma::util::AssetLoaderWaitMode wait);
 
 		void RegisterImportHandler(const std::string &ext, const std::function<std::unique_ptr<pragma::util::IImportAssetFormatHandler>(pragma::util::IAssetManager &assetManager)> &factory, pragma::util::AssetFormatType formatType = pragma::util::AssetFormatType::Binary);

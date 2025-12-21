@@ -15,6 +15,7 @@ export namespace pragma::util {
 	class ITextureFormatHandler;
 	class TextureProcessor;
 	class IAssetProcessor;
+	struct AssetRequest;
 	struct DLLSHUTIL AssetLoadJob {
 		enum class State : uint8_t { Pending = 0, Succeeded, Failed, Cancelled };
 		AssetLoadJob() = default;
@@ -23,11 +24,13 @@ export namespace pragma::util {
 		AssetLoadJob &operator=(const AssetLoadJob &) = default;
 		AssetLoadJob &operator=(AssetLoadJob &&) = default;
 
+		AssetLoadJobId GetJobId() const;
+
 		std::shared_ptr<IAssetProcessor> processor = nullptr;
 		State state = State::Pending;
 		AssetLoadJobPriority priority = 0;
 		std::string identifier;
-		AssetLoadJobId jobId = 0;
+		std::shared_ptr<AssetRequest> assetRequest;
 
 		std::chrono::high_resolution_clock::time_point queueStartTime;
 		std::chrono::high_resolution_clock::time_point completionTime;

@@ -22,7 +22,7 @@ export namespace pragma::util {
 		// Registering a format handler is *not* MT-safe, all format handlers
 		// should therefore be registered before any jobs are added.
 		void RegisterFormatHandler(const std::string &ext, const std::function<std::unique_ptr<IAssetFormatHandler>(pragma::util::IAssetManager &)> &factory);
-		std::optional<pragma::util::AssetLoadJobId> AddJob(const std::string &identifier, const std::string &ext, std::unique_ptr<ufile::IFile> &&file, pragma::util::AssetLoadJobPriority priority = 0, const std::function<void(pragma::util::IAssetProcessor &)> &initProcessor = nullptr);
+		std::shared_ptr<AssetRequest> AddJob(const std::string &identifier, const std::string &ext, std::unique_ptr<ufile::IFile> &&file, pragma::util::AssetLoadJobPriority priority = 0, const std::function<void(pragma::util::IAssetProcessor &)> &initProcessor = nullptr);
 	  protected:
 		virtual std::unique_ptr<pragma::util::IAssetProcessor> CreateAssetProcessor(const std::string &identifier, const std::string &ext, std::unique_ptr<IAssetFormatHandler> &&formatHandler) = 0;
 		std::unordered_map<std::string, std::function<std::unique_ptr<IAssetFormatHandler>(pragma::util::IAssetManager &)>> m_formatHandlers;
