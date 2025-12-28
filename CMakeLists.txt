@@ -12,6 +12,8 @@ endif()
 set(PROJ_NAME sharedutils)
 pr_add_library(${PROJ_NAME} ${LIB_TYPE})
 
+pr_include_windows_clang_export_definitions_workaround(${PROJ_NAME})
+
 pr_add_dependency(${PROJ_NAME} mathutil TARGET PUBLIC)
 pr_add_dependency(${PROJ_NAME} util_string TARGET PUBLIC)
 pr_add_external_dependency(${PROJ_NAME} cpptrace LIBRARY PRIVATE)

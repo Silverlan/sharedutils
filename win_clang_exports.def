@@ -1,0 +1,4 @@
+LIBRARY "mathutil"
+EXPORTS
+    ?my_index@this_thread@BS@@0V?$optional@_K@std@@A
+    ?my_pool@this_thread@BS@@0V?$optional@PEAX@std@@A
