@@ -198,6 +198,16 @@ unsigned long long pragma::util::get_process_id()
 #endif
 }
 
+void pragma::util::sleep_for_seconds(uint32_t seconds)
+{
+#ifdef WINDOWS_CLANG_COMPILER_FIX
+	// std::this_thread::sleep_for causes a compiler error when using clang on windows
+	::Sleep(seconds);
+#else
+	std::this_thread::sleep_for(std::chrono::seconds(seconds));
+#endif
+}
+
 bool pragma::util::is_process_running(unsigned long long id)
 {
 #ifdef _WIN32

@@ -29,6 +29,7 @@ export {
 		DLLSHUTIL std::optional<std::string> get_library_file_path(const void *ptrToAnyStaticLibFunc);
 		DLLSHUTIL std::optional<std::string> get_path_to_library(const void *ptrToAnyStaticLibFunc);
 		DLLSHUTIL unsigned long long get_process_id();
+		DLLSHUTIL void sleep_for_seconds(uint32_t seconds);
 
 		struct DLLSHUTIL CommandInfo {
 			CommandInfo() = default;
