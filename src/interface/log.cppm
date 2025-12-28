@@ -24,8 +24,8 @@ export namespace pragma::util {
 
 	using LogHandler = std::function<void(const std::string &, pragma::util::LogSeverity)>;
 #ifdef _WIN32
-	DLLSHUTIL const std::string LOG_NL = "\r\n";
+	constexpr std::string_view LOG_NL = "\r\n";
 #else
-	DLLSHUTIL const std::string LOG_NL = "\n";
+	constexpr std::string_view LOG_NL = "\n";
 #endif
 };
