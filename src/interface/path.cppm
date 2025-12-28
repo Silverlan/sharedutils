@@ -102,6 +102,11 @@ export {
 			Path &operator+=(const Path &other);
 			Path operator+(const char *other) const;
 			Path &operator+=(const char *other);
+			
+			Path operator/(const Path &other) const;
+			Path operator/(const char *other) const;
+
+			operator std::string() const { return m_path; }
 
 			std::string_view GetPath() const;
 			std::string_view GetFileName() const;

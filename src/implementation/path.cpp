@@ -164,6 +164,9 @@ pragma::util::Path &pragma::util::Path::operator+=(const Path &other)
 pragma::util::Path pragma::util::Path::operator+(const char *other) const { return operator+(std::string {other}); }
 pragma::util::Path &pragma::util::Path::operator+=(const char *other) { return operator+=(std::string {other}); }
 
+pragma::util::Path pragma::util::Path::operator/(const Path &other) const { return *this +other; }
+pragma::util::Path pragma::util::Path::operator/(const char *other) const { return *this +other; }
+
 std::string_view pragma::util::Path::GetPath() const
 {
 	if(IsFile() == false)
