@@ -3,7 +3,6 @@
 
 module;
 
-#include "definitions.hpp"
 #ifdef _WIN32
 #include <Windows.h>
 #include <winreg.h>

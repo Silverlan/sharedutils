@@ -3,7 +3,6 @@
 
 module;
 
-#include "definitions.hpp"
 #if defined(_WIN32) || defined(__linux__)
 
 #ifdef _WIN32

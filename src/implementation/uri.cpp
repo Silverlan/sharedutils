@@ -1,6 +1,5 @@
 module;
 
-#include "definitions.hpp"
 #include <uriparser/Uri.h>
 
 module pragma.util;

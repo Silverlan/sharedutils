@@ -36,13 +36,6 @@
 //  Version: 2.rc.08 (release candidate)
 //
 
-module;
-
-#include "definitions.hpp"
-
-#if __cplusplus >= 201703L
-#endif // __cplusplus >= 201703L
-
 export module pragma.util:base64;
 
 export import std.compat;

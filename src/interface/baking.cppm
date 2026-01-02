@@ -1,7 +1,3 @@
-module;
-
-#include "definitions.hpp"
-
 export module pragma.util:baking;
 
 export import std.compat;

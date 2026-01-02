@@ -1,7 +1,5 @@
 module;
 
-#include "definitions.hpp"
-
 #include "uriparser/Uri.h"
 
 export module pragma.util:uri;

@@ -3,8 +3,6 @@
 
 module;
 
-#include "definitions.hpp"
-
 #ifdef __linux__
 #undef major
 #undef minor

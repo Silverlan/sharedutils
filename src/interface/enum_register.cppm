@@ -3,7 +3,6 @@
 
 module;
 
-#include "definitions.hpp"
 #include <limits>
 
 export module pragma.util:enum_register;
