@@ -20,7 +20,11 @@ export namespace pragma::util {
 
 	using LogHandler = std::function<void(const std::string &, pragma::util::LogSeverity)>;
 #ifdef _WIN32
+#ifdef __clang__
 	constexpr std::string_view LOG_NL = "\r\n";
+#else
+	CONSTEXPR_DLL_COMPAT std::string_view LOG_NL = "\r\n";
+#endif
 #else
 	constexpr std::string_view LOG_NL = "\n";
 #endif
