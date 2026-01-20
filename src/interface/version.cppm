@@ -18,22 +18,27 @@ export {
 #pragma pack(push, 1)
 #endif
 		struct DLLSHUTIL Version {
-			Version(unsigned int _major, unsigned int _minor, unsigned int _revision);
-			Version(unsigned int _major, unsigned int _minor);
+			constexpr Version(unsigned int _major, unsigned int _minor, unsigned int _revision) : major(_major), minor(_minor), revision(_revision) {}
+			constexpr Version(unsigned int _major, unsigned int _minor) : Version(_major, _minor, 0) {}
 			Version(const std::string &version);
-			Version();
+			constexpr Version() : Version(0, 0) {}
 			unsigned int major;
 			unsigned int minor;
 			unsigned int revision;
-			void Reset();
+			constexpr void Reset()
+			{
+				major = 0;
+				minor = 0;
+				revision = 0;
+			}
 			std::string ToString() const;
 			static Version FromString(const std::string &version);
-			bool operator==(const Version &other) const;
-			bool operator!=(const Version &other) const;
-			bool operator>(const Version &other) const;
-			bool operator<(const Version &other) const;
-			bool operator>=(const Version &other) const;
-			bool operator<=(const Version &other) const;
+			constexpr bool operator==(const Version &other) const { return (minor == other.minor && major == other.major && revision == other.revision) ? true : false; }
+			constexpr bool operator!=(const Version &other) const { return (*this == other) ? false : true; }
+			constexpr bool operator>(const Version &other) const { return (major > other.major || (major == other.major && (minor > other.minor || (minor == other.minor && revision > other.revision)))) ? true : false; }
+			constexpr bool operator<(const Version &other) const { return (major < other.major || (major == other.major && (minor < other.minor || (minor == other.minor && revision < other.revision)))) ? true : false; }
+			constexpr bool operator>=(const Version &other) const { return (*this == other || *this > other) ? true : false; }
+			constexpr bool operator<=(const Version &other) const { return (*this == other || *this < other) ? true : false; }
 		}
 #ifdef __linux__
 		__attribute__((packed))
