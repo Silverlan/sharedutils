@@ -7,9 +7,6 @@
 [submodule "third_party_libs/magic_enum"]
 	path = third_party_libs/magic_enum
 	url = https://github.com/Silverlan/magic_enum.git
-[submodule "third_party_libs/thread-pool"]
-	path = third_party_libs/thread-pool
-	url = https://github.com/bshoshany/thread-pool.git
 [submodule "third_party_libs/spdlog"]
 	path = third_party_libs/spdlog
 	url = https://github.com/gabime/spdlog.git
