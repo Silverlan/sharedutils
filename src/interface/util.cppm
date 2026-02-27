@@ -46,7 +46,6 @@ export import :scope_guard;
 export import :shader_info;
 export import :shared_handle;
 export import :string_literal;
-export import :string_map;
 export import :property;
 export import :property_color;
 export import :property_euler_angles;
