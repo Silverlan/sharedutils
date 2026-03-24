@@ -25,6 +25,7 @@ export import :extensible_enum;
 export import :file;
 export import :file_interface;
 export import :function_callback;
+export import :global_string_table;
 export import :hair;
 export import :handle;
 export import :hash;
