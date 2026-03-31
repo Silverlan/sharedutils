@@ -37,6 +37,7 @@ export import :link;
 export import :log;
 export import :magic_enum_util;
 export import :markup_file;
+export import :memory;
 export import :memory_iterator;
 export import :net_packet;
 export import :overridable;
