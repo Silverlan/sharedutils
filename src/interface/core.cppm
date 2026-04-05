@@ -22,6 +22,7 @@ export {
 		using GUID = std::array<uint8_t, 16>;
 		DLLSHUTIL std::string get_pretty_bytes(unsigned long long bytes);
 		DLLSHUTIL std::string get_pretty_duration(unsigned long long ms, int addSegments = 0, bool bNoMs = true);
+		DLLSHUTIL std::optional<size_t> parse_bytes(std::string_view input);
 		DLLSHUTIL std::string get_program_path();
 		DLLSHUTIL void set_program_path(const std::string &path);
 		DLLSHUTIL std::string get_program_name();

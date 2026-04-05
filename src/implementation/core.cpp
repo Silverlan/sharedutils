@@ -62,6 +62,43 @@ std::string pragma::util::get_pretty_bytes(unsigned long long bytes)
 	return ss.str();
 }
 
+std::optional<size_t> pragma::util::parse_bytes(std::string_view input)
+{
+	if (input.empty())
+		return {};
+
+	size_t i = 0;
+	while (i < input.size() && (std::isdigit(input[i]) || input[i] == '.'))
+		++i;
+
+	if (i == 0)
+		return {}; // No numeric value
+
+	auto value = std::stoull(std::string{input.substr(0, i)});
+
+	std::string suffix {input.substr(i)};
+
+	// Trim whitespace
+	suffix.erase(0, suffix.find_first_not_of(" \t"));
+
+	// Normalize suffix
+	string::to_upper(suffix);
+
+	if (suffix.empty()  || suffix == "B")   return value;
+	if (suffix == "KB")                     return value * math::pow(1'000, 1);
+	if (suffix == "MB")                     return value * math::pow(1'000, 2);
+	if (suffix == "GB")                     return value * math::pow(1'000, 3);
+	if (suffix == "TB")                     return value * math::pow(1'000, 4);
+	if (suffix == "PB")                     return value * math::pow(1'000, 5);
+
+	if (suffix == "KIB")                    return value * math::pow(1'024, 1);
+	if (suffix == "MIB")                    return value * math::pow(1'024, 2);
+	if (suffix == "GIB")                    return value * math::pow(1'024, 3);
+	if (suffix == "TIB")                    return value * math::pow(1'024, 4);
+	if (suffix == "PIB")                    return value * math::pow(1'024, 5);
+	return {};
+}
+
 std::string pragma::util::get_pretty_duration(unsigned long long ms, int addSegments, bool bNoMs)
 {
 	if(addSegments == -1)
