@@ -195,8 +195,7 @@ export {
 			void Write(T *v, uint32_t *pos = nullptr);
 			template<class T>
 			void Write(const T &v, uint32_t *pos = nullptr);
-			void WriteString(const std::string &str, Bool bNullTerminated = true);
-			void WriteString(const char *str, Bool bNullTerminated = true);
+			void WriteString(std::string_view str, Bool bNullTerminated = true);
 			template<class T>
 			DataStreamBase &operator<<(T *v);
 			template<class T>

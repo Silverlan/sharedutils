@@ -112,7 +112,7 @@ uint32_t pragma::util::DataStreamBase::GetClampedSize(uint32_t sz, uint32_t offs
 	return static_cast<uint32_t>(((offset + sz) >= dataSize) ? (dataSize - offset) : sz);
 }
 
-void pragma::util::DataStreamBase::WriteString(const std::string &str, Bool bNullTerminated)
+void pragma::util::DataStreamBase::WriteString(std::string_view str, Bool bNullTerminated)
 {
 	auto len = str.length();
 	Resize(static_cast<uint32_t>(m_offset + len + 1));
@@ -125,12 +125,6 @@ void pragma::util::DataStreamBase::WriteString(const std::string &str, Bool bNul
 		m_offset++;
 	}
 	m_dataSize = math::max(m_dataSize, m_offset);
-}
-
-void pragma::util::DataStreamBase::WriteString(const char *str, Bool bNullTerminated)
-{
-	std::string s(str);
-	WriteString(s, bNullTerminated);
 }
 
 void pragma::util::DataStreamBase::AdjustSize(uint32_t offset, uint32_t &sz)
