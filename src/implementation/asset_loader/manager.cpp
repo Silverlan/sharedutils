@@ -111,7 +111,7 @@ std::vector<pragma::util::IAssetManager::FormatExtensionInfo>::const_iterator pr
 	return std::find_if(exts.begin(), exts.end(), [hash, &type](const FormatExtensionInfo &extInfo) { return hash == extInfo.hash && (!type.has_value() || extInfo.type == *type); });
 }
 
-pragma::util::IAssetManager::IAssetManager() : m_mainThreadId {std::this_thread::get_id()} {}
+pragma::util::IAssetManager::IAssetManager(const Heap *heap) : m_mainThreadId {std::this_thread::get_id()}, m_heap {heap} {}
 pragma::util::IAssetManager::~IAssetManager()
 {
 	assert(m_reset);
@@ -148,6 +148,7 @@ void pragma::util::IAssetManager::ValidateMainThread()
 pragma::util::AssetIndex pragma::util::IAssetManager::AddToIndex(const std::shared_ptr<Asset> &asset)
 {
 	ValidateMainThread();
+	HeapScope heapScope {m_heap};
 	AssetIndex index = 0;
 	if(!m_freeIndices.empty()) {
 		index = m_freeIndices.front();
@@ -170,6 +171,7 @@ pragma::util::AssetIndex pragma::util::IAssetManager::AddToIndex(const std::shar
 pragma::util::AssetIndex pragma::util::IAssetManager::AddToCache(const std::string &assetName, const std::shared_ptr<Asset> &asset)
 {
 	ValidateMainThread();
+	HeapScope heapScope {m_heap};
 	auto identifier = ToCacheIdentifier(assetName);
 
 	auto hash = GetIdentifierHash(identifier);

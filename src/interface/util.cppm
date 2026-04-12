@@ -30,6 +30,7 @@ export import :hair;
 export import :handle;
 export import :hash;
 export import :hashable;
+export import :heap;
 export import :heterogenous_lookup;
 export import :indexed_vector;
 export import :library;

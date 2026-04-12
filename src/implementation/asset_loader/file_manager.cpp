@@ -11,7 +11,7 @@ import :asset_loader.file_manager;
 
 #undef AddJob
 
-pragma::util::FileAssetManager::FileAssetManager() : IAssetManager {} {}
+pragma::util::FileAssetManager::FileAssetManager(const Heap *heap) : IAssetManager {heap} {}
 pragma::util::FileAssetManager::~FileAssetManager() { Reset(); }
 void pragma::util::FileAssetManager::SetRootDirectory(const std::string &dir) { m_rootDir = Path::CreatePath(dir); }
 const pragma::util::Path &pragma::util::FileAssetManager::GetRootDirectory() const { return m_rootDir; }

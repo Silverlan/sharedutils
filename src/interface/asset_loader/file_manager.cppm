@@ -46,7 +46,7 @@ export namespace pragma::util {
 			std::function<void(const std::string &)> onAssetRemoved;
 		};
 
-		FileAssetManager();
+		FileAssetManager(const Heap *heap = nullptr);
 		virtual ~FileAssetManager() override;
 		AssetState GetAssetState(const std::string &assetName) const;
 		std::optional<std::string> FindAssetFilePath(const std::string &assetName, bool includeImportTypes = false) const;

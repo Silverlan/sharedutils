@@ -4,6 +4,7 @@
 export module pragma.util:asset_loader.manager;
 
 export import :log;
+export import :heap;
 
 export namespace pragma::util {
 	using AssetObject = std::shared_ptr<void>;
@@ -35,7 +36,7 @@ export namespace pragma::util {
 		};
 		std::string ToCacheIdentifier(const std::string &assetName) const;
 
-		IAssetManager();
+		IAssetManager(const Heap *heap = nullptr);
 		virtual ~IAssetManager();
 
 		uint32_t ClearUnused();
@@ -80,7 +81,8 @@ export namespace pragma::util {
 		std::unordered_set<AssetIndex> m_flaggedForDeletion;
 		std::vector<FormatExtensionInfo> m_extensions;
 		std::thread::id m_mainThreadId;
-		pragma::util::LogHandler m_logHandler;
+		LogHandler m_logHandler;
+		const Heap *m_heap = nullptr;
 		bool m_reset = false;
 	};
 };
