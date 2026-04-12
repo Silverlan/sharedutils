@@ -281,10 +281,10 @@ pragma::util::AssetObject pragma::util::FileAssetManager::Poll(std::optional<Ass
 			return nullptr;
 		m_loader->Poll(
 		  [this, &untilJob, &targetAsset](const AssetLoadJob &job, AssetLoadResult result, std::optional<std::string> errMsg) {
-		  	if (result == AssetLoadResult::Cancelled) {
-		  		// This job has been cancelled, so we'll skip the remaining steps
-		  		return;
-		  	}
+			  if(result == AssetLoadResult::Cancelled) {
+				  // This job has been cancelled, so we'll skip the remaining steps
+				  return;
+			  }
 			  if(ShouldLog())
 				  m_logHandler("Poll: Job " + (untilJob.has_value() ? std::to_string(*untilJob) : std::string {"n/a"}) + " state: " + std::string {magic_enum::enum_name(result)} + "!", LogSeverity::Trace);
 			  auto &processor = *static_cast<FileAssetProcessor *>(job.processor.get());
@@ -316,7 +316,7 @@ pragma::util::AssetObject pragma::util::FileAssetManager::Poll(std::optional<Ass
 			  default:
 				  {
 					  if(ShouldLog()) {
-						  std::string msg = "Asset load job '" +job.identifier + "' has failed: ";
+						  std::string msg = "Asset load job '" + job.identifier + "' has failed: ";
 						  if(errMsg)
 							  msg += *errMsg;
 						  else
@@ -333,7 +333,7 @@ pragma::util::AssetObject pragma::util::FileAssetManager::Poll(std::optional<Ass
 			  }
 			  if(processor.onLoaded)
 				  processor.onLoaded(passet, result);
-		  	job.assetRequest->CallCallbacks(passet, result);
+			  job.assetRequest->CallCallbacks(passet, result);
 		  },
 		  wait);
 	} while(untilJob.has_value());
