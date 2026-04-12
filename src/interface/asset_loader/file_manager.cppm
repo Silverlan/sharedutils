@@ -135,7 +135,7 @@ export namespace pragma::util {
 	  public:
 		using AssetType = TAssetType;
 		static std::shared_ptr<TAssetType> GetAssetObject(Asset &asset) { return std::static_pointer_cast<TAssetType>(asset.assetObject); }
-		TFileAssetManager(const Heap *heap) : FileAssetManager {heap} {}
+		TFileAssetManager() : FileAssetManager {} {}
 
 		TAssetType *GetAssetObject(AssetIndex index)
 		{
