@@ -55,8 +55,11 @@ export {
 		DLLSHUTIL std::ostream &operator<<(std::ostream &stream, const GString &str);
 	};
 
+	// This causes unresolved externals when building with clang on Windows
+#ifndef WINDOWS_CLANG_COMPILER_FIX
 	template<>
 	struct std::hash<pragma::util::GString> {
 		std::size_t operator()(const pragma::util::GString &k) const { return std::hash<std::string>()(k.c_str()); }
 	};
+#endif
 };
