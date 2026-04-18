@@ -3,6 +3,7 @@
 
 export module pragma.util:path;
 
+import :core;
 import :file;
 
 #undef CreateFile
@@ -171,7 +172,7 @@ export {
 			template<typename T>
 			static std::string to_string(const T &value)
 			{
-				return std::to_string(value);
+				return util::to_string(value);
 			}
 			void SetPath(const std::string &path);
 			void SetPath(std::string &&path);

@@ -191,9 +191,9 @@ export {
 		unique_ptr_c<T> make_unique_ptr_c(const std::function<void(T &)> &fOnDelete, TARGS &&...args)
 		{
 			return pragma::util::unique_ptr_c<T> {new T {std::forward<TARGS>(args)...}, [fOnDelete](T *v) {
-				                              fOnDelete(*v);
-				                              delete v;
-			                              }};
+				                                      fOnDelete(*v);
+				                                      delete v;
+			                                      }};
 		}
 		template<typename TFrom, typename TTo>
 		std::unique_ptr<TTo> static_unique_pointer_cast(std::unique_ptr<TFrom> &&p)
@@ -278,6 +278,11 @@ export {
 			return std::make_shared<T>(std::forward<Args>(args)...);
 #endif
 		}
+
+		template<typename T>
+		    requires(std::is_arithmetic_v<T>)
+		std::string to_string(T value);
+		inline std::string to_string(bool value) { return value ? "1" : "0"; }
 	}
 
 	uint32_t pragma::util::to_uint(const std::string_view &str)
@@ -304,6 +309,14 @@ export {
 	T pragma::util::to_int(const std::string_view &str)
 	{
 		return to_number<T>(str);
+	}
+
+	// Wrapper for std::to_chars. This should be preferred over std::to_string, as std::to_string is locale dependent.
+	template<typename T>
+	    requires(std::is_arithmetic_v<T>)
+	std::string pragma::util::to_string(T value)
+	{
+		return math::to_string<T>(value);
 	}
 
 	template<typename T, typename C>
