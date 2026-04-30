@@ -869,8 +869,27 @@ static std::string shellQuote(const std::string &s)
 	return q;
 }
 
-// Try running `cmd`; returns true if it exited with status 0.
-static bool tryCmd(const std::string &cmd) { return std::system((cmd + " > /dev/null 2>&1").c_str()) == 0; }
+static bool try_command(std::string cmd, std::vector<std::string> &args)
+{
+	std::vector<char *> argv;
+	argv.reserve(args.size() + 2);
+	argv.push_back(cmd.data());
+	for(auto &s : args)
+		argv.push_back(s.data());
+	argv.push_back(nullptr);
+
+	posix_spawnattr_t attr {};
+	if(posix_spawnattr_init(&attr) != 0)
+		return false;
+
+	posix_spawnattr_setflags(&attr, POSIX_SPAWN_SETSID);
+
+	pid_t pid {};
+	int rc = posix_spawnp(&pid, cmd.data(), nullptr, &attr, argv.data(), environ);
+	posix_spawnattr_destroy(&attr);
+	return rc == 0;
+}
+
 #endif
 
 void pragma::util::open_path_in_explorer(const std::string &path, const std::optional<std::string> &selectFile)
@@ -912,26 +931,31 @@ void pragma::util::open_path_in_explorer(const std::string &path, const std::opt
 	if(shouldSelect && !strFullPath.empty() && strFullPath.back() == '/')
 		strFullPath.pop_back();
 
-	std::string arg {};
-	if(shouldSelect)
-		arg = "--select ";
+	auto try_cmd = [&](std::string_view cmd, std::string_view path, bool includeSelectArg) {
+		std::vector<std::string> args;
+		if(includeSelectArg)
+			args.push_back("--select");
+		args.push_back(path.data());
+		return try_command(std::string {cmd}, args);
+	};
 
-	const auto p = shellQuote(strFullPath);
-	if(tryCmd("nautilus " + arg + p))
+	const auto p = strFullPath; // shellQuote(strFullPath);
+	if(try_cmd("nautilus", p, true))
 		return;
-	if(tryCmd("dolphin " + arg + p))
+	if(try_cmd("dolphin", p, true))
 		return;
-	if(tryCmd("nemo " + p))
+	if(try_cmd("nemo", p, false))
 		return;
-	if(tryCmd("thunar " + p))
+	if(try_cmd("thunar", p, false))
 		return;
-	if(tryCmd("pcmanfm " + p))
+	if(try_cmd("pcmanfm", p, false))
 		return;
 
 	// Fallback
 	// xdg-open cannot select the file, so we'll just open the directory containing it
 	const auto &d = shellQuote(DirPath(path).GetString());
-	tryCmd("xdg-open " + d);
+	std::vector<std::string> args {d};
+	try_command("xdg-open", args);
 #endif
 }
 
