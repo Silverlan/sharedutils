@@ -164,8 +164,8 @@ pragma::util::Path &pragma::util::Path::operator+=(const Path &other)
 pragma::util::Path pragma::util::Path::operator+(const char *other) const { return operator+(std::string {other}); }
 pragma::util::Path &pragma::util::Path::operator+=(const char *other) { return operator+=(std::string {other}); }
 
-pragma::util::Path pragma::util::Path::operator/(const Path &other) const { return *this +other; }
-pragma::util::Path pragma::util::Path::operator/(const char *other) const { return *this +other; }
+pragma::util::Path pragma::util::Path::operator/(const Path &other) const { return *this + other; }
+pragma::util::Path pragma::util::Path::operator/(const char *other) const { return *this + other; }
 
 std::string_view pragma::util::Path::GetPath() const
 {
@@ -230,22 +230,20 @@ void pragma::util::Path::PopFront()
 	}
 	m_path = m_path.substr(br + 1);
 }
-void pragma::util::Path::PopBack()
+std::string pragma::util::Path::GetParentString() const
 {
 	auto br = m_path.rfind('/');
 	if(IsFile() == false) {
 		br = m_path.rfind('/', br - 1);
-		if(br == std::string::npos) {
-			m_path = "";
-			return;
-		}
+		if(br == std::string::npos)
+			return "";
 	}
-	if(br == std::string::npos) {
-		m_path = "";
-		return;
-	}
-	m_path = m_path.substr(0, br + 1);
+	if(br == std::string::npos)
+		return "";
+	return m_path.substr(0, br + 1);
 }
+void pragma::util::Path::PopBack() { m_path = GetParentString(); }
+pragma::util::Path pragma::util::Path::GetParent() const { return DirPath(GetParentString()); }
 bool pragma::util::Path::MakeRelative(const Path &relativeTo)
 {
 	auto itThis = begin();

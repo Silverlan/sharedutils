@@ -113,6 +113,7 @@ export {
 			std::string_view GetComponent(size_t offset, size_t *outOptNextOffset = nullptr) const;
 			void PopFront();
 			void PopBack();
+			Path GetParent() const;
 			bool MakeRelative(const Path &relativeTo);
 
 			std::uint32_t GetComponentCount() const;
@@ -142,6 +143,7 @@ export {
 			PathIterator<const Path> rbegin() const;
 			PathIterator<const Path> rend() const;*/
 		  private:
+			std::string GetParentString() const;
 			template<typename First, typename... Rest>
 			static std::string Concatenate(bool &isFirstValidArg, const First &first)
 			{
