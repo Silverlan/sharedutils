@@ -31,6 +31,12 @@ export {
 		DLLSHUTIL unsigned long long get_process_id();
 		DLLSHUTIL void sleep_for_seconds(uint32_t seconds);
 
+#ifdef __linux__
+		DLLSHUTIL bool is_running_as_appimage();
+		DLLSHUTIL std::optional<std::string> get_internal_appimage_path();
+		DLLSHUTIL std::optional<std::string> get_path_to_appimage();
+#endif
+
 		struct DLLSHUTIL CommandInfo {
 			CommandInfo() = default;
 			CommandInfo(const std::string &cmd, const std::vector<std::string> &args, const std::optional<std::string> &workingDir = {}) : command(cmd), args(args), workingDir(workingDir) {}

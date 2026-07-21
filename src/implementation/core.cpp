@@ -256,6 +256,28 @@ void pragma::util::sleep_for_seconds(uint32_t seconds)
 #endif
 }
 
+#ifdef __linux__
+DLLSHUTIL bool pragma::util::is_running_as_appimage() { return std::getenv("APPDIR") != nullptr; }
+DLLSHUTIL std::optional<std::string> pragma::util::get_internal_appimage_path()
+{
+	if(!is_running_as_appimage())
+		return {};
+	auto *appDir = std::getenv("APPDIR");
+	if(!appDir)
+		return {};
+	return (DirPath(appDir) / "usr/bin").GetString();
+}
+DLLSHUTIL std::optional<std::string> pragma::util::get_path_to_appimage()
+{
+	if(!is_running_as_appimage())
+		return {};
+	auto *appImage = std::getenv("APPIMAGE");
+	if(!appImage)
+		return {};
+	return FilePath(appImage).GetString();
+}
+#endif
+
 bool pragma::util::is_process_running(unsigned long long id)
 {
 #ifdef _WIN32
