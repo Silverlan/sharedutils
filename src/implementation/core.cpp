@@ -265,7 +265,7 @@ DLLSHUTIL std::optional<std::string> pragma::util::get_internal_appimage_path()
 	auto *appDir = std::getenv("APPDIR");
 	if(!appDir)
 		return {};
-	return (DirPath(appDir) / "usr/bin").GetString();
+	return (DirPath(std::string {appDir}) / "usr/bin").GetString();
 }
 DLLSHUTIL std::optional<std::string> pragma::util::get_path_to_appimage()
 {
@@ -274,7 +274,7 @@ DLLSHUTIL std::optional<std::string> pragma::util::get_path_to_appimage()
 	auto *appImage = std::getenv("APPIMAGE");
 	if(!appImage)
 		return {};
-	return FilePath(appImage).GetString();
+	return FilePath(std::string {appImage}).GetString();
 }
 #endif
 
