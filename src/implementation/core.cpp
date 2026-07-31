@@ -996,9 +996,12 @@ void pragma::util::open_url_in_browser(const std::string &url)
 {
 #ifdef _WIN32
 	ShellExecute(nullptr, "open", url.c_str(), nullptr, nullptr, SW_SHOW);
+#elif defined(__APPLE__)
+	std::string cmd = "open \"" + url + "\"";
+	std::system(cmd.c_str());
 #else
-	auto cmd = "open " + url;
-	system(cmd.c_str());
+	std::string cmd = "xdg-open \"" + url + "\" > /dev/null 2>&1 &";
+	std::system(cmd.c_str());
 #endif
 }
 
