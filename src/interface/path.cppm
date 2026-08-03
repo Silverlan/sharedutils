@@ -97,11 +97,19 @@ export {
 
 			Path operator+(const Path &other) const;
 			Path &operator+=(const Path &other);
-			Path operator+(const char *other) const;
-			Path &operator+=(const char *other);
-			
+			Path operator+(std::string_view other) const;
+			Path &operator+=(std::string_view other);
+
+			Path operator+(const std::string &other) const { return *this + std::string_view(other); }
+			Path operator+(const char *other) const { return *this + std::string_view(other); }
+			Path &operator+=(const std::string &other) { return *this += std::string_view(other); }
+			Path &operator+=(const char *other) { return *this += std::string_view(other); }
+
 			Path operator/(const Path &other) const;
-			Path operator/(const char *other) const;
+			Path operator/(std::string_view other) const;
+
+			Path operator/(const std::string &other) const { return *this / std::string_view(other); }
+			Path operator/(const char *other) const { return *this / std::string_view(other); }
 
 			operator std::string() const { return m_path; }
 

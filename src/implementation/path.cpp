@@ -161,11 +161,26 @@ pragma::util::Path &pragma::util::Path::operator+=(const Path &other)
 	resolve_multi_slash(m_path);
 	return *this;
 }
-pragma::util::Path pragma::util::Path::operator+(const char *other) const { return operator+(std::string {other}); }
-pragma::util::Path &pragma::util::Path::operator+=(const char *other) { return operator+=(std::string {other}); }
+pragma::util::Path pragma::util::Path::operator+(std::string_view other) const { return operator+(Path {std::string {other}}); }
+pragma::util::Path &pragma::util::Path::operator+=(std::string_view other) { return operator+=(Path {std::string {other}}); }
 
-pragma::util::Path pragma::util::Path::operator/(const Path &other) const { return *this + other; }
-pragma::util::Path pragma::util::Path::operator/(const char *other) const { return *this + other; }
+pragma::util::Path pragma::util::Path::operator/(const Path &other) const
+{
+	auto newPath = *this;
+	if(IsFile()) {
+		if(other.GetString().find('/') != std::string::npos)
+			return *this; // Appending a path to a file makes no sense, we'll just ignore it...
+		if(!newPath.m_path.empty())
+			newPath.m_path += "/";
+		newPath.m_path += other.m_path;
+		resolve_multi_slash(newPath.m_path);
+		return newPath;
+	}
+	newPath.m_path += other.m_path;
+	resolve_multi_slash(newPath.m_path);
+	return newPath;
+}
+pragma::util::Path pragma::util::Path::operator/(std::string_view other) const { return *this / Path {std::string{other}}; }
 
 std::string_view pragma::util::Path::GetPath() const
 {
