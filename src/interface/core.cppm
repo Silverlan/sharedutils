@@ -289,6 +289,24 @@ export {
 		    requires(std::is_arithmetic_v<T>)
 		std::string to_string(T value);
 		inline std::string to_string(bool value) { return value ? "1" : "0"; }
+
+		DLLSHUTIL bool is_integer(std::string_view str)
+		{
+			if(str.empty())
+				return false;
+			int32_t value;
+			auto [ptr, ec] = std::from_chars(str.data(), str.data() + str.size(), value);
+			return ec == std::errc() && ptr == str.data() + str.size();
+		}
+
+		DLLSHUTIL bool is_float(std::string_view str)
+		{
+			if(str.empty())
+				return false;
+			float value;
+			auto [ptr, ec] = std::from_chars(str.data(), str.data() + str.size(), value);
+			return ec == std::errc() && ptr == str.data() + str.size();
+		}
 	}
 
 	uint32_t pragma::util::to_uint(const std::string_view &str)
