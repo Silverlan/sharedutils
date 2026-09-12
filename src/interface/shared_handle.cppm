@@ -374,7 +374,9 @@ export {
 		template<typename T>
 		bool TWeakSharedHandle<T>::IsValid() const
 		{
-			return m_data.expired() == false && m_data.lock()->GetData() != nullptr;
+			if (auto lockedData = m_data.lock())
+				return lockedData->GetData() != nullptr;
+			return false;
 		}
 		template<typename T>
 		bool TWeakSharedHandle<T>::IsExpired() const
