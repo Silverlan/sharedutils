@@ -47,6 +47,7 @@ export {
 		NetPacket();
 		NetPacket(uint32_t msgID);
 		NetPacket(uint32_t msgID, uint32_t size);
+		~NetPacket();
 
 		void SetMessageID(uint32_t id);
 		uint32_t GetMessageID() const;

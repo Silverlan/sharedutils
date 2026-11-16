@@ -15,6 +15,7 @@ NetPacket::NetPacket() : TDataStream<NWMPacket>(), m_messageID(0) {}
 NetPacket::NetPacket(std::nullptr_t t) : TDataStream<NWMPacket>(t), m_messageID(0) {}
 NetPacket::NetPacket(uint32_t msgID) : TDataStream<NWMPacket>(), m_messageID(msgID) { (*this)->Resize(NWM_DEFAULT_PACKET_SIZE); }
 NetPacket::NetPacket(uint32_t msgID, uint32_t size) : TDataStream<NWMPacket>(size), m_messageID(msgID) {}
+NetPacket::~NetPacket() {}
 void NetPacket::SetTimeActivated(uint64_t t) { get()->SetTimeActivated(t); }
 uint64_t NetPacket::GetTimeActivated() const { return get()->GetTimeActivated(); }
 void NetPacket::SetMessageID(uint32_t id) { m_messageID = id; }
